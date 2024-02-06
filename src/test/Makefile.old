@@ -8,36 +8,30 @@ SRCDIR = ..
 MODDIR = $(SRCDIR)/modules
 TESTDIR = .
 BUILDDIR = $(TESTDIR)
-
-# File name
 OUTPUT = a.out
 
 # List of executables to be built within the package
 PROGRAMS = $(BUILDDIR)/$(OUTPUT)
 
-# List of source files in MODDIR
-MOD_SOURCES = $(wildcard $(MODDIR)/*.f90)
-
-# List of object files to be built from MOD_SOURCES
-MOD_OBJECTS = $(patsubst $(MODDIR)/%.f90,$(MODDIR)/%.o,$(MOD_SOURCES))
-
 # "make" builds all
 all: $(PROGRAMS)
 
-$(BUILDDIR)/$(OUTPUT): $(MOD_OBJECTS) $(TESTDIR)/test.o
+$(BUILDDIR)/$(OUTPUT): $(MODDIR)/*.o $(TESTDIR)/test.o
 	$(FC) $(LDFLAGS) -o $@ $^
 
-$(TESTDIR)/test.o: $(TESTDIR)/test.f90
+$(MODDIR)/"*".o: $(MODDIR)/global_type.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
-$(MODDIR)/%.o: $(MODDIR)/%.f90
+$(TESTDIR)/test.o: $(TESTDIR)/test.f90 $(MODDIR)/global_type.mod
+	$(FC) $(FCFLAGS) -c -o $@ $<
+
+$(MODDIR)/global_type.mod: $(MODDIR)/global_type.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 .PHONY: clean
 
 clean:
 	rm -f $(MODDIR)/*.o $(MODDIR)/*.mod $(TESTDIR)/*.o $(PROGRAMS)
-
 clean-all:
 	rm -f $(MODDIR)/*.o $(MODDIR)/*.mod $(TESTDIR)/*.o $(TESTDIR)/*.mod $(PROGRAMS)
 

@@ -1,11 +1,12 @@
 &simulation_params
-    nparticles = 1000,
-    nchains = 100,
-    nbeads = 10000,
-    nsteps = 500000,
+    nparticles = 100,
+    ndumpfiles = 2
+    nchains = 10,
+    nbeads = 10,
     dt = 0.005,
-    dump_freq = 100,
-    nframes = 1000,
+    nframes = 200
+    dump_freq = 1,
     is_cubic = .true.
+    dumpfilenames = "with_molid.lammpstrj", "simple.lammpstrj"
 /
 

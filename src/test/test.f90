@@ -1,22 +1,32 @@
 program test
     use global_types
+    use read_files
     implicit none
-    type(trajectory) :: sim_data
+    type(trajectory) :: traj
+    INTEGER :: i
+    CHARACTER(LEN=5) :: i2
 
-    call read_simulation_params('input.nml', sim_data)
+    call read_simulation_params('input.nml', traj)
 
     ! Display the results
-    print *, "Nparticles: ", sim_data%nparticles
-    print *, "Nchains: ", sim_data%nchains
-    print *, "Nbeads: ", sim_data%nbeads
-    print *, "Nsteps: ", sim_data%nsteps
-    print *, "Dt: ", sim_data%dt
-    print *, "Dump_freq: ", sim_data%dump_freq
-    print *, "Nframes: ", sim_data%nframes
-    print *, "Is_cubic: ", sim_data%is_cubic
-    print *, "Box_dim allocated: ", allocated(sim_data%box_dim)
-    print *, "Coord allocated: ", allocated(sim_data%coord)
-    print *, "Molecular_IDs allocated: ", allocated(sim_data%mol)
-    print *, "Atom_types allocated: ", allocated(sim_data%type)
-    print *, "Masses allocated: ", allocated(sim_data%mass)
+    do i = 1, traj%ndumpfiles
+        WRITE(i2, "(I0)") i
+        print *, TRIM(i2), "-th dump files:", TRIM(traj%dumpfilenames(i))
+    enddo
+    print *, "Nparticles: ", traj%nparticles
+    print *, "Nchains: ", traj%nchains
+    print *, "Nbeads: ", traj%nbeads
+    print *, "Dt: ", traj%dt
+    print *, "Dump_freq: ", traj%dump_freq
+    print *, "Nframes: ", traj%nframes
+    print *, "Is_cubic: ", traj%is_cubic
+    print *, "Box_dim allocated: ", allocated(traj%box_dim)
+    print *, "Coord allocated: ", allocated(traj%coord)
+    print *, "Molecular_IDs allocated: ", allocated(traj%mol)
+    print *, "Masses allocated: ", allocated(traj%mass)
+    print *, "Timesteps allocated: ", allocated(traj%timesteps)
+
+    CALL read_lammpstrj(traj)
+    print *, "Coordinates:", traj%coord(1, 1, :)
+
 end program test
