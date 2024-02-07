@@ -49,7 +49,7 @@ program main
 
     ALLOCATE(rg2(traj%nchains * traj%nframes), source = 0.0d0)
     do i = 1, traj%nframes
-        shift_frame = (i-1)*traj%nparticles
+        shift_frame = (i-1)*traj%nchains
         do j = 1, traj%nchains
             shift_chain = (j-1)*traj%nbeads
             do k = 1, traj%nbeads
@@ -57,6 +57,7 @@ program main
             enddo
         enddo
     enddo
+    rg2(:) = rg2(:) / real(traj%nbeads)
 
     call mean_and_variance(rg2(:), rg2_mean, rg2_var)    
     print *, "mean : ", rg2_mean
