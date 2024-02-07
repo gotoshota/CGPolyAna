@@ -4,12 +4,12 @@ FCFLAGS = -O2 -Wall
 LDFLAGS =
 
 # Directory structure
-SRCDIR = ..
+SRCDIR = ../../src/
 MODDIR = $(SRCDIR)/modules
-TESTDIR = .
-BUILDDIR = $(TESTDIR)
+BUILDDIR = .
 
 # File name
+TARGET = rg2
 OUTPUT = a.out
 
 # List of executables to be built within the package
@@ -24,10 +24,10 @@ MOD_OBJECTS = $(patsubst $(MODDIR)/%.f90,$(MODDIR)/%.o,$(MOD_SOURCES))
 # "make" builds all
 all: $(PROGRAMS)
 
-$(BUILDDIR)/$(OUTPUT): $(MOD_OBJECTS) $(TESTDIR)/test.o
+$(BUILDDIR)/$(OUTPUT): $(MOD_OBJECTS) $(TARGET).o
 	$(FC) $(LDFLAGS) -o $@ $^
 
-$(TESTDIR)/test.o: $(TESTDIR)/test.f90
+$(TARGET).o: $(TARGET).f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 $(MODDIR)/%.o: $(MODDIR)/%.f90
@@ -37,8 +37,10 @@ $(MODDIR)/%.o: $(MODDIR)/%.f90
 .PHONY: clean
 
 clean:
-	rm -f $(MODDIR)/*.o $(MODDIR)/*.mod $(TESTDIR)/*.o $(PROGRAMS)
+	rm -f $(MODDIR)/*.o $(MODDIR)/*.mod *.o $(PROGRAMS)
 
 clean-all:
-	rm -f $(MODDIR)/*.o $(MODDIR)/*.mod $(TESTDIR)/*.o $(TESTDIR)/*.mod $(PROGRAMS)
+	rm -f $(MODDIR)/*.o $(MODDIR)/*.mod *.o *.mod $(PROGRAMS)
 
+test:
+	echo $(TARGETOBJ)

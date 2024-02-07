@@ -1,7 +1,7 @@
 program test
     use global_types
     use read_files
-    use coord_convert
+    use CoordConv
     implicit none
     type(trajectory) :: traj
     INTEGER :: i

@@ -42,7 +42,7 @@ contains
 
         ALLOCATE(traj%mass(traj%nparticles), traj%type(traj%nparticles), traj%mol(traj%nparticles))
         ALLOCATE(traj%timesteps(traj%nframes))
-        ALLOCATE(traj%coord(3, traj%nparticles, traj%nframes))
+        ALLOCATE(traj%coords(3, traj%nparticles, traj%nframes))
     end subroutine read_simulation_params
 
     subroutine read_lammpstrj(traj)
@@ -66,6 +66,7 @@ contains
         CHARACTER(LEN=24)           :: atom_header_with_molid_wrap = "ITEM: ATOMS id mol x y z"
         
 
+        print *, ""
         do file_id = 1, traj%ndumpfiles
             ! Check file format
             call get_file_extention(traj%dumpfilenames(file_id), ext)
@@ -76,19 +77,16 @@ contains
                 print *, "Error: this program does not support orthorhombic box yet."
                 stop
             else 
-                print *, ""
                 print *, "Start reading : ", TRIM(traj%dumpfilenames(file_id))
             endif
 
             ! Define 2 types of ATOM header
             open(dump, file=traj%dumpfilenames(file_id), status='old')
                 do
-                    print *, snapshot_id
                     ! -- Header -- !
                     ! ITEM: TIMESTEP
                     READ(dump, "()", end=999)
                     READ(dump, *) traj%timesteps(snapshot_id)
-                    print*,"check timestep", traj%timesteps(snapshot_id)
 
                     ! ITEM: NUMBER OF ATOMS
                     READ(dump, "()")
@@ -114,31 +112,30 @@ contains
 
                     ! -- Check dump format -- !
                     READ(dump, "(A)") atom_header
-                    print*,""
-                    print*,TRIM(atom_header)
-                    print*,""
                     ! ITEM: ATOMS id x y z
                     if (TRIM(atom_header) == atom_header_simple_wrap .or. &
                         TRIM(atom_header) == atom_header_simple_unwrap) then
                         do i = 1, traj%nparticles
-                            READ(dump, *) dummy, traj%coord(:, i, snapshot_id)
+                            READ(dump, *) dummy, traj%coords(:, i, snapshot_id)
                         enddo
                     ! ITEM: ATOMS id mol xu yu zu
                     else if (TRIM(atom_header) == atom_header_with_molid_wrap .or. &
                         TRIM(atom_header) == atom_header_with_molid_unwrap) then
                         do i = 1, traj%nparticles
-                            READ(dump, *) dummy, traj%mol(i), traj%coord(:, i, snapshot_id)
+                            READ(dump, *) dummy, traj%mol(i), traj%coords(:, i, snapshot_id)
                         enddo
                     else 
                         print *, "ATOM header does not match."
                         stop
                     endif
-                    print*, "Finished reading snapshot : ", snapshot_id
                     snapshot_id = snapshot_id + 1
                 enddo
             999 print *, "Finished reading dump file:", TRIM(traj%dumpfilenames(file_id))
+            print *, ""
             CLOSE(dump)
         enddo
+        print *, "Finished reading ALL dump file"
+        print *, "=============================="
     end subroutine read_lammpstrj
 
     subroutine get_file_extention(filename, ext)

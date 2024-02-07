@@ -6,12 +6,12 @@ module global_types
         ! Read from Namelist
         CHARACTER(LEN=100), DIMENSION(100)  :: dumpfilenames            ! dump file のリスト 
         integer                             :: ndumpfiles = 1           ! dump file の数
-        integer                             :: nparticles               ! 粒子の数
-        integer                             :: nchains                  ! 分子数
-        integer                             :: nbeads                   ! 重合度
+        integer                             :: nparticles = 0           ! 粒子の数
+        integer                             :: nchains = 0              ! 分子数
+        integer                             :: nbeads = 0               ! 重合度
         integer                             :: nframes = 0              ! フレーム数
-        integer                             :: dump_freq                ! ダンプの書き出し頻度
-        real                                :: dt                       ! 時間の刻み幅
+        integer                             :: dump_freq = 0            ! ダンプの書き出し頻度
+        real                                :: dt = 0                   ! 時間の刻み幅
         logical                             :: is_cubic = .true.        ! 立方格子かどうかのフラグ
 
         ! Read from trajectory
@@ -20,7 +20,7 @@ module global_types
         integer, ALLOCATABLE    :: mol(:) ! mol_id
         integer, ALLOCATABLE    :: type(:) ! atom_tyep
         real, ALLOCATABLE       :: mass(:)
-        real, allocatable       :: coord(:,:,:)
+        real, allocatable       :: coords(:,:,:)
         ! trajectory(座標軸, 粒子インデックス, frame index)の形式でデータを格納
     end type 
 end module

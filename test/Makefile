@@ -4,7 +4,7 @@ FCFLAGS = -O2 -Wall
 LDFLAGS =
 
 # Directory structure
-SRCDIR = ..
+SRCDIR = ../src
 MODDIR = $(SRCDIR)/modules
 TESTDIR = .
 BUILDDIR = $(TESTDIR)
@@ -31,7 +31,6 @@ $(TESTDIR)/test.o: $(TESTDIR)/test.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 $(MODDIR)/%.o: $(MODDIR)/%.f90
-	$(FC) $(FCFLAGS) -c $(MODDIR)/global_types.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 .PHONY: clean
