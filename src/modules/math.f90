@@ -18,7 +18,6 @@ contains
         DOUBLE PRECISION :: summation_squred
         
         n = SIZE(vector)
-
         summation_squred = 0.0d0
         do i = 1, n
             summation_squred = summation_squred + vector(i)*vector(i)
@@ -38,7 +37,6 @@ contains
         REAL :: summation_squred
         
         n = SIZE(vector)
-
         summation_squred = 0.0d0
         do i = 1, n
             summation_squred = summation_squred + vector(i)*vector(i)
@@ -47,6 +45,15 @@ contains
         res = SQRT(summation_squred)
     end function
 
+    function cross_product(a, b) result(c)
+        implicit none
+        REAL, INTENT(IN) :: a(3), b(3)
+        REAL :: c(3)
+        
+        c(1) = a(2)*b(3) - a(3)*b(2)
+        c(2) = a(3)*b(1) - a(1)*b(3)
+        c(3) = a(1)*b(2) - a(2)*b(1)
+    end function
 end module
 
 

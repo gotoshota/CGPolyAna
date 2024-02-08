@@ -10,3 +10,10 @@
     dumpfilenames = "with_molid.lammpstrj", "simple.lammpstrj"
 /
 
+&TimeCorrelation_params
+    is_log = .true.
+    !npoints = 10
+    base = 2
+    !window_width = 10
+    
+/

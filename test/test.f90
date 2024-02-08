@@ -1,11 +1,16 @@
 program test
     use global_types
     use read_files
-    use CoordConv
+    use time_correlation_sampling
+    use math
+    use physical_constants
     implicit none
     type(trajectory) :: traj
+    type(TimeCorrelationInfo) :: tcinfo
     INTEGER :: i
     CHARACTER(LEN=5) :: i2
+
+    real, DIMENSION(3) :: a, b
 
     call read_simulation_params('input.nml', traj)
 
@@ -30,4 +35,21 @@ program test
     CALL read_lammpstrj(traj)
     print *, "Coordinates:", traj%coords(1, 1, :)
 
+    CALL read_TimeCorrelationInfo("input.nml", TCinfo)
+    CALL determine_frame_intervals(tcinfo, traj%nframes)
+    print *, tcinfo%frame_intervals
+
+    do i = 1, 3
+        a(i) = i
+        b(4-i) = i
+    enddo
+    print *, cross_product(a, b)
+    print *, norm(a)
+    print*, norm(b)
+    print*, DOT_PRODUCT(a,b)
+
+
+    print *, '円周率π = ', pi
+    print *, 'ボルツマン定数 = ', boltzmann_constant, 'J/K'
+    print *, '気体定数 = ', gas_constant, 'J/(mol・K)'
 end program test
