@@ -3,17 +3,16 @@
     ndumpfiles = 2
     nchains = 10,
     nbeads = 10,
-    dt = 0.005,
+    dt = 0.01,
     nframes = 200
-    dump_freq = 1,
+    dump_freq = 100,
     is_cubic = .true.
     dumpfilenames = "with_molid.lammpstrj", "simple.lammpstrj"
 /
 
 &TimeCorrelation_params
     is_log = .true.
-    !npoints = 10
-    base = 2
+    npoints = 20
+    !base = 2
     !window_width = 10
-    
 /
