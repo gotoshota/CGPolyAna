@@ -27,7 +27,7 @@ contains
                     do k = 1, traj%nbeads
                         sum_coords(:) = sum_coords(:) + traj%coords(:, shift_id+k, i)
                     enddo
-                    com(:, j, i) = sum_coords(:) / traj%nbeads
+                    com(:, j, i) = sum_coords(:) / dble(traj%nbeads)
                 enddo
             enddo
         endif

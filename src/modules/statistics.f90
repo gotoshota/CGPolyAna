@@ -10,19 +10,18 @@ contains
 
         ! local variables
         integer :: i, n
-        DOUBLE PRECISION :: summation, summation_squared
+        DOUBLE PRECISION :: mean_squared
 
         n = SIZE(array)
 
-        summation = 0.0d0
-        summation_squared = 0.0d0
+        mean = 0.0d0
+        mean_squared = 0.0d0
         do i = 1, n
-            summation           = summation + array(i)
-            summation_squared   = summation_squared + array(i)*array(i)
+            mean = mean + (array(i) - mean) / dble(i)
+            mean_squared = mean_squared + (array(i)*array(i) - mean_squared) / dble(i)
         enddo
 
-        mean        = summation / DBLE(n)
-        variance    = summation_squared / DBLE(n-1)
+        variance    = mean_squared - mean*mean
     end subroutine
 
     subroutine calc_prob_dist(array, pdf)

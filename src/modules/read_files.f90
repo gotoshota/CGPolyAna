@@ -67,7 +67,7 @@ contains
         
 
         print *, ""
-        do file_id = 1, traj%ndumpfiles
+        fileloop: do file_id = 1, traj%ndumpfiles
             ! Check file format
             call get_file_extention(traj%dumpfilenames(file_id), ext)
             if (ext /= "lammpstrj") then
@@ -77,7 +77,7 @@ contains
                 print *, "Error: this program does not support orthorhombic box yet."
                 stop
             else 
-                print *, "Start reading : ", TRIM(traj%dumpfilenames(file_id))
+                print *, "Start reading dump file    : ", TRIM(traj%dumpfilenames(file_id))
             endif
 
             ! Define 2 types of ATOM header
@@ -129,11 +129,12 @@ contains
                         stop
                     endif
                     snapshot_id = snapshot_id + 1
+                    if (snapshot_id == traj%nframes) exit fileloop
                 enddo
-            999 print *, "Finished reading dump file:", TRIM(traj%dumpfilenames(file_id))
+            999 print *, "Finished reading dump file : ", TRIM(traj%dumpfilenames(file_id))
             print *, ""
             CLOSE(dump)
-        enddo
+        enddo fileloop
         print *, "Finished reading ALL dump file"
         print *, "=============================="
     end subroutine read_lammpstrj
