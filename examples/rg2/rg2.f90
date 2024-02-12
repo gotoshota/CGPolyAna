@@ -20,6 +20,7 @@ program main
     integer             :: shift_chain, shift_frame
 
     real, ALLOCATABLE    :: com(:,:,:)
+    real                 :: vec (3)
 
     DOUBLE PRECISION, ALLOCATABLE   :: rg2(:)
     DOUBLE PRECISION                :: rg2_mean
@@ -51,20 +52,21 @@ program main
     call read_simulation_params(param_filename, traj)
     call read_lammpstrj(traj)
 
-    ALLOCATE(com(3, traj%nchains, traj%nframes))
+    ALLOCATE(com(3, traj%nchains, traj%nframes), source = 0.0e0)
     com = center_of_mass(traj)
 
-    ALLOCATE(rg2(traj%nchains * traj%nframes), source = 0.0d0)
+    ALLOCATE(rg2(traj%nchains*traj%nframes), source = 0.0d0)
     do i = 1, traj%nframes
-        shift_frame = (i-1)*traj%nchains
+        shift_frame = (i-1) * traj%nchains
         do j = 1, traj%nchains
             shift_chain = (j-1)*traj%nbeads
             do k = 1, traj%nbeads
-                rg2(shift_frame+j) = rg2(shift_frame+j) + norm(traj%coords(:,shift_chain+k, i) - com(:,k,i))
+                vec(:) = traj%coords(:,shift_chain+k, i) - com(:,j,i)
+                rg2(shift_frame + j) = rg2(shift_frame + j) + DOT_PRODUCT(vec, vec)
             enddo
+            rg2(shift_frame + j) = rg2(shift_frame + j) / real(traj%nbeads)
         enddo
     enddo
-    rg2(:) = rg2(:) / real(traj%nbeads)
 
     call mean_and_variance(rg2(:), rg2_mean, rg2_var)    
     print *, "mean : ", rg2_mean
