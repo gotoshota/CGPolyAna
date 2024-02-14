@@ -1,6 +1,6 @@
 program main
     use global_types
-    use read_files
+    use io
     use coord_convert
     use math
     use time_correlation_sampling 

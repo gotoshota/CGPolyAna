@@ -1,6 +1,6 @@
 program test
     use global_types
-    use read_files
+    use io
     use time_correlation_sampling
     use math
     use physical_constants
