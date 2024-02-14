@@ -13,12 +13,13 @@ module global_types
         integer                             :: dump_freq = 0            ! ダンプの書き出し頻度
         real                                :: dt = 0                   ! 時間の刻み幅
         logical                             :: is_cubic = .true.        ! 立方格子かどうかのフラグ
+        logical                             :: is_wrap  = .true.        ! wrap or unwrap
 
         ! Read from trajectory
         integer, allocatable    :: timesteps(:)
         real, allocatable       :: box_dim(:,:) ! (3 or 6, nframes)
         integer, ALLOCATABLE    :: mol(:) ! mol_id
-        integer, ALLOCATABLE    :: type(:) ! atom_tyep
+        integer, ALLOCATABLE    :: type(:) ! atom_type
         real, ALLOCATABLE       :: mass(:)
         real, allocatable       :: coords(:,:,:)
         ! trajectory(座標軸, 粒子インデックス, frame index)の形式でデータを格納

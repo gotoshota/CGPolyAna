@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Outputfiles
+*.rg2
+*.msd

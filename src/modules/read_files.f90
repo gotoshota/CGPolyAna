@@ -37,7 +37,7 @@ contains
         if (traj%is_cubic) then
             allocate(traj%box_dim(3, traj%nframes))
         else
-            allocate(traj%box_dim(6, traj%nframes))
+            allocate(traj%box_dim(6, traj%nframes)) ! xx, yy, zz, tilte xy, tilte xz, tilte yz
         endif
 
         ALLOCATE(traj%mass(traj%nparticles), traj%type(traj%nparticles), traj%mol(traj%nparticles))
@@ -59,6 +59,7 @@ contains
         real                        :: x_min, x_max
         real                        :: y_min, y_max
         real                        :: z_min, z_max
+        real                        :: tilte_xy, tilte_xz, tilte_yz
         CHARACTER(LEN=256)          :: atom_header
         CHARACTER(LEN=20)           :: atom_header_simple_wrap = "ITEM: ATOMS id x y z"
         CHARACTER(LEN=23)           :: atom_header_simple_unwrap = "ITEM: ATOMS id xu yu zu"
@@ -107,8 +108,15 @@ contains
                         traj%box_dim(2, snapshot_id) = y_max - y_min
                         traj%box_dim(3, snapshot_id) = z_max - z_min
                     else
-                        print *, "Error: this program support only cubic box."
-                        stop
+                        READ(dump, *) x_min, x_max, tilte_xy
+                        READ(dump, *) y_min, y_max, tilte_xz
+                        READ(dump, *) z_min, z_max, tilte_yz
+                        traj%box_dim(1, snapshot_id) = x_max - x_min
+                        traj%box_dim(2, snapshot_id) = y_max - y_min
+                        traj%box_dim(3, snapshot_id) = z_max - z_min
+                        traj%box_dim(4, snapshot_id) = tilte_xy
+                        traj%box_dim(5, snapshot_id) = tilte_xz
+                        traj%box_dim(6, snapshot_id) = tilte_yz
                     endif
 
                     ! -- Check dump format -- !

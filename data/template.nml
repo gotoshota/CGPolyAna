@@ -1,13 +1,13 @@
 &simulation_params
-    nparticles = 100,
+    dumpfilenames = "with_molid.lammpstrj", "simple.lammpstrj"
     ndumpfiles = 2
+    nparticles = 100,
     nchains = 10,
     nbeads = 10,
     dt = 0.01,
     nframes = 200
     dump_freq = 100,
     is_cubic = .true.
-    dumpfilenames = "../data/with_molid.lammpstrj", "../data/simple.lammpstrj"
 /
 
 &TimeCorrelation_params
