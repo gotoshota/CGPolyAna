@@ -10,7 +10,7 @@
     dumpfilenames = "../data/with_molid.lammpstrj", "../data/simple.lammpstrj"
 /
 
-&TimeCorrelation_params
+&TimeDependentFunctionInfo
     is_log = .true.
     npoints = 20
     !base = 2
