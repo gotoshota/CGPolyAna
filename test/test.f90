@@ -7,18 +7,18 @@ program test
     implicit none
     type(trajectory) :: traj
     type(TimeCorrelationInfo) :: tcinfo
-    INTEGER :: i
-    CHARACTER(LEN=5) :: i2
+    integer :: i
+    character(LEN=5) :: i2
 
-    real, DIMENSION(3) :: a, b
+    real, dimension(3) :: a, b
 
     call read_simulation_params('input.nml', traj)
 
     ! Display the results
     do i = 1, traj%ndumpfiles
-        WRITE(i2, "(I0)") i
-        print *, TRIM(i2), "-th dump files:", TRIM(traj%dumpfilenames(i))
-    enddo
+        write (i2, "(I0)") i
+        print *, trim(i2), "-th dump files:", trim(traj%dumpfilenames(i))
+    end do
     print *, "Nparticles: ", traj%nparticles
     print *, "Nchains: ", traj%nchains
     print *, "Nbeads: ", traj%nbeads
@@ -32,22 +32,21 @@ program test
     print *, "Masses allocated: ", allocated(traj%mass)
     print *, "Timesteps allocated: ", allocated(traj%timesteps)
 
-    CALL read_lammpstrj(traj)
+    call read_lammpstrj(traj)
     print *, "Coordinates:", traj%coords(1, 1, :)
 
-    CALL read_TimeCorrelationInfo("input.nml", TCinfo)
-    CALL determine_frame_intervals(tcinfo, traj%nframes)
+    call read_TimeCorrelationInfo("input.nml", TCinfo)
+    call determine_frame_intervals(tcinfo, traj%nframes)
     print *, tcinfo%frame_intervals
 
     do i = 1, 3
         a(i) = i
-        b(4-i) = i
-    enddo
+        b(4 - i) = i
+    end do
     print *, cross_product(a, b)
     print *, norm(a)
-    print*, norm(b)
-    print*, DOT_PRODUCT(a,b)
-
+    print *, norm(b)
+    print *, dot_product(a, b)
 
     print *, '円周率π = ', pi
     print *, 'ボルツマン定数 = ', boltzmann_constant, 'J/K'
