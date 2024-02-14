@@ -3,12 +3,14 @@ program main
     use io
     use coord_convert
     use math
-    use time_correlation_sampling 
+    use time_dependent_function
 
     implicit none
 
-    type(trajectory) :: traj
-    type(TimeCorrelationInfo) :: tcinfo
+    type(trajectory)              :: traj
+    type(TimeDependentFunction)   :: msd
+
+    DOUBLE PRECISION, ALLOCATABLE :: msd_sq(:)
 
     character(len=256)  :: arg
     integer             :: num_args
@@ -23,8 +25,6 @@ program main
 
     real                :: displacement 
     DOUBLE PRECISION    :: summation, summation_sq
-    real, ALLOCATABLE   :: msd(:), msd_sq(:)
-
 
     call get_command_argument(1, arg)
     if (trim(adjustl(arg)) == "-h" .or. trim(adjustl(arg)) == "--help") then
@@ -51,61 +51,62 @@ program main
     ALLOCATE(com(3, traj%nchains, traj%nframes))
     com = center_of_mass(traj)
 
-    call read_TimeCorrelationInfo(param_filename, TCinfo)
-    call determine_frame_intervals(TCinfo, traj%nframes)
-    ALLOCATE(msd(tcinfo%npoints), source=0.0e0)
-    ALLOCATE(msd_sq(tcinfo%npoints), source=0.0e0)
+    call read_TimeDependentFunctionInfo(param_filename, msd)
+    call determine_frame_intervals(msd, traj)
+    ALLOCATE(msd_sq(msd%npoints), source=0.0d0)
 
     print *, ""
     print *, "Start computing MSD of monomer."
-    do i = 1, tcinfo%npoints
-        do j = 1, traj%nframes - tcinfo%frame_intervals(i)
+    msd%y = 0.0d0
+    do i = 1, msd%npoints
+        do j = 1, traj%nframes - msd%frame_intervals(i)
             summation = 0.0d0
             summation_sq = 0.0d0
             do k = 1, traj%nparticles 
-                displacement = norm(traj%coords(:, k, j) - traj%coords(:, k, j+tcinfo%frame_intervals(i)))
+                displacement = norm(traj%coords(:, k, j) - traj%coords(:, k, j+msd%frame_intervals(i)))
                 summation = summation + displacement
                 summation_sq = summation_sq + displacement*displacement
             enddo
-            msd(i) = msd(i) + summation / DBLE(traj%nparticles)
+            msd%y(i) = msd%y(i) + summation / DBLE(traj%nparticles)
             msd_sq(i) = msd_sq(i) + summation_sq / DBLE(traj%nparticles)
         enddo
-        msd(i) = msd(i) / real(traj%nframes - tcinfo%frame_intervals(i))
-        msd_sq(i) = msd_sq(i) / real(traj%nframes - tcinfo%frame_intervals(i))
+        msd%y(i) = msd%y(i) / real(traj%nframes - msd%frame_intervals(i))
+        msd_sq(i) = msd_sq(i) / real(traj%nframes - msd%frame_intervals(i))
     enddo
 
-    CALL write_msd(msd_mon_filename, traj, tcinfo, msd, msd_sq)
+    CALL write_msd(msd_mon_filename, msd, msd_sq)
     print *, "Fineshed computing MSD of monomer."
     
     print *, ""
     print *, "Start computing MSD of center of mass."
-    do i = 1, tcinfo%npoints
-        do j = 1, traj%nframes - tcinfo%frame_intervals(i)
+    msd%y = 0.0d0
+    msd_sq = 0.0d0
+    do i = 1, msd%npoints
+        do j = 1, traj%nframes - msd%frame_intervals(i)
             summation = 0.0d0
             summation_sq = 0.0d0
             do k = 1, traj%nchains
-                displacement = norm(com(:, k, j) - com(:, k, j+tcinfo%frame_intervals(i)))
+                displacement = norm(com(:, k, j) - com(:, k, j+msd%frame_intervals(i)))
                 summation = summation + displacement
                 summation_sq = summation_sq + displacement*displacement
             enddo
-            msd(i) = msd(i) + summation / DBLE(traj%nchains)
+            msd%y(i) = msd%y(i) + summation / DBLE(traj%nchains)
             msd_sq(i) = msd_sq(i) + summation_sq / DBLE(traj%nchains)
         enddo
-        msd(i) = msd(i) / real(traj%nframes - tcinfo%frame_intervals(i))
-        msd_sq(i) = msd_sq(i) / real(traj%nframes - tcinfo%frame_intervals(i))
+        msd%y(i) = msd%y(i) / real(traj%nframes - msd%frame_intervals(i))
+        msd_sq(i) = msd_sq(i) / real(traj%nframes - msd%frame_intervals(i))
     enddo
 
-    CALL write_msd(msd_com_filename, traj, tcinfo, msd, msd_sq)
+    CALL write_msd(msd_com_filename, msd, msd_sq)
     print *, "Fineshed computing MSD of center of mass."
 
 contains
-    subroutine write_msd(filename, traj, tcinfo, msd, msd_sq)
+    subroutine write_msd(filename, msd, msd_sq)
         implicit none
 
-        TYPE(trajectory), INTENT(IN)            :: traj
-        TYPE(TimeCorrelationInfo), INTENT(IN)   :: tcinfo
+        TYPE(TimeDependentFunction), INTENT(IN) :: msd
         CHARACTER(LEN=*), INTENT(IN)            :: filename
-        real, INTENT(IN)                        :: msd(:), msd_sq(:)
+        DOUBLE PRECISION, INTENT(IN)            :: msd_sq(:)
 
         ! local variables
         integer :: output = 17
@@ -114,8 +115,8 @@ contains
         open (output, file=filename, status="replace")
             write(output, "(A)") "# MSD data file. "
             write(output, "(A)") "# Time [tau_LJ], MSD [sigma^2], squared MSD <\delta r^4> [sigma^4]"
-            do i = 1, tcinfo%npoints
-                WRITE(output, "(G0, 1X, G0, 1X, G0)") tcinfo%frame_intervals(i) * traj%dt * traj%dump_freq, msd(i), msd_sq(i) 
+            do i = 1, msd%npoints
+                WRITE(output, "(G0, 1X, G0, 1X, G0)") msd%t(i), msd%y(i), msd_sq(i)
             enddo
         close(output)
     end subroutine
