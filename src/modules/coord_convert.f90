@@ -18,7 +18,7 @@ contains
             print *, "Input Nbeads, the chain length."
             stop
         else
-            ALLOCATE(com(3, traj%nchains, traj%nframes))
+            ALLOCATE(com(3, traj%nchains, traj%nframes), source=0.0e0)
 
             do i = 1, traj%nframes
                 do j = 1, traj%nchains
@@ -27,7 +27,7 @@ contains
                     do k = 1, traj%nbeads
                         sum_coords(:) = sum_coords(:) + traj%coords(:, shift_id+k, i)
                     enddo
-                    com(:, j, i) = sum_coords(:) / dble(traj%nbeads)
+                    com(:, j, i) = sum_coords(:) / real(traj%nbeads)
                 enddo
             enddo
         endif

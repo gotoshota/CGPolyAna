@@ -19,6 +19,7 @@ contains
         do i = 1, n
             mean = mean + (array(i) - mean) / dble(i)
             mean_squared = mean_squared + (array(i)*array(i) - mean_squared) / dble(i)
+            if (MOD(i, 80*501) == 0) print *, i, mean, mean_squared
         enddo
 
         variance    = mean_squared - mean*mean
@@ -59,7 +60,7 @@ contains
                     pdf(2, 1 + INT((array(i) - min_val) / bin_width)) + 1
             endif
         end do
-        pdf(2,:) = pdf(2,:) / n
+        pdf(2,:) = pdf(2,:) / DBLE(n) / bin_width
 
         ! binの値をpdfの2行目に格納
         do i = 1, n_bins

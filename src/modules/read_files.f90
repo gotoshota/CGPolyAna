@@ -86,6 +86,7 @@ contains
                     ! -- Header -- !
                     ! ITEM: TIMESTEP
                     READ(dump, "()", end=999)
+                    if (snapshot_id > traj%nframes) exit fileloop
                     READ(dump, *) traj%timesteps(snapshot_id)
 
                     ! ITEM: NUMBER OF ATOMS
@@ -129,7 +130,6 @@ contains
                         stop
                     endif
                     snapshot_id = snapshot_id + 1
-                    if (snapshot_id == traj%nframes) exit fileloop
                 enddo
             999 print *, "Finished reading dump file : ", TRIM(traj%dumpfilenames(file_id))
             print *, ""
