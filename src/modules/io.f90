@@ -121,14 +121,14 @@ contains
                     ! -- Check dump format -- !
                     read (dump, "(A)") atom_header
                     ! ITEM: ATOMS id x y z
-                    if (trim(atom_header) .eq. atom_header_simple_wrap .or &
-                        . trim(atom_header) .eq. atom_header_simple_unwrap) then
+                    if (trim(atom_header) .eq. atom_header_simple_wrap .or. &
+                        trim(atom_header) .eq. atom_header_simple_unwrap) then
                         do i = 1, traj%nparticles
                             read (dump, *) dummy, traj%coords(:, i, snapshot_id)
                         end do
                     ! ITEM: ATOMS id mol xu yu zu
-                    else if (trim(atom_header) .eq. atom_header_with_molid_wrap .or &
-                        . trim(atom_header) .eq. atom_header_with_molid_unwrap) then
+                    else if (trim(atom_header) .eq. atom_header_with_molid_wrap .or.&
+                        trim(atom_header) .eq. atom_header_with_molid_unwrap) then
                         do i = 1, traj%nparticles
                             read (dump, *) dummy, traj%mol(i), traj%coords(:, i, snapshot_id)
                         end do
