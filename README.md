@@ -8,7 +8,8 @@ You can easily compute mean square displacement (MSD) and mean square radius of 
 ### compile 
 ```
 cd path/to/CGPolyAna
-cd examples
+cd examples/xxx
 make clean
 make
 ```
+xxx = ( msd rg2 )
