@@ -17,11 +17,12 @@ module global_types
 
         ! Read from trajectory
         integer, allocatable :: timesteps(:)
-        real, allocatable :: box_dim(:, :) ! (3 or 6, nframes)
+        real, allocatable :: box_dim(:, :, :) ! (3, 2 or 3, nframes)
         integer, allocatable :: mol(:) ! mol_id
         integer, allocatable :: type(:) ! atom_type
         real, allocatable :: mass(:)
         real, allocatable :: coords(:, :, :)
+        integer, ALLOCATABLE :: image_flag(:, :, :)
         ! trajectory(座標軸, 粒子インデックス, frame index)の形式でデータを格納
     end type
 end module

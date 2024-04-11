@@ -1,12 +1,12 @@
 program test
     use global_types
     use io
-    use time_correlation_sampling
+    use time_dependent_function
     use math
     use physical_constants
     implicit none
     type(trajectory) :: traj
-    type(TimeCorrelationInfo) :: tcinfo
+    type(TimeDependentFunction) :: tcinfo
     integer :: i
     character(LEN=5) :: i2
 
@@ -32,11 +32,11 @@ program test
     print *, "Masses allocated: ", allocated(traj%mass)
     print *, "Timesteps allocated: ", allocated(traj%timesteps)
 
-    call read_lammpstrj(traj)
-    print *, "Coordinates:", traj%coords(1, 1, :)
+    call read_traj(traj)
+    print *, "Coordinates:", (traj%coords(1, 1, i), i=1, traj%nframes)
 
-    call read_TimeCorrelationInfo("input.nml", TCinfo)
-    call determine_frame_intervals(tcinfo, traj%nframes)
+    call read_TimeDependentFunctionInfo("input.nml", TCinfo)
+    call determine_frame_intervals(tcinfo, traj)
     print *, tcinfo%frame_intervals
 
     do i = 1, 3

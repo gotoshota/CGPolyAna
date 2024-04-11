@@ -32,6 +32,7 @@ $(TESTDIR)/test.o: $(TESTDIR)/test.f90
 
 $(MODDIR)/%.o: $(MODDIR)/%.f90
 	$(FC) $(FCFLAGS) -c $(MODDIR)/global_types.f90
+	$(FC) $(FCFLAGS) -c $(MODDIR)/string_utils.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 .PHONY: clean

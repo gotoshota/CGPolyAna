@@ -45,9 +45,10 @@ contains
         allocate (wrapped_coords, mold=traj%coords)
 
         do frame = 1, traj%nframes
-            ! 立方格子の場合、全ての方向で箱のサイズは同じです。
             if (traj%is_cubic) then
-                box_size = [traj%box_dim(1, frame), traj%box_dim(2, frame), traj%box_dim(3, frame)]
+                box_size = [traj%box_dim(1, 2, frame) - traj%box_dim(1, 1, frame), &
+                    traj%box_dim(2, 2, frame) - traj%box_dim(2, 1, frame), &
+                    traj%box_dim(3, 2, frame) - traj%box_dim(3, 1, frame)]
             else
                 print *, "Error: This program support only a cubic simulation cell."
             end if
@@ -55,7 +56,8 @@ contains
             do i = 1, traj%nparticles
                 do j = 1, 3 ! x, y, z座標
                     ! 座標を箱のサイズでラップします。
-                    wrapped_coords(j, i, frame) = mod(traj%coords(j, i, frame) - traj%box_dim(j, frame), box_size(j))
+                    wrapped_coords(j, i, frame) = mod(traj%coords(j, i, frame) - traj%box_dim(j, 2, frame) &
+                    + traj%box_dim(j, 1, frame), box_size(j))
                     ! 負の座標の場合、箱のサイズを加算して正の範囲に戻します。
                     if (wrapped_coords(j, i, frame) .lt. 0.0) then
                         wrapped_coords(j, i, frame) = wrapped_coords(j, i, frame) + box_size(j)
