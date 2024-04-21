@@ -55,4 +55,3 @@ contains
         c(3) = a(1)*b(2) - a(2)*b(1)
     end function
 end module
-

@@ -5,6 +5,7 @@ Currently, only LAMMPS format trajectory files (`.lammpstrj`) are supported.
 
 ## Examples
 You can easily compute mean square displacement (MSD) and mean square radius of gyration (Rg2) in `examples` directory.
+
 ### compile 
 ```
 cd path/to/CGPolyAna
