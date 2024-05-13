@@ -47,7 +47,7 @@ program main
     end do
 
     call read_simulation_params(param_filename, traj)
-    call read_lammpstrj(traj)
+    call read_traj(traj)
     allocate (com(3, traj%nchains, traj%nframes))
     com = center_of_mass(traj)
 
