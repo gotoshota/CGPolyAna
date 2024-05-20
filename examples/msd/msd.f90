@@ -23,7 +23,7 @@ program main
 
     real, allocatable :: com(:, :, :)
 
-    real :: displacement
+    double precision :: displacement
     double precision :: summation, summation_sq
 
     call get_command_argument(1, arg)
@@ -34,7 +34,7 @@ program main
 
     num_args = command_argument_count()
     do i = 1, num_args
-        call get_command_argument(1, arg)
+        call get_command_argument(i, arg)
         if (i .eq. 1) then
             param_filename = arg
         else if (i .eq. 2) then
