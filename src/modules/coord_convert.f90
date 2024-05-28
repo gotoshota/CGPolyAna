@@ -14,26 +14,26 @@ contains
         integer :: i, j, k
         integer :: shift_id
         double precision :: sum_coords(3)
-        real :: wrapped_coords(3, traj%nbeads)
 
         if (traj%nbeads .eq. 0) then
             print *, "Input Nbeads, the chain length."
             stop
         else
-            allocate (com(3, traj%nchains, traj%nframes), source=0.0e0)
+            allocate (com(3, traj%nchains, traj%nframes))
+            com = 0.0e0
 
             do i = 1, traj%nframes
                 do j = 1, traj%nchains
-                    shift_id = (j - 1)*traj%nbeads
+                    shift_id = (j - 1) * traj%nbeads
                     sum_coords = 0.0d0
                     do k = 1, traj%nbeads
                         sum_coords(:) = sum_coords(:) + dble(traj%coords(:, shift_id + k, i))
                     end do
-                    com(:, j, i) = real(sum_coords(:)/dble(traj%nbeads))
+                    com(:, j, i) = real(sum_coords(:) / dble(traj%nbeads))
                 end do
             end do
         end if
-    end function center_of_mass 
+    end function center_of_mass
 
     ! 2つの座標間の距離を計算する関数
     function distance(coord1, coord2)
@@ -85,13 +85,20 @@ contains
         implicit none
 
         type(trajectory), intent(in) :: traj
-        real, intent(in), optional :: center(3) = [0.0, 0.0, 0.0]
+        real, intent(in), optional :: center(3)
         real, intent(out) :: wrapped_coords(:, :, :)
 
         integer :: i, j, frame
         real :: box_size(3)
+        real :: center_used(3)
 
         allocate (wrapped_coords, mold=traj%coords)
+
+        if (present(center)) then
+            center_used = center
+        else
+            center_used = [0.0, 0.0, 0.0]
+        end if
 
         do frame = 1, traj%nframes
             if (traj%is_cubic) then
@@ -99,18 +106,14 @@ contains
                     traj%box_dim(2, 2, frame) - traj%box_dim(2, 1, frame), &
                     traj%box_dim(3, 2, frame) - traj%box_dim(3, 1, frame)]
             else
-                print *, "Error: This program support only a cubic simulation cell."
+                print *, "Error: This program supports only a cubic simulation cell."
+                stop
             end if
 
             do i = 1, traj%nparticles
                 do j = 1, 3 ! x, y, z座標
                     ! 座標を箱のサイズでラップします。
-                    wrapped_coords(j, i, frame) = mod(traj%coords(j, i, frame) - center(j) - traj%box_dim(j, 2, frame) &
-                    + traj%box_dim(j, 1, frame), box_size(j))
-                    ! 負の座標の場合、箱のサイズを加算して正の範囲に戻します。
-                    if (wrapped_coords(j, i, frame) .lt. 0.0) then
-                        wrapped_coords(j, i, frame) = wrapped_coords(j, i, frame) + box_size(j)
-                    end if
+                    wrapped_coords(j, i, frame) = mod(traj%coords(j, i, frame) - center_used(j) - traj%box_dim(j, 1, frame), box_size(j)) + traj%box_dim(j, 1, frame)
                 end do
             end do
         end do
@@ -121,13 +124,20 @@ contains
         implicit none
 
         type(trajectory), intent(in) :: traj
-        real, intent(in), optional :: center(3) = [0.0, 0.0, 0.0]
+        real, intent(in), optional :: center(3)
         real, intent(out) :: unwrapped_coords(:, :, :)
 
         integer :: i, j, frame
         real :: box_size(3)
+        real :: center_used(3)
 
         allocate (unwrapped_coords, mold=traj%coords)
+
+        if (present(center)) then
+            center_used = center
+        else
+            center_used = [0.0, 0.0, 0.0]
+        end if
 
         do frame = 1, traj%nframes
             if (traj%is_cubic) then
@@ -135,14 +145,14 @@ contains
                     traj%box_dim(2, 2, frame) - traj%box_dim(2, 1, frame), &
                     traj%box_dim(3, 2, frame) - traj%box_dim(3, 1, frame)]
             else
-                print *, "Error: This program support only a cubic simulation cell."
+                print *, "Error: This program supports only a cubic simulation cell."
+                stop
             end if
 
             do i = 1, traj%nparticles
                 do j = 1, 3 ! x, y, z座標
                     ! 座標を箱のサイズでラップします。
-                    unwrapped_coords(j, i, frame) = traj%coords(j, i, frame) - center(j) - traj%box_dim(j, 2, frame) &
-                    + traj%box_dim(j, 1, frame)
+                    unwrapped_coords(j, i, frame) = traj%coords(j, i, frame) - center_used(j) - traj%box_dim(j, 1, frame)
                 end do
             end do
         end do
