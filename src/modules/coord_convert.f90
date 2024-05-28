@@ -3,6 +3,7 @@ module coord_convert
     implicit none
 
 contains
+    ! 重心座標を計算する関数
     function center_of_mass(traj) result(com)
         implicit none
 
@@ -32,8 +33,9 @@ contains
                 end do
             end do
         end if
-    end function center_of_mass
+    end function center_of_mass 
 
+    ! 2つの座標間の距離を計算する関数
     function distance(coord1, coord2)
         implicit none
 
@@ -44,35 +46,41 @@ contains
         distance = sqrt(sum((coord1 - coord2)**2))
     end function distance
 
+    ! 高分子の連結性を保証したまま座標をラップするサブルーチン
     subroutine wrap_polymer(coords, box_size, wrapped_coords)
         implicit none
-    
+
         real, intent(in)  :: coords(:, :)
         real, intent(in)  :: box_size(3)
         real, intent(out) :: wrapped_coords(:, :)
-    
+
         integer :: nbeads
-        integer :: i
-        real :: dist
+        integer :: i, j
         real :: box_inv(3)
-    
+        real :: delta(3)
+
         nbeads = size(coords, 2)
         box_inv = 1.0 / box_size
-    
+
         ! 初期位置をそのままコピー
         wrapped_coords(:, 1) = coords(:, 1)
-    
+
         do i = 2, nbeads
-            dist = distance(coords(:, i-1), coords(:, i))
-    
-            ! 距離が閾値を超えた場合
-            if (dist .gt. 1.1) then
-                wrapped_coords(:, i) = coords(:, i) - box_size(:) * nint((coords(:, i) - coords(:, i-1)) * box_inv(:))
-                ! 距離が閾値を超えない場合はそのままコピー
-            end if
-        enddo
+            delta = coords(:, i) - coords(:, i-1)
+
+            ! ラッピング処理
+            do j = 1, 3
+                ! deltaがボックスサイズの半分を超えているかチェック
+                if (abs(delta(j)) .gt. box_size(j) / 2.0) then
+                    delta(j) = delta(j) - box_size(j) * nint(delta(j) * box_inv(j))
+                end if
+            end do
+
+            wrapped_coords(:, i) = wrapped_coords(:, i-1) + delta
+        end do
     end subroutine wrap_polymer
-    
+
+    ! 座標をラップするサブルーチン
     subroutine wrap_coords(traj, center, wrapped_coords)
         implicit none
 
@@ -108,6 +116,7 @@ contains
         end do
     end subroutine wrap_coords
 
+    ! 座標をアンラップするサブルーチン
     subroutine unwrap_coords(traj, center, unwrapped_coords)
         implicit none
 
