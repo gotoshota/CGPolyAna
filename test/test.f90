@@ -7,6 +7,7 @@ program test
     implicit none
     type(trajectory) :: traj
     type(TimeDependentFunction) :: tcinfo
+    type(AtomHeader_Index) :: atomheader
     integer :: i
     character(LEN=5) :: i2
 
@@ -34,6 +35,13 @@ program test
 
     call read_traj(traj)
     print *, "Coordinates:", (traj%coords(1, 1, i), i=1, traj%nframes)
+    atomheader%id = 1
+    atomheader%mol = 2
+    atomheader%xu = 3
+    atomheader%yu = 4
+    atomheader%zu = 5
+
+    call write_lammpstrj(traj, atomheader, "test.lammpstrj")
 
     call read_TimeDependentFunctionInfo("input.nml", TCinfo)
     call determine_frame_intervals(tcinfo, traj)
@@ -51,4 +59,6 @@ program test
     print *, '円周率π = ', pi
     print *, 'ボルツマン定数 = ', boltzmann_constant, 'J/K'
     print *, '気体定数 = ', gas_constant, 'J/(mol・K)'
+
+
 end program test
