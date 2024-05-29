@@ -45,4 +45,19 @@ contains
             substrings(nWords) = str(start:strLen)
         end if
     end function split_string
+
+    ! Function to replace characters in a string
+    function replace(string, old, new) result(new_string)
+        implicit none
+        character(len=*), intent(in) :: string, old, new
+        character(len=len(string)) :: new_string
+        integer :: pos
+
+        new_string = string
+        pos = index(new_string, old)
+        do while (pos /= 0)
+            new_string(pos:pos+len_trim(old)-1) = new
+            pos = index(new_string, old)
+        end do
+    end function replace
 end module string_utils

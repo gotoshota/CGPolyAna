@@ -86,7 +86,7 @@ contains
 
         type(trajectory), intent(in) :: traj
         real, intent(in), optional :: center(3)
-        real, intent(out) :: wrapped_coords(:, :, :)
+        real, intent(out), allocatable:: wrapped_coords(:, :, :)
 
         integer :: i, j, frame
         real :: box_size(3)
@@ -113,7 +113,8 @@ contains
             do i = 1, traj%nparticles
                 do j = 1, 3 ! x, y, z座標
                     ! 座標を箱のサイズでラップします。
-                    wrapped_coords(j, i, frame) = mod(traj%coords(j, i, frame) - center_used(j) - traj%box_dim(j, 1, frame), box_size(j)) + traj%box_dim(j, 1, frame)
+                    wrapped_coords(j, i, frame) = mod(traj%coords(j, i, frame) - center_used(j)&
+                        - traj%box_dim(j, 1, frame), box_size(j)) + traj%box_dim(j, 1, frame)
                 end do
             end do
         end do
@@ -125,7 +126,7 @@ contains
 
         type(trajectory), intent(in) :: traj
         real, intent(in), optional :: center(3)
-        real, intent(out) :: unwrapped_coords(:, :, :)
+        real, intent(out), ALLOCATABLE :: unwrapped_coords(:, :, :)
 
         integer :: i, j, frame
         real :: box_size(3)
@@ -152,7 +153,8 @@ contains
             do i = 1, traj%nparticles
                 do j = 1, 3 ! x, y, z座標
                     ! 座標を箱のサイズでラップします。
-                    unwrapped_coords(j, i, frame) = traj%coords(j, i, frame) - center_used(j) - traj%box_dim(j, 1, frame)
+                    unwrapped_coords(j, i, frame) = traj%coords(j, i, frame) - &
+                        center_used(j) - traj%box_dim(j, 1, frame)
                 end do
             end do
         end do
