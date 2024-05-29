@@ -36,10 +36,9 @@ program test
     call read_traj(traj)
     print *, "Coordinates:", (traj%coords(1, 1, i), i=1, traj%nframes)
     atomheader%id = 1
-    atomheader%mol = 2
-    atomheader%xu = 3
-    atomheader%yu = 4
-    atomheader%zu = 5
+    atomheader%xu = 2
+    atomheader%yu = 3
+    atomheader%zu = 4
 
     call write_lammpstrj(traj, atomheader, "test.lammpstrj")
 

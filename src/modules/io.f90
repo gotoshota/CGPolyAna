@@ -322,11 +322,11 @@ contains
         do frame = 1, traj%nframes
 
             ! Write header
-            write(dump, *) "ITEM: TIMESTEP"
+            write(dump, "(A)") "ITEM: TIMESTEP"
             write(dump, *) traj%timesteps(frame)
-            write(dump, *) "ITEM: NUMBER OF ATOMS"
+            write(dump, "(A)") "ITEM: NUMBER OF ATOMS"
             write(dump, *) traj%nparticles
-            write(dump, *) "ITEM: BOX BOUNDS pp pp pp"
+            write(dump, "(A)") "ITEM: BOX BOUNDS pp pp pp"
             write(dump, *) traj%box_dim(1, 1, frame), traj%box_dim(1, 2, frame)
             write(dump, *) traj%box_dim(2, 1, frame), traj%box_dim(2, 2, frame)
             write(dump, *) traj%box_dim(3, 1, frame), traj%box_dim(3, 2, frame)
@@ -334,12 +334,12 @@ contains
 
             ! Write atom data
             do i = 1, traj%nparticles
-                if (headers%id /= 0) write(dump, '(I6)', advance='no') i
-                if (headers%mol /= 0) write(dump, '(I6)', advance='no') traj%mol(i)
-                if (headers%type /= 0) write(dump, '(I6)', advance='no') traj%type(i)
-                if (headers%xu /= 0) write(dump, '(F8.3)', advance='no') traj%coords(1, i, frame)
-                if (headers%yu /= 0) write(dump, '(F8.3)', advance='no') traj%coords(2, i, frame)
-                if (headers%zu /= 0) write(dump, '(F8.3)', advance='no') traj%coords(3, i, frame)
+                if (headers%id /= 0) write(dump, '(I6, x)', advance='no') i
+                if (headers%mol /= 0) write(dump, '(I6, x)', advance='no') traj%mol(i)
+                if (headers%type /= 0) write(dump, '(I6, x)', advance='no') traj%type(i)
+                if (headers%xu /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(1, i, frame)
+                if (headers%yu /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(2, i, frame)
+                if (headers%zu /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(3, i, frame)
                 write(dump, *) ! end the line
             end do
 
