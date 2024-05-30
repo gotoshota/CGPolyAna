@@ -10,8 +10,6 @@ module coord_convert
 contains
     ! ==========================================================
     ! =============== 重心座標を計算する関数 ===================
-    ! ==========================================================
-    ! type(trajectory)型の変数を引数に取り、重心座標を計算する関数
     function center_of_mass_traj_arg(traj) result(com)
         implicit none
 
@@ -42,7 +40,6 @@ contains
             end do
         end if
     end function center_of_mass_traj_arg
-    ! 座標を引数に取り、重心座標を計算する関数
     function center_of_mass_coords_arg(coords) result(com)
         implicit none
 
@@ -112,24 +109,19 @@ contains
 
         real, intent(in) :: coords(:, :)
         real, intent(in) :: box_dim(2, 3)
-        real :: wrapped_coords(size(coords, 1), size(coords, 2))
-
-        real :: dist
-        real :: disp(3)
+        real, allocatable :: wrapped_coords(:, :)
+        real :: dist, disp
         real :: box_size(3)
-        real :: com(3), center(3)
 
         integer :: i, j
+
+        allocate(wrapped_coords(size(coords, 1), size(coords, 2)))
 
         ! Calculate the box size in each dimension
         box_size = [box_dim(2, 1) - box_dim(1, 1), &
                     box_dim(2, 2) - box_dim(1, 2), &
                     box_dim(2, 3) - box_dim(1, 3)]
-        center   = [(box_dim(2, 1) + box_dim(1, 1)) / 2.0, &
-                    (box_dim(2, 2) + box_dim(1, 2)) / 2.0, &
-                    (box_dim(2, 3) + box_dim(1, 3)) / 2.0]
 
-        wrapped_coords = coords
         do i = 1, size(coords, 2) - 1
             dist = distance(coords(:, i), coords(:, i+1))
             if (dist > 1.3) then
@@ -142,13 +134,6 @@ contains
             end if
         enddo
 
-        com = center_of_mass_coords_arg(wrapped_coords)
-        disp = com - center
-        do j = 1, 3
-            if (abs(disp(j)) > box_size(j) / 2.0) then
-                wrapped_coords(j, :) = wrapped_coords(j, :) - box_size(j) * nint(disp(j) / box_size(j))
-            end if
-        end do
 
     end function wrap_polymer
 

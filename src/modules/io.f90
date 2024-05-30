@@ -309,6 +309,18 @@ contains
             format_string = trim(format_string) // "F8.3, "
             header_string = trim(header_string) // "zu,"
         end if
+        if (headers%x /= 0) then
+            format_string = trim(format_string) // "F8.3, "
+            header_string = trim(header_string) // "x,"
+        end if
+        if (headers%y /= 0) then
+            format_string = trim(format_string) // "F8.3, "
+            header_string = trim(header_string) // "y,"
+        end if
+        if (headers%z /= 0) then
+            format_string = trim(format_string) // "F8.3, "
+            header_string = trim(header_string) // "z,"
+        end if
 
         ! Remove the trailing comma and space
         header_string = trim(header_string)
@@ -344,6 +356,9 @@ contains
                 if (headers%xu /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(1, i, frame)
                 if (headers%yu /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(2, i, frame)
                 if (headers%zu /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(3, i, frame)
+                if (headers%x /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(1, i, frame)
+                if (headers%y /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(2, i, frame)
+                if (headers%z /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(3, i, frame)
                 write(dump, *) ! end the line
             end do
 
