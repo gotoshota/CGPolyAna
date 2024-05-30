@@ -38,9 +38,9 @@ contains
     subroutine calc_prob_dist(array, size_array, pdf)
         implicit none
 
-        integer, intent(IN) :: size_array
-        double precision, intent(IN) :: array(size_array)
-        type(ProbDistFunciton), intent(INOUT) :: pdf
+        integer, intent(in) :: size_array
+        double precision, intent(in) :: array(size_array)
+        type(ProbDistFunciton), intent(inout) :: pdf
 
         ! local variables
         integer :: i

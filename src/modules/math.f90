@@ -6,7 +6,14 @@ module math
         module procedure norm_double
     end interface norm
 
+    interface cross_product
+        module procedure cross_product_single
+        module procedure cross_product_double
+    end interface cross_product
+
 contains
+    ! ===========================================
+    ! for norm
     function norm_double(vector) result(res)
         implicit none
 
@@ -44,8 +51,11 @@ contains
 
         res = sqrt(summation_squred)
     end function
+    ! ===========================================
 
-    function cross_product(a, b) result(c)
+    ! ===========================================
+    ! for cross_product
+    function cross_product_single(a, b) result(c)
         implicit none
         real, intent(IN) :: a(3), b(3)
         real :: c(3)
@@ -54,4 +64,14 @@ contains
         c(2) = a(3)*b(1) - a(1)*b(3)
         c(3) = a(1)*b(2) - a(2)*b(1)
     end function
+    function cross_product_double(a, b) result(c)
+        implicit none
+        double precision, intent(IN) :: a(3), b(3)
+        double precision :: c(3)
+        
+        c(1) = a(2)*b(3) - a(3)*b(2)
+        c(2) = a(3)*b(1) - a(1)*b(3)
+        c(3) = a(1)*b(2) - a(2)*b(1)
+    end function
+    ! ===========================================
 end module
