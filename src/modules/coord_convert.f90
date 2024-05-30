@@ -46,119 +46,74 @@ contains
         distance = sqrt(sum((coord1 - coord2)**2))
     end function distance
 
-    ! 高分子の連結性を保証したまま座標をラップするサブルーチン
-    subroutine wrap_polymer(coords, box_size, wrapped_coords)
+    ! ==========================================================
+    ! ============== 座標のラップとアンラップ ==================
+    ! ==========================================================
+    ! 座標をラップする関数
+    function wrap_coords(coords, box_dim) result(wrapped_coords)
         implicit none
-
-        real, intent(in)  :: coords(:, :)
-        real, intent(in)  :: box_size(3)
-        real, intent(out) :: wrapped_coords(:, :)
-
-        integer :: nbeads
+        
+        real, intent(in) :: coords(:, :)
+        real, intent(in) :: box_dim(2, 3)
+        real, allocatable :: wrapped_coords(:, :)
+        
         integer :: i, j
-        real :: box_inv(3)
-        real :: delta(3)
-
-        nbeads = size(coords, 2)
-        box_inv = 1.0 / box_size
-
-        ! 初期位置をそのままコピー
-        wrapped_coords(:, 1) = coords(:, 1)
-
-        do i = 2, nbeads
-            delta = coords(:, i) - coords(:, i-1)
-
-            ! ラッピング処理
-            do j = 1, 3
-                ! deltaがボックスサイズの半分を超えているかチェック
-                if (abs(delta(j)) .gt. box_size(j) / 2.0) then
-                    delta(j) = delta(j) - box_size(j) * nint(delta(j) * box_inv(j))
+        real :: box_size(3)
+        
+        ! Allocate wrapped_coords with the same shape as coords
+        allocate(wrapped_coords(size(coords, 1), size(coords, 2)))
+        
+        ! Calculate the box size in each dimension
+        box_size = [box_dim(2, 1) - box_dim(1, 1), &
+                    box_dim(2, 2) - box_dim(1, 2), &
+                    box_dim(2, 3) - box_dim(1, 3)]
+        
+        ! Loop over particles and coordinates
+        do i = 1, size(coords, 2)
+            do j = 1, 3 ! x, y, z coordinates
+                ! Shift coordinates by the box minimum, wrap by the box size, and shift back
+                wrapped_coords(j, i) = mod(coords(j, i) - box_dim(1, j), box_size(j))
+                if (wrapped_coords(j, i) < 0.0) then
+                    wrapped_coords(j, i) = wrapped_coords(j, i) + box_size(j)
                 end if
+                wrapped_coords(j, i) = wrapped_coords(j, i) + box_dim(1, j)
             end do
-
-            wrapped_coords(:, i) = wrapped_coords(:, i-1) + delta
         end do
-    end subroutine wrap_polymer
+    end function wrap_coords
 
-    ! 座標をラップするサブルーチン
-    subroutine wrap_coords(traj, center, wrapped_coords)
+    ! ポリマーの連結性を保証して座標をラップする関数
+    function wrap_polymer(coords, box_dim) result(wrapped_coords)
         implicit none
 
-        type(trajectory), intent(in) :: traj
-        real, intent(in), optional :: center(3)
-        real, intent(out), allocatable:: wrapped_coords(:, :, :)
-
-        integer :: i, j, frame
+        real, intent(in) :: coords(:, :)
+        real, intent(in) :: box_dim(2, 3)
+        real, allocatable :: wrapped_coords(:, :)
+        real :: dist, disp
         real :: box_size(3)
-        real :: center_used(3)
 
-        allocate (wrapped_coords, mold=traj%coords)
+        integer :: i, j
 
-        if (present(center)) then
-            center_used = center
-        else
-            center_used = [0.0, 0.0, 0.0]
-        end if
+        allocate(wrapped_coords(size(coords, 1), size(coords, 2)))
 
-        do frame = 1, traj%nframes
-            if (traj%is_cubic) then
-                box_size = [traj%box_dim(1, 2, frame) - traj%box_dim(1, 1, frame), &
-                    traj%box_dim(2, 2, frame) - traj%box_dim(2, 1, frame), &
-                    traj%box_dim(3, 2, frame) - traj%box_dim(3, 1, frame)]
-            else
-                print *, "Error: This program supports only a cubic simulation cell."
-                stop
-            end if
+        ! Calculate the box size in each dimension
+        box_size = [box_dim(2, 1) - box_dim(1, 1), &
+                    box_dim(2, 2) - box_dim(1, 2), &
+                    box_dim(2, 3) - box_dim(1, 3)]
 
-            do i = 1, traj%nparticles
-                do j = 1, 3 ! x, y, z座標
-                    ! 座標を箱のサイズでラップします。
-                    wrapped_coords(j, i, frame) = mod(traj%coords(j, i, frame) - center_used(j)&
-                        - traj%box_dim(j, 1, frame), box_size(j)) + traj%box_dim(j, 1, frame)
+        do i = 1, size(coords, 2) - 1
+            dist = distance(coords(:, i), coords(:, i+1))
+            if (dist > 1.3) then
+                do j = 1, 3
+                    disp = coords(:, i+1) - coords(:, i)
+                    wrapped_coords(:, i+1) = coords(:, i+1) - box_size(j) * nint(disp(j) / box_size(j))
                 end do
-            end do
-        end do
-    end subroutine wrap_coords
-
-    ! 座標をアンラップするサブルーチン
-    subroutine unwrap_coords(traj, center, unwrapped_coords)
-        implicit none
-
-        type(trajectory), intent(in) :: traj
-        real, intent(in), optional :: center(3)
-        real, intent(out), ALLOCATABLE :: unwrapped_coords(:, :, :)
-
-        integer :: i, j, frame
-        real :: box_size(3)
-        real :: center_used(3)
-
-        allocate (unwrapped_coords, mold=traj%coords)
-
-        if (present(center)) then
-            center_used = center
-        else
-            center_used = [0.0, 0.0, 0.0]
-        end if
-
-        do frame = 1, traj%nframes
-            if (traj%is_cubic) then
-                box_size = [traj%box_dim(1, 2, frame) - traj%box_dim(1, 1, frame), &
-                    traj%box_dim(2, 2, frame) - traj%box_dim(2, 1, frame), &
-                    traj%box_dim(3, 2, frame) - traj%box_dim(3, 1, frame)]
             else
-                print *, "Error: This program supports only a cubic simulation cell."
-                stop
+                wrapped_coords(:, i+1) = coords(:, i+1)
             end if
+        enddo
 
-            do i = 1, traj%nparticles
-                do j = 1, 3 ! x, y, z座標
-                    ! 座標を箱のサイズでラップします。
-                    unwrapped_coords(j, i, frame) = traj%coords(j, i, frame) - &
-                        center_used(j) - traj%box_dim(j, 1, frame)
-                end do
-            end do
-        end do
-    end subroutine unwrap_coords
+
+    end function wrap_polymer
 
 end module
 

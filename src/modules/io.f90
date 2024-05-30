@@ -20,6 +20,19 @@ module io
 
 
 contains
+    subroutine get_file_extention(filename, ext)
+        implicit none
+
+        character(LEN=*), intent(IN) :: filename
+        character(LEN=*), intent(OUT) :: ext
+        ! local variable
+        integer(KIND=4) :: period
+
+        period = index(filename, ".", BACK=.true.)
+        ext = filename(period + 1:len(trim(filename)))
+
+    end subroutine get_file_extention
+
     subroutine read_simulation_params(nmlfilename, traj)
         implicit none
         character(len=*), intent(in) :: nmlfilename
@@ -53,7 +66,7 @@ contains
 
         if (allocated(traj%box_dim)) deallocate (traj%box_dim)
         if (traj%is_cubic) then
-            allocate (traj%box_dim(3, 2, traj%nframes))
+            allocate (traj%box_dim(2, 3, traj%nframes))
         else
             allocate (traj%box_dim(3, 3, traj%nframes)) ! l_0, l_1, l_tilte
         end if
@@ -147,9 +160,9 @@ contains
 
             read(dump, "(A)") line
             if ( index(line, "BOX") > 0 ) then
-                read(dump, *) traj%box_dim(1, :, idx_frame)
-                read(dump, *) traj%box_dim(2, :, idx_frame)
-                read(dump, *) traj%box_dim(3, :, idx_frame)
+                read(dump, *) traj%box_dim(:, 1, idx_frame)
+                read(dump, *) traj%box_dim(:, 2, idx_frame)
+                read(dump, *) traj%box_dim(:, 3, idx_frame)
             else
                 print *, "Error: Header of ", trim(traj%dumpfilenames(idx_dumpfile))
             endif
@@ -240,31 +253,22 @@ contains
                 ! Unwrap coordinates if image flags are present
                 if (idx%ix /= 0 .and. idx%iy /= 0 .and. idx%iz /= 0) then
                     traj%coords(1, i, idx_frame) = traj%coords(1, i, idx_frame) + &
-                        traj%image_flag(1, i, idx_frame) * (traj%box_dim(1, 2, idx_frame) -traj%box_dim(1, 1, idx_frame))
+                        traj%image_flag(1, i, idx_frame) * (traj%box_dim(2, 1, idx_frame) -traj%box_dim(1, 1, idx_frame))
                     traj%coords(2, i, idx_frame) = traj%coords(2, i, idx_frame) + &
-                        traj%image_flag(2, i, idx_frame) * (traj%box_dim(2, 2, idx_frame) -traj%box_dim(2, 1, idx_frame))
+                        traj%image_flag(2, i, idx_frame) * (traj%box_dim(2, 2, idx_frame) -traj%box_dim(1, 2, idx_frame))
                     traj%coords(3, i, idx_frame) = traj%coords(3, i, idx_frame) + &
-                        traj%image_flag(3, i, idx_frame) * (traj%box_dim(3, 2, idx_frame) -traj%box_dim(3, 1, idx_frame))
+                        traj%image_flag(3, i, idx_frame) * (traj%box_dim(2, 3, idx_frame) -traj%box_dim(1, 3, idx_frame))
                 end if
             enddo
             idx_frame = idx_frame + 1
-            end do
+            if (idx_frame > traj%nframes) exit
+        end do
         999 close(dump)
     end subroutine parse_lammpstrj
 
-    subroutine get_file_extention(filename, ext)
-        implicit none
-
-        character(LEN=*), intent(IN) :: filename
-        character(LEN=*), intent(OUT) :: ext
-        ! local variable
-        integer(KIND=4) :: period
-
-        period = index(filename, ".", BACK=.true.)
-        ext = filename(period + 1:len(trim(filename)))
-
-    end subroutine get_file_extention
-
+    ! =======================================================
+    ! ============== Writing LAMMPS trajectory ==============
+    ! =======================================================
     subroutine write_lammpstrj(traj, headers, filename)
         implicit none
 
@@ -327,9 +331,9 @@ contains
             write(dump, "(A)") "ITEM: NUMBER OF ATOMS"
             write(dump, *) traj%nparticles
             write(dump, "(A)") "ITEM: BOX BOUNDS pp pp pp"
-            write(dump, *) traj%box_dim(1, 1, frame), traj%box_dim(1, 2, frame)
-            write(dump, *) traj%box_dim(2, 1, frame), traj%box_dim(2, 2, frame)
-            write(dump, *) traj%box_dim(3, 1, frame), traj%box_dim(3, 2, frame)
+            write(dump, *) traj%box_dim(1, 1, frame), traj%box_dim(2, 1, frame)
+            write(dump, *) traj%box_dim(1, 2, frame), traj%box_dim(2, 2, frame)
+            write(dump, *) traj%box_dim(1, 3, frame), traj%box_dim(2, 3, frame)
             write(dump, '(A)') trim(header_string)  ! Using '(A)' format to write the full header_string
 
             ! Write atom data
