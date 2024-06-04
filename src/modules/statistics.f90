@@ -29,7 +29,6 @@ contains
         do i = 1, size_array
             mean = mean + (array(i) - mean)/dble(i)
             mean_squared = mean_squared + (array(i)*array(i) - mean_squared)/dble(i)
-            if (mod(i, 80*501) .eq. 0) print *, i, mean, mean_squared
         end do
 
         variance = mean_squared - mean*mean
