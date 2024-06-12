@@ -149,7 +149,6 @@ contains
                 wrapped_coords(j, :) = wrapped_coords(j, :) - box_size(j) * nint(disp(j) / box_size(j))
             end if
         end do
-
     end function wrap_polymer
 
 end module
