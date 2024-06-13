@@ -1,7 +1,7 @@
 # Compiler settings - can be customized.
 FC = gfortran
 FCFLAGS = -O2 -Wall
-LDFLAGS =
+LDFLAGS = -llapack -lblas
 
 # Directory structure
 SRCDIR = ../../src/
@@ -32,6 +32,7 @@ $(TARGET).o: $(TARGET).f90
 
 $(MODDIR)/%.o: $(MODDIR)/%.f90
 	$(FC) $(FCFLAGS) -c $(MODDIR)/global_types.f90
+	$(FC) $(FCFLAGS) -c $(MODDIR)/string_utils.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 .PHONY: clean
