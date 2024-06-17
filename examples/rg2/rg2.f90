@@ -9,6 +9,8 @@ program main
     implicit none
 
     type(trajectory) :: traj
+    type(trajectory) :: traj_wrap
+    type(AtomHeader_Index) :: headers
     type(TimeDependentFunction) :: rg2_time
 
     character(len=256) :: arg
@@ -27,6 +29,7 @@ program main
     integer :: shift_chain
     integer :: outfile = 66
 
+    real, allocatable :: coords(:, :)
     double precision, allocatable :: rg2(:, :)
     double precision, allocatable :: asphericity(:, :)
     double precision, allocatable :: prolateness(:, :)
@@ -55,7 +58,9 @@ program main
     call read_TimeDependentFunctionInfo(param_filename, rg2_time)
     call determine_frame_intervals(rg2_time, traj)
     call read_traj(traj)
+    traj_wrap = traj
 
+    allocate (coords(3, traj%nbeads))
     allocate (rg2(traj%nchains, traj%nframes))
     allocate (asphericity(traj%nchains, traj%nframes))
     allocate (prolateness(traj%nchains, traj%nframes))
@@ -70,18 +75,21 @@ program main
     do i = 1, traj%nframes
         do j = 1, traj%nchains
             shift_chain = (j - 1)*traj%nbeads
-            call calc_gyration_tensor(traj%coords(:, shift_chain + 1:shift_chain + traj%nbeads, i), gyration_tensor)
+            coords = wrap_polymer(traj%coords(:, shift_chain + 1:shift_chain + traj%nbeads, i), traj%box_dim(:,:,i))
+            traj_wrap%coords(:, shift_chain + 1:shift_chain + traj%nbeads, i) = coords
+            call calc_gyration_tensor(coords, gyration_tensor)
             call dsyev('V', 'U', 3, gyration_tensor, 3, eigenval, work, lwork, info)
-            print*, "i, j : ", i, j
             call calc_radius(eigenval, rg2(j, i))
-            print*, "i, j : ", i, j
             call calc_asphericity(eigenval, asphericity(j, i))
-            print*, "i, j : ", i, j
             call calc_prolateness(eigenval, prolateness(j, i))
-            print*, "i, j : ", i, j
         end do
     end do
-         print *, "debug"
+    headers%id = 1
+    headers%mol = 2
+    headers%xu = 3
+    headers%yu = 4
+    headers%zu = 5
+    call write_lammpstrj(traj_wrap, headers, "wrapped_traj.lammpstrj")
 
     call mean_and_variance(rg2, size(rg2), mean, var)
     print *, "The squared radius of gyration Rg2."
