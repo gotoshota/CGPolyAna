@@ -34,3 +34,6 @@
 # Outputfiles
 *.rg2
 *.msd
+
+# mac 
+.DS_Store
