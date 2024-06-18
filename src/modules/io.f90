@@ -16,6 +16,9 @@ module io
         INTEGER(KIND=4) :: ix   = 0
         INTEGER(KIND=4) :: iy   = 0
         INTEGER(KIND=4) :: iz   = 0
+        integer(KIND=4) :: xs   = 0
+        integer(KIND=4) :: ys   = 0
+        integer(KIND=4) :: zs   = 0
     end type AtomHeader_Index
 
 
@@ -198,6 +201,12 @@ contains
                             idx%iy = i
                         case("iz")
                             idx%iz = i
+                        case("xs")
+                            idx%xs = i
+                        case("ys")
+                            idx%ys = i
+                        case("zs")
+                            idx%zs = i
                     end select
                 enddo
                 header_flag = 1
@@ -248,6 +257,19 @@ contains
 
                 if (idx%iz /= 0) then
                     read(atom_parts(idx%iz), *) traj%image_flag(3, i, idx_frame)
+                
+                end if
+
+                if (idx%xs /= 0) then
+                    read(atom_parts(idx%xs), *) traj%coords(1, i, idx_frame)
+                end if
+
+                if (idx%ys /= 0) then
+                    read(atom_parts(idx%ys), *) traj%coords(2, i, idx_frame)
+                end if
+
+                if (idx%zs /= 0) then
+                    read(atom_parts(idx%zs), *) traj%coords(3, i, idx_frame)
                 end if
 
                 ! Unwrap coordinates if image flags are present
@@ -258,6 +280,11 @@ contains
                         traj%image_flag(2, i, idx_frame) * (traj%box_dim(2, 2, idx_frame) -traj%box_dim(1, 2, idx_frame))
                     traj%coords(3, i, idx_frame) = traj%coords(3, i, idx_frame) + &
                         traj%image_flag(3, i, idx_frame) * (traj%box_dim(2, 3, idx_frame) -traj%box_dim(1, 3, idx_frame))
+                end if
+
+                if (idx%xs /= 0 .and. idx%ys /= 0 .and. idx%zs /= 0) then
+                    print *, "Error: xs, ys, zs are not supported yet."
+                    stop
                 end if
             enddo
             idx_frame = idx_frame + 1

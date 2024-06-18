@@ -39,7 +39,7 @@ program main
 
     double precision :: mean
     double precision :: var
-    type(ProbDistFunciton) :: pdf
+    type(ProbDistFunction) :: pdf
     integer :: num_bins = 100
 
     double precision, allocatable :: work(:)
