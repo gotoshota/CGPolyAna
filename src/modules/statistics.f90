@@ -1,15 +1,13 @@
 module statistics
     implicit none
 
-    type ProbDistFunciton
+    type ProbDistFunction
         ! should be declear before call subroutine
         integer :: n_bins
-        
         ! automatically computed
         double precision, allocatable :: y(:)
         double precision, allocatable :: x(:)
         double precision :: bin_width
-
     end type
 
 contains
@@ -39,7 +37,7 @@ contains
 
         integer, intent(in) :: size_array
         double precision, intent(in) :: array(size_array)
-        type(ProbDistFunciton), intent(inout) :: pdf
+        type(ProbDistFunction), intent(inout) :: pdf
 
         ! local variables
         integer :: i
