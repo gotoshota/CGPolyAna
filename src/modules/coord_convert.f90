@@ -167,10 +167,14 @@ contains
         real, intent(in) :: coords(:, :)
         real, intent(in) :: box_dim(:, :)
         real :: orthogonal_coords(size(coords, 1), size(coords, 2))
+        real :: ly, xy
 
         orthogonal_coords = coords
-        orthogonal_coords(1, :) = coords(1, :) + coords(2, :) * box_dim(1, 3) / sqrt((box_dim(2, 2) - box_dim(1, 2))**2 +
-        (box_dim(2, 3) - box_dim(1, 3))**2)
+        ly = box_dim(2, 2) - box_dim(2, 1)
+        xy = box_dim(1, 3)
+        orthogonal_coords(1, :) = coords(1, :) + coords(2, :) * xy / sqrt(ly*ly + xy*xy)
+        orthogonal_coords(2, :) = coords(2, :) * ly / sqrt(ly*ly + xy*xy)
+
     end function triclinic_to_orthogonal
     function triclinic_to_orthogonal_traj(traj) result(orthogonal_traj)
         implicit none
