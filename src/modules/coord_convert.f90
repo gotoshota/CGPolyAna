@@ -6,6 +6,11 @@ module coord_convert
         module procedure center_of_mass_traj_arg
         module procedure center_of_mass_coords_arg
     end interface center_of_mass
+    
+    interface triclinic_to_orthogonal
+        module procedure triclinic_to_orthogonal_real
+        module procedure triclinic_to_orthogonal_traj
+    end interface tri_clinic_to_orthogonal
 
 contains
     ! ==========================================================
@@ -150,6 +155,37 @@ contains
             end if
         end do
     end function wrap_polymer
+
+    ! ==========================================================
+    ! triclinic => orthogonal
+    ! ==========================================================
+    ! x 方向へのせん断 tilte_xy を用いて直交座標系に変換する関数
+    ! 将来的に、もっと一般化したい
+    function triclinic_to_orthogonal_real(coords, box_dim) result(orthogonal_coords)
+        implicit none
+
+        real, intent(in) :: coords(:, :)
+        real, intent(in) :: box_dim(:, :)
+        real :: orthogonal_coords(size(coords, 1), size(coords, 2))
+
+        orthogonal_coords = coords
+        orthogonal_coords(1, :) = coords(1, :) + coords(2, :) * box_dim(1, 3) / sqrt((box_dim(2, 2) - box_dim(1, 2))**2 +
+        (box_dim(2, 3) - box_dim(1, 3))**2)
+    end function triclinic_to_orthogonal
+    function triclinic_to_orthogonal_traj(traj) result(orthogonal_traj)
+        implicit none
+
+        type(trajectory), intent(in) :: traj
+        type(trajectory) :: orthogonal_traj
+
+        orthogonal_traj = traj
+        do i = 1, traj%nframes
+            orthogonal_traj%coords(:, :, i) = triclinic_to_orthogonal_real(traj%coords(:, :, i), traj%box_dim(:, :, i))
+        end do
+        orthogonal_traj%is_cubic = .true.
+    end function triclinic_to_orthogonal_traj
+    ! ==========================================================
+
 
 end module
 
