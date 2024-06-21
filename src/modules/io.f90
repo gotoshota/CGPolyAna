@@ -1,5 +1,6 @@
 module io
     use global_types
+    use coord_convert
     use string_utils
     implicit none
 
@@ -290,6 +291,10 @@ contains
             idx_frame = idx_frame + 1
             if (idx_frame > traj%nframes) exit
         end do
+        if (traj%is_cubic == .false.) then
+            traj = triclinic_to_orthogonal(traj)
+            print *, "Successfully converted triclinic to orthogonal."
+        end if
         999 close(dump)
     end subroutine parse_lammpstrj
 
