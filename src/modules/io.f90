@@ -291,11 +291,11 @@ contains
             idx_frame = idx_frame + 1
             if (idx_frame > traj%nframes) exit
         end do
-        if (traj%is_cubic == .false.) then
-            traj = triclinic_to_orthogonal(traj)
-            print *, "Successfully converted triclinic to orthogonal."
-            traj%is_cubic = .true.
-        end if
+        !if (traj%is_cubic == .false.) then
+        !    traj = triclinic_to_orthogonal(traj)
+        !    print *, "Successfully converted triclinic to orthogonal."
+        !    traj%is_cubic = .true.
+        !end if
         999 close(dump)
     end subroutine parse_lammpstrj
 
