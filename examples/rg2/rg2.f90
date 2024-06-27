@@ -224,7 +224,7 @@ contains
         implicit none
 
         character(LEN=*), intent(IN) :: filename
-        type(ProbDistFunciton), intent(IN) :: pdf
+        type(ProbDistFunction), intent(IN) :: pdf
 
         ! local variables
         integer :: output = 17
