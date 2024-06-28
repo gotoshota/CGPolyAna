@@ -3,12 +3,12 @@ program main
     use io
     use coord_convert
     use math
-    use time_dependent_function
+    use correlation_function
 
     implicit none
 
     type(trajectory) :: traj
-    type(TimeDependentFunction) :: msd
+    type(Function1D) :: msd
 
     double precision, allocatable :: msd_sq(:)
 
@@ -51,7 +51,7 @@ program main
     allocate (com(3, traj%nchains, traj%nframes))
     com = center_of_mass(traj)
 
-    call read_TimeDependentFunctionInfo(param_filename, msd)
+    call read_Function1DInfo(param_filename, msd)
     call determine_frame_intervals(msd, traj)
     allocate (msd_sq(msd%npoints), source=0.0d0)
 
@@ -104,7 +104,7 @@ contains
     subroutine write_msd(filename, msd, msd_sq)
         implicit none
 
-        type(TimeDependentFunction), intent(IN) :: msd
+        type(Function1D), intent(IN) :: msd
         character(LEN=*), intent(IN) :: filename
         double precision, intent(IN) :: msd_sq(:)
 
@@ -116,7 +116,7 @@ contains
             write (output, "(A)") "# MSD data file. "
             write (output, "(A)") "# Time [tau_LJ], MSD [sigma^2], squared MSD <\delta r^4> [sigma^4]"
             do i = 1, msd%npoints
-                write (output, "(G0, 1X, G0, 1X, G0)") msd%t(i), msd%y(i), msd_sq(i)
+                write (output, "(G0, 1X, G0, 1X, G0)") msd%x(i), msd%y(i), msd_sq(i)
             end do
         close (output)
     end subroutine
