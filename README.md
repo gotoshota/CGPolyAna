@@ -1,10 +1,10 @@
 # Coarse-Grained Polymer Analyser
-This repository provides Fortran modules and some executable binaries to analyze trajectory from molecular dynamics simulation of coarse-grained polymer (bead-spring model).
+このリポジトリは、粗視化高分子（ビーズ・スプリングモデル）の分子動力学シミュレーションの軌跡を解析するためのFortranモジュールといくつかの実行可能バイナリを提供します。
 
-Currently, only LAMMPS format trajectory files (`.lammpstrj`) are supported.
+現在、LAMMPSのテキスト形式のトラジェクトリファイル（.lammpstrj）のみサポートしています。
 
 ## Examples
-You can easily compute mean square displacement (MSD) and mean square radius of gyration (Rg2) in `examples` directory.
+examplesディレクトリ内にあるコードを用いて、平均二乗変位（MSD）および平均二乗回転半径（Rg2）を簡単に計算できます。
 
 ### compile 
 ```
