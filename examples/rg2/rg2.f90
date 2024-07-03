@@ -4,7 +4,7 @@ program main
     use math
     use statistics
     use coord_convert
-    use time_dependent_function
+    use correlation_function
 
     implicit none
 
@@ -39,7 +39,7 @@ program main
 
     double precision :: mean
     double precision :: var
-    type(ProbDistFunction) :: pdf
+    type(Function1D) :: pdf
     integer :: num_bins = 100
 
     double precision, allocatable :: work(:)
