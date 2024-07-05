@@ -174,7 +174,7 @@ contains
         ly = box_dim(2, 2) - box_dim(1, 2)
         xy = box_dim(3, 1)
         orthogonal_coords(1, :) = coords(1, :) + coords(2, :) * xy / sqrt(ly*ly + xy*xy)
-        orthogonal_coords(2, :) = coords(2, :) * ly / sqrt(ly*ly + xy*xy)
+        orthogonal_coords(2, :) = coords(2, :) !* ly / sqrt(ly*ly + xy*xy)
     end function triclinic_to_orthogonal_real
     function triclinic_to_orthogonal_traj(traj) result(orthogonal_traj)
         implicit none
@@ -186,6 +186,7 @@ contains
         orthogonal_traj = traj
         do i = 1, traj%nframes
             orthogonal_traj%coords(:, :, i) = triclinic_to_orthogonal_real(traj%coords(:, :, i), traj%box_dim(:, :, i))
+            orthogonal_traj%box_dim(:, :, i) = traj%box_dim(:, :, 1)
         end do
         orthogonal_traj%is_cubic = .true.
     end function triclinic_to_orthogonal_traj
