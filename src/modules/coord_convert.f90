@@ -175,7 +175,7 @@ contains
         orthogonal_coords(1, :) = coords(1, :) + coords(2, :) * xy / sqrt(ly*ly + xy*xy)
         orthogonal_coords(2, :) = coords(2, :) * ly / sqrt(ly*ly + xy*xy)
 
-    end function triclinic_to_orthogonal
+    end function triclinic_to_orthogonal_real
     function triclinic_to_orthogonal_traj(traj) result(orthogonal_traj)
         implicit none
 
