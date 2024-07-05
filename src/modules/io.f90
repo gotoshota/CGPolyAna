@@ -376,9 +376,15 @@ contains
             write(dump, "(A)") "ITEM: NUMBER OF ATOMS"
             write(dump, *) traj%nparticles
             write(dump, "(A)") "ITEM: BOX BOUNDS pp pp pp"
-            write(dump, *) traj%box_dim(1, 1, frame), traj%box_dim(2, 1, frame)
-            write(dump, *) traj%box_dim(1, 2, frame), traj%box_dim(2, 2, frame)
-            write(dump, *) traj%box_dim(1, 3, frame), traj%box_dim(2, 3, frame)
+            if (traj%is_cubic) then
+                write(dump, *) traj%box_dim(1, 1, frame), traj%box_dim(2, 1, frame)
+                write(dump, *) traj%box_dim(1, 2, frame), traj%box_dim(2, 2, frame)
+                write(dump, *) traj%box_dim(1, 3, frame), traj%box_dim(2, 3, frame)
+            else
+                write(dump, *) traj%box_dim(1, 1, frame), traj%box_dim(2, 1, frame), traj%box_dim(3, 1, frame)
+                write(dump, *) traj%box_dim(1, 2, frame), traj%box_dim(2, 2, frame), traj%box_dim(3, 2, frame)
+                write(dump, *) traj%box_dim(1, 3, frame), traj%box_dim(2, 3, frame), traj%box_dim(3, 3, frame)
+            end if
             write(dump, '(A)') trim(header_string)  ! Using '(A)' format to write the full header_string
 
             ! Write atom data
