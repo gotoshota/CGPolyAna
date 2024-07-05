@@ -168,6 +168,7 @@ contains
         real, intent(in) :: box_dim(:, :)
         real :: orthogonal_coords(size(coords, 1), size(coords, 2))
         real :: ly, xy
+        integer :: i
 
         orthogonal_coords = coords
         ly = box_dim(2, 2) - box_dim(2, 1)
