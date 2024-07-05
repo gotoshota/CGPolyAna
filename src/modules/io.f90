@@ -274,14 +274,14 @@ contains
                 end if
 
                 ! Unwrap coordinates if image flags are present
-                if (idx%ix /= 0 .and. idx%iy /= 0 .and. idx%iz /= 0) then
-                    traj%coords(1, i, idx_frame) = traj%coords(1, i, idx_frame) + &
-                        traj%image_flag(1, i, idx_frame) * (traj%box_dim(2, 1, idx_frame) -traj%box_dim(1, 1, idx_frame))
-                    traj%coords(2, i, idx_frame) = traj%coords(2, i, idx_frame) + &
-                        traj%image_flag(2, i, idx_frame) * (traj%box_dim(2, 2, idx_frame) -traj%box_dim(1, 2, idx_frame))
-                    traj%coords(3, i, idx_frame) = traj%coords(3, i, idx_frame) + &
-                        traj%image_flag(3, i, idx_frame) * (traj%box_dim(2, 3, idx_frame) -traj%box_dim(1, 3, idx_frame))
-                end if
+                !if (idx%ix /= 0 .and. idx%iy /= 0 .and. idx%iz /= 0) then
+                !    traj%coords(1, i, idx_frame) = traj%coords(1, i, idx_frame) + &
+                !        traj%image_flag(1, i, idx_frame) * (traj%box_dim(2, 1, idx_frame) -traj%box_dim(1, 1, idx_frame))
+                !    traj%coords(2, i, idx_frame) = traj%coords(2, i, idx_frame) + &
+                !        traj%image_flag(2, i, idx_frame) * (traj%box_dim(2, 2, idx_frame) -traj%box_dim(1, 2, idx_frame))
+                !    traj%coords(3, i, idx_frame) = traj%coords(3, i, idx_frame) + &
+                !        traj%image_flag(3, i, idx_frame) * (traj%box_dim(2, 3, idx_frame) -traj%box_dim(1, 3, idx_frame))
+                !end if
 
                 if (idx%xs /= 0 .and. idx%ys /= 0 .and. idx%zs /= 0) then
                     print *, "Error: xs, ys, zs are not supported yet."
