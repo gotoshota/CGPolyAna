@@ -171,8 +171,8 @@ contains
         integer :: i
 
         orthogonal_coords = coords
-        ly = box_dim(2, 2) - box_dim(2, 1)
-        xy = box_dim(1, 3)
+        ly = box_dim(2, 2) - box_dim(1, 2)
+        xy = box_dim(3, 1)
         orthogonal_coords(1, :) = coords(1, :) + coords(2, :) * xy / sqrt(ly*ly + xy*xy)
         orthogonal_coords(2, :) = coords(2, :) * ly / sqrt(ly*ly + xy*xy)
 
