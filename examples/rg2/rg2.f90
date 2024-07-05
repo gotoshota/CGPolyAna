@@ -4,14 +4,14 @@ program main
     use math
     use statistics
     use coord_convert
-    use time_dependent_function
+    use correlation_function
 
     implicit none
 
     type(trajectory) :: traj
     type(trajectory) :: traj_wrap
     type(AtomHeader_Index) :: headers
-    type(TimeDependentFunction) :: rg2_time
+    type(Function1D) :: rg2_time
 
     character(len=256) :: arg
     integer :: num_args
@@ -55,7 +55,7 @@ program main
     end if
 
     call read_simulation_params(param_filename, traj)
-    call read_TimeDependentFunctionInfo(param_filename, rg2_time)
+    call read_Function1DInfo(param_filename, rg2_time)
     call determine_frame_intervals(rg2_time, traj)
     call read_traj(traj)
     traj_wrap = traj
@@ -102,7 +102,7 @@ program main
         write (outfile, *) "# time [\tau_LJ], Mean of Rg2 [sigma^2], standard deviation of Rg2 [sigma^2]"
         do i = 1, rg2_time%npoints
             call mean_and_variance(rg2(:, rg2_time%frame_intervals(i)), traj%nchains, mean, var)
-            write (outfile, *) rg2_time%t(i), mean, dsqrt(var)
+            write (outfile, *) rg2_time%x(i), mean, dsqrt(var)
         end do
     close (outfile)
     pdf%n_bins = num_bins
@@ -224,7 +224,7 @@ contains
         implicit none
 
         character(LEN=*), intent(IN) :: filename
-        type(ProbDistFunciton), intent(IN) :: pdf
+        type(ProbDistFunction), intent(IN) :: pdf
 
         ! local variables
         integer :: output = 17
