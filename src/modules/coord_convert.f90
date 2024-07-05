@@ -182,6 +182,7 @@ contains
 
         type(trajectory), intent(in) :: traj
         type(trajectory) :: orthogonal_traj
+        integer :: i
 
         orthogonal_traj = traj
         do i = 1, traj%nframes
