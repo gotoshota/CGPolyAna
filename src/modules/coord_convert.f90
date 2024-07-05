@@ -10,7 +10,7 @@ module coord_convert
     interface triclinic_to_orthogonal
         module procedure triclinic_to_orthogonal_real
         module procedure triclinic_to_orthogonal_traj
-    end interface tri_clinic_to_orthogonal
+    end interface triclinic_to_orthogonal
 
 contains
     ! ==========================================================
