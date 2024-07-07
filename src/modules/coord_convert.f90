@@ -137,7 +137,7 @@ contains
         wrapped_coords = coords
         do i = 1, size(coords, 2) - 1
             dist = distance(coords(:, i), coords(:, i+1))
-            if (dist > 1.3) then
+            if (dist > 1.5) then
                 do j = 1, 3
                     disp = coords(:, i+1) - coords(:, i)
                     wrapped_coords(:, i+1) = coords(:, i+1) - box_size(j) * nint(disp(j) / box_size(j))
