@@ -111,50 +111,59 @@ contains
         end do
     end function wrap_coords
 
-    ! ポリマーの連結性を保証して座標をラップする関数
+    ! ポリマーの連結性を保証してラップする
     function wrap_polymer(coords, box_dim) result(wrapped_coords)
-        implicit none
+    implicit none
 
-        real, intent(in) :: coords(:, :)
-        real, intent(in) :: box_dim(2, 3)
-        real :: wrapped_coords(size(coords, 1), size(coords, 2))
+    real, intent(in) :: coords(:, :)
+    real, intent(in) :: box_dim(:, :)
+    real :: wrapped_coords(size(coords, 1), size(coords, 2))
 
-        real :: dist
-        real :: disp(3)
-        real :: box_size(3)
-        real :: com(3), center(3)
+    real :: dist
+    real :: disp(3)
+    real :: box_size(3)
+    real :: com(3), center(3)
 
-        integer :: i, j
+    integer :: i, j
 
-        ! Calculate the box size in each dimension
-        box_size = [box_dim(2, 1) - box_dim(1, 1), &
-                    box_dim(2, 2) - box_dim(1, 2), &
-                    box_dim(2, 3) - box_dim(1, 3)]
-        center   = [(box_dim(2, 1) + box_dim(1, 1)) / 2.0, &
-                    (box_dim(2, 2) + box_dim(1, 2)) / 2.0, &
-                    (box_dim(2, 3) + box_dim(1, 3)) / 2.0]
+    ! Calculate the box size in each dimension
+    box_size = [box_dim(2, 1) - box_dim(1, 1), &
+                box_dim(2, 2) - box_dim(1, 2), &
+                box_dim(2, 3) - box_dim(1, 3)]
+    center   = [(box_dim(2, 1) + box_dim(1, 1)) / 2.0, &
+                (box_dim(2, 2) + box_dim(1, 2)) / 2.0, &
+                (box_dim(2, 3) + box_dim(1, 3)) / 2.0]
 
-        wrapped_coords = coords
-        do i = 1, size(coords, 2) - 1
-            dist = distance(coords(:, i), coords(:, i+1))
-            if (dist > 1.3) then
-                do j = 1, 3
-                    disp = coords(:, i+1) - coords(:, i)
-                    wrapped_coords(:, i+1) = coords(:, i+1) - box_size(j) * nint(disp(j) / box_size(j))
-                end do
-            else
-                wrapped_coords(:, i+1) = coords(:, i+1)
+    wrapped_coords = coords
+    do i = 1, size(coords, 2) - 1
+        dist = distance(coords(:, i), coords(:, i+1))
+        if (dist > 1.5) then
+            disp = coords(:, i+1) - coords(:, i)
+            do j = 1, 3
+                wrapped_coords(j, i+1) = coords(j, i+1) - box_size(j) * nint(disp(j) / box_size(j))
+            end do
+            dist = distance(coords(:, i), wrapped_coords(:, i+1))
+            if (dist > 1.5) then
+                print *, "Error: wrapping failed"
+                stop
             end if
-        enddo
+        else
+            wrapped_coords(:, i+1) = coords(:, i+1)
+        end if
+    end do
 
-        com = center_of_mass_coords_arg(wrapped_coords)
-        disp = com - center
-        do j = 1, 3
-            if (abs(disp(j)) > box_size(j) / 2.0) then
-                wrapped_coords(j, :) = wrapped_coords(j, :) - box_size(j) * nint(disp(j) / box_size(j))
-            end if
+    com = center_of_mass_coords_arg(wrapped_coords)
+    disp = com - center
+    if (abs(disp(j)) > box_size(j) / 2.0) then
+        do i = 1, size(coords, 2)
+            do j = 1, 3
+                wrapped_coords(j, i) = wrapped_coords(j, i) - box_size(j) * nint(disp(j) / box_size(j))
+            end do
         end do
-    end function wrap_polymer
+    end if
+end function wrap_polymer
+
+
 
     ! ==========================================================
     ! triclinic => orthogonal
@@ -168,7 +177,6 @@ contains
         real, intent(in) :: box_dim(:, :)
         real :: orthogonal_coords(size(coords, 1), size(coords, 2))
         real :: ly, xy
-        integer :: i
 
         orthogonal_coords = coords
         ly = box_dim(2, 2) - box_dim(1, 2)

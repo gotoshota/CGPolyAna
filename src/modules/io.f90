@@ -124,7 +124,7 @@ contains
 
 
         integer(KIND=4), parameter :: dump = 111
-        integer :: i, j
+        integer :: i
         integer :: nparticles
         integer :: nColums
         INTEGER(KIND=1) :: header_flag = 0
@@ -133,8 +133,7 @@ contains
 
         CHARACTER(len=256) :: line
         
-        CHARACTER(LEN=:), ALLOCATABLE :: atom_header_parts(:), atom_parts(:)
-
+        CHARACTER(LEN=:), allocatable :: atom_header_parts(:), atom_parts(:)
 
         open (dump, file=traj%dumpfilenames(idx_dumpfile), status='old')
 
