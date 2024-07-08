@@ -172,21 +172,62 @@ end function wrap_polymer
     ! ==========================================================
     ! triclinic => orthogonal
     ! ==========================================================
-    ! x 方向へのせん断 tilte_xy を用いて直交座標系に変換する関数
-    ! 将来的に、もっと一般化したい
+    !function triclinic_to_orthogonal_real_old(coords, box_dim) result(orthogonal_coords)
+    !    implicit none
+
+    !    real, intent(in) :: coords(:, :)
+    !    real, intent(in) :: box_dim(:, :)
+    !    real :: orthogonal_coords(size(coords, 1), size(coords, 2))
+    !    real :: ly, xy
+
+    !    orthogonal_coords = coords
+    !    ly = box_dim(2, 2) - box_dim(1, 2)
+    !    xy = box_dim(3, 1)
+    !    orthogonal_coords(1, :) = coords(1, :) + coords(2, :) * xy / sqrt(ly*ly + xy*xy)
+    !    orthogonal_coords(2, :) = coords(2, :) !* ly / sqrt(ly*ly + xy*xy)
+    !end function triclinic_to_orthogonal_real_old
     function triclinic_to_orthogonal_real(coords, box_dim) result(orthogonal_coords)
         implicit none
-
         real, intent(in) :: coords(:, :)
         real, intent(in) :: box_dim(:, :)
         real :: orthogonal_coords(size(coords, 1), size(coords, 2))
-        real :: ly, xy
 
-        orthogonal_coords = coords
+        real :: a, b(2), c(3) ! 変換行列 : LAMMPS How to triclinc 参照
+        real :: scalar_b, scalar_c ! 変換行列のスカラー成分 : 長さ
+        real :: cos_beta, cos_gamma ! 非直交座標系の角度
+        real :: lx, ly, lz ! LAMMPS出力: lh - lo
+        real :: xy, xz, yz ! LAMMPS出力: tilte
+
+
+        ! 直交座標系でのボックスの大きさ: LAMMPSの出力
+        lx = box_dim(2, 1) - box_dim(1, 1)
         ly = box_dim(2, 2) - box_dim(1, 2)
+        lz = box_dim(2, 3) - box_dim(1, 3)
+        ! ボックスの角度: LAMMPSの出力
         xy = box_dim(3, 1)
-        orthogonal_coords(1, :) = coords(1, :) + coords(2, :) * xy / sqrt(ly*ly + xy*xy)
-        orthogonal_coords(2, :) = coords(2, :) !* ly / sqrt(ly*ly + xy*xy)
+        xz = box_dim(3, 2)
+        yz = box_dim(3, 3)
+        ! スカラー長さの計算
+        scalar_b = sqrt(ly**2 + xy**2)
+        scalar_c = sqrt(lz**2 + xz**2 + yz**2)
+        ! cos(beta), cos(gamma)の計算 : How to triclinic 参照
+        cos_beta = xz / scalar_c
+        cos_gamma = xy / scalar_b
+        ! 変換行列の計算
+        a = lx
+        b(1) = scalar_b * cos_gamma
+        b(2) = sqrt(scalar_b**2 - b(1)**2)
+        c(1) = scalar_c * cos_beta
+        c(2) = (ly * lz - xy * xz) / scalar_b
+        c(3) = sqrt(scalar_c**2 - c(1)**2 - c(2)**2)
+        ! 出力がx, y, zの場合
+        a = 1.0
+        b(2) = 1.0
+        c(3) = 1.0
+        ! 座標変換
+        orthogonal_coords(1, :) = a * coords(1, :) + b(1) * coords(2, :) + c(1) * coords(3, :)
+        orthogonal_coords(2, :) = b(2) * coords(2, :) + c(2) * coords(3, :)
+        orthogonal_coords(3, :) = c(3) * coords(3, :)
     end function triclinic_to_orthogonal_real
     function triclinic_to_orthogonal_traj(traj) result(orthogonal_traj)
         implicit none
