@@ -119,7 +119,7 @@ contains
     real, intent(in) :: box_dim(:, :)
     real :: wrapped_coords(size(coords, 1), size(coords, 2))
 
-    real :: dist
+    real :: dist, dist2
     real :: disp(3)
     real :: box_size(3)
     real :: com(3), center(3)
@@ -142,10 +142,13 @@ contains
             do j = 1, 3
                 wrapped_coords(j, i+1) = coords(j, i+1) - box_size(j) * nint(disp(j) / box_size(j))
             end do
-            dist = distance(coords(:, i), wrapped_coords(:, i+1))
-            if (dist > 1.5) then
+            dist2 = distance(coords(:, i), wrapped_coords(:, i+1))
+            if (dist2 > 1.5) then
                 print *, "Error: wrapping failed"
-                stop
+                print*, "dist2"
+                print*, dist2
+                print*, i
+                !stop
             end if
         else
             wrapped_coords(:, i+1) = coords(:, i+1)
