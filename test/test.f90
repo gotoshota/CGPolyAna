@@ -11,9 +11,13 @@ program test
     integer :: i, j
     character(LEN=5) :: i2
 
+    character(LEN=100) :: arg
+
     real, dimension(3) :: a, b
 
-    call read_simulation_params('input.nml', traj)
+    ! get arg as input 
+    call get_command_argument(1, arg)
+    call read_simulation_params(arg, traj)
 
     ! Display the results
     do i = 1, traj%ndumpfiles
@@ -34,11 +38,29 @@ program test
     print *, "Timesteps allocated: ", allocated(traj%timesteps)
 
     call read_traj(traj)
-    do i = 1, traj%nframes
-        do j = 1, traj%nparticles
-            traj%coords(:,j, i) = traj%coords(:,j,i) + traj%image_flag(:,j,i) * (traj%box_dim(2,:,i) - traj%box_dim(1,:,i))
+    if (traj%is_cubic .eqv. .false.) then
+        do i = 2, traj%nframes
+            traj%box_dim(:, :, i) = traj%box_dim(:, :, 1)
         end do
-    end do
+        do i = 1, traj%nframes
+            traj%coords(:, :, i) = wrap_coords(traj%coords(:, :, i), traj%box_dim(:, :, i))
+            do j = 1, traj%nchains
+                traj%coords(:, (j-1)*traj%nbeads+1:j*traj%nbeads, i) = wrap_polymer(traj%coords(:, (j-1)*traj%nbeads+1:&
+                j*traj%nbeads,i),traj%box_dim(:, :, i))
+            end do
+        end do
+    else
+        do i = 1, traj%nframes
+            do j = 1, traj%nparticles
+                traj%coords(:,j, i) = traj%coords(:,j,i) + traj%image_flag(:,j,i) * (traj%box_dim(2,:,i) - traj%box_dim(1,:,i))
+            end do
+            traj%coords(:, :, i) = wrap_coords(traj%coords(:, :, i), traj%box_dim(:, :, i))
+            do j = 1, traj%nchains
+                traj%coords(:, (j-1)*traj%nbeads+1:j*traj%nbeads, i) = wrap_polymer(traj%coords(:, (j-1)*traj%nbeads+1:&
+                j*traj%nbeads,i),traj%box_dim(:, :, i))
+            end do
+        end do
+    end if
     print *, "Coordinates:", (traj%coords(1, 1, i), i=1, traj%nframes)
     atomheader%id = 1
     atomheader%mol = 2
@@ -46,6 +68,8 @@ program test
     atomheader%yu = 4
     atomheader%zu = 5
 
+    call write_lammpstrj(traj, atomheader, "test.lammpstrj")
+    stop
     do i = 1, traj%nframes
         do j = 1, traj%nchains
             traj%coords(:, (j-1)*traj%nbeads+1:j*traj%nbeads, i) = wrap_polymer(traj%coords(:, (j-1)*traj%nbeads+1:j*traj%nbeads,&
@@ -56,7 +80,7 @@ program test
 
 
 
-    call read_Function1DInfo("input.nml", TCinfo)
+    call read_Function1DInfo(arg, TCinfo)
     call determine_frame_intervals(tcinfo, traj)
     print *, tcinfo%frame_intervals
 
