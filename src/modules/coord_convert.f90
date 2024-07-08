@@ -112,6 +112,7 @@ contains
     end function wrap_coords
 
     ! ポリマーの連結性を保証してラップする
+    ! なぜかtriclinic系では失敗する
     function wrap_polymer(coords, box_dim) result(wrapped_coords)
     implicit none
 
