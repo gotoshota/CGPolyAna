@@ -1,14 +1,14 @@
 program test
     use global_types
     use io
-    use time_dependent_function
+    use correlation_function
     use math
     use physical_constants
     implicit none
     type(trajectory) :: traj
-    type(TimeDependentFunction) :: tcinfo
+    type(Function1d) :: tcinfo
     type(AtomHeader_Index) :: atomheader
-    integer :: i
+    integer :: i, j
     character(LEN=5) :: i2
 
     real, dimension(3) :: a, b
@@ -34,15 +34,29 @@ program test
     print *, "Timesteps allocated: ", allocated(traj%timesteps)
 
     call read_traj(traj)
+    do i = 1, traj%nframes
+        do j = 1, traj%nparticles
+            traj%coords(:,j, i) = traj%coords(:,j,i) + traj%image_flag(:,j,i) * (traj%box_dim(2,:,i) - traj%box_dim(1,:,i))
+        end do
+    end do
     print *, "Coordinates:", (traj%coords(1, 1, i), i=1, traj%nframes)
     atomheader%id = 1
-    atomheader%xu = 2
-    atomheader%yu = 3
-    atomheader%zu = 4
+    atomheader%mol = 2
+    atomheader%xu = 3
+    atomheader%yu = 4
+    atomheader%zu = 5
 
+    do i = 1, traj%nframes
+        do j = 1, traj%nchains
+            traj%coords(:, (j-1)*traj%nbeads+1:j*traj%nbeads, i) = wrap_polymer(traj%coords(:, (j-1)*traj%nbeads+1:j*traj%nbeads,&
+            i),traj%box_dim(:, :, i))
+        end do
+    end do
     call write_lammpstrj(traj, atomheader, "test.lammpstrj")
 
-    call read_TimeDependentFunctionInfo("input.nml", TCinfo)
+
+
+    call read_Function1DInfo("input.nml", TCinfo)
     call determine_frame_intervals(tcinfo, traj)
     print *, tcinfo%frame_intervals
 
