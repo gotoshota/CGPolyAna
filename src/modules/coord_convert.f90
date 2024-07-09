@@ -138,11 +138,11 @@ contains
 
         wrapped_coords = coords
         do i = 1, size(coords, 2) - 1
-            dist = distance(wrapped_coords(:, i), coords(:, i+1))
+            dist = distance(wrapped_coords(:, i), wrapped_coords(:, i+1))
             if (dist > 1.5) then
-                disp = coords(:, i+1) - wrapped_coords(:, i)
+                disp = wrapped_coords(:, i+1) - wrapped_coords(:, i)
                 do j = 1, 3
-                    wrapped_coords(j, i+1) = coords(j, i+1) - box_size(j) * nint(disp(j) / box_size(j))
+                    wrapped_coords(j, i+1) = wrapped_coords(j, i+1) - box_size(j) * nint(disp(j) / box_size(j))
                 end do
                 dist2 = distance(wrapped_coords(:, i), wrapped_coords(:, i+1))
                 if (dist2 > 1.5) then
@@ -151,8 +151,6 @@ contains
                     print*, "index = ", i
                     !stop
                 end if
-            else
-                wrapped_coords(:, i+1) = coords(:, i+1)
             end if
         end do
 
@@ -182,8 +180,8 @@ contains
         orthogonal_coords = coords
         ly = box_dim(2, 2) - box_dim(1, 2)
         xy = box_dim(3, 1)
-        orthogonal_coords(1, :) = coords(1, :) + coords(2, :) * xy / sqrt(ly*ly + xy*xy)
-        orthogonal_coords(2, :) = coords(2, :) !* ly / sqrt(ly*ly + xy*xy)
+        orthogonal_coords(1, :) = coords(1, :) - coords(2, :) * xy / sqrt(ly*ly + xy*xy)
+        !orthogonal_coords(2, :) = coords(2, :) !* ly / sqrt(ly*ly + xy*xy)
     end function triclinic_to_orthogonal_real
     !function triclinic_to_orthogonal_real(coords, box_dim) result(orthogonal_coords)
     !    implicit none

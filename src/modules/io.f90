@@ -374,16 +374,14 @@ contains
             write(dump, *) traj%timesteps(frame)
             write(dump, "(A)") "ITEM: NUMBER OF ATOMS"
             write(dump, *) traj%nparticles
-            write(dump, "(A)") "ITEM: BOX BOUNDS pp pp pp"
-            if (traj%is_cubic) then
-                write(dump, *) traj%box_dim(1, 1, frame), traj%box_dim(2, 1, frame)
-                write(dump, *) traj%box_dim(1, 2, frame), traj%box_dim(2, 2, frame)
-                write(dump, *) traj%box_dim(1, 3, frame), traj%box_dim(2, 3, frame)
+            if ( size(traj%box_dim, 1) == 2) then
+                write(dump, "(A)") "ITEM: BOX BOUNDS pp pp pp"
             else
-                write(dump, *) traj%box_dim(1, 1, frame), traj%box_dim(2, 1, frame), traj%box_dim(3, 1, frame)
-                write(dump, *) traj%box_dim(1, 2, frame), traj%box_dim(2, 2, frame), traj%box_dim(3, 2, frame)
-                write(dump, *) traj%box_dim(1, 3, frame), traj%box_dim(2, 3, frame), traj%box_dim(3, 3, frame)
+                write(dump, "(A)") "ITEM: BOX BOUNDS xy xz yz pp pp pp"
             end if
+            write(dump, *) (traj%box_dim(i, 1, frame), i=1, size(traj%box_dim, 1))
+            write(dump, *) (traj%box_dim(i, 2, frame), i=1, size(traj%box_dim, 1))
+            write(dump, *) (traj%box_dim(i, 3, frame), i=1, size(traj%box_dim, 1))
             write(dump, '(A)') trim(header_string)  ! Using '(A)' format to write the full header_string
 
             ! Write atom data
