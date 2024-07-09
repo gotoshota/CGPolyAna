@@ -73,7 +73,7 @@ contains
         real, intent(in) :: coord2(3)
         real :: distance
 
-        distance = sqrt(sum((coord1 - coord2)**2))
+        distance = sqrt(sum((coord1 - coord2)**2.0))
     end function distance
 
     ! ==========================================================
@@ -137,14 +137,14 @@ contains
         center(3)   = (box_dim(2, 3) + box_dim(1, 3)) / 2.0
 
         wrapped_coords = coords
-        do i = 1, size(coords, 1) - 1
-            dist = distance(coords(:, i), coords(:, i+1))
+        do i = 1, size(coords, 2) - 1
+            dist = distance(wrapped_coords(:, i), coords(:, i+1))
             if (dist > 1.5) then
-                disp = coords(:, i+1) - coords(:, i)
+                disp = coords(:, i+1) - wrapped_coords(:, i)
                 do j = 1, 3
                     wrapped_coords(j, i+1) = coords(j, i+1) - box_size(j) * nint(disp(j) / box_size(j))
                 end do
-                dist2 = distance(coords(:, i), wrapped_coords(:, i+1))
+                dist2 = distance(wrapped_coords(:, i), wrapped_coords(:, i+1))
                 if (dist2 > 1.5) then
                     print *, "Error: wrapping failed"
                     print*, "dist2 = ", dist2
