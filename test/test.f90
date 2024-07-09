@@ -39,9 +39,11 @@ program test
 
     call read_traj(traj)
     if (traj%is_cubic .eqv. .false.) then
-        do i = 2, traj%nframes
-            traj%box_dim(:, :, i) = traj%box_dim(:, :, 1)
-        end do
+        print*, "Non-cubic box"
+        traj = triclinic_to_orthogonal(traj)
+        !do i = 2, traj%nframes
+        !    traj%box_dim(:, :, i) = traj%box_dim(:, :, 1)
+        !end do
         do i = 1, traj%nframes
             traj%coords(:, :, i) = wrap_coords(traj%coords(:, :, i), traj%box_dim(:, :, i))
             do j = 1, traj%nchains
@@ -70,15 +72,6 @@ program test
 
     call write_lammpstrj(traj, atomheader, "test.lammpstrj")
     stop
-    do i = 1, traj%nframes
-        do j = 1, traj%nchains
-            traj%coords(:, (j-1)*traj%nbeads+1:j*traj%nbeads, i) = wrap_polymer(traj%coords(:, (j-1)*traj%nbeads+1:j*traj%nbeads,&
-            i),traj%box_dim(:, :, i))
-        end do
-    end do
-    call write_lammpstrj(traj, atomheader, "test.lammpstrj")
-
-
 
     call read_Function1DInfo(arg, TCinfo)
     call determine_frame_intervals(tcinfo, traj)
