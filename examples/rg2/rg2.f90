@@ -8,9 +8,7 @@ program main
 
     implicit none
 
-    type(trajectory) :: traj
-    type(trajectory) :: traj_wrap
-    type(AtomHeader_Index) :: headers
+    type(MDParams) :: params
     type(Function1D) :: rg2_time
 
     character(len=256) :: arg
@@ -54,7 +52,7 @@ program main
         param_filename = trim(adjustl(arg))
     end if
 
-    call read_simulation_params(param_filename, traj)
+    call read_MDParams(param_filename, params)
     call read_Function1DInfo(param_filename, rg2_time)
     call determine_frame_intervals(rg2_time, traj)
     call read_traj(traj)

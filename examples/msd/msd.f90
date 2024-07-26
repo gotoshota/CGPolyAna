@@ -1,15 +1,17 @@
 program main
     use global_types
-    use io
+    use lammpsIO
     use coord_convert
     use math
     use correlation_function
 
     implicit none
 
-    type(trajectory) :: traj
+    type(MDParams) :: params
+    type(lammpstrjReader) :: lmp
     type(Function1D) :: msd
 
+    real, allocatable :: coords(:, :, :)
     double precision, allocatable :: msd_sq(:)
 
     character(len=256) :: arg
@@ -19,19 +21,19 @@ program main
     character(LEN=256) :: msd_mon_filename = "mon.msd"
     character(LEN=256) :: msd_com_filename = "com.msd"
 
-    integer :: i, j, k
+    integer :: i, j, k, idx_frame
 
     real, allocatable :: com(:, :, :)
 
     double precision :: displacement
     double precision :: summation, summation_sq
 
+    ! 引数を取得
     call get_command_argument(1, arg)
     if (trim(adjustl(arg)) .eq. "-h" .or. trim(adjustl(arg)) .eq. "--help") then
        call display_usage()
        stop
     end if
-
     num_args = command_argument_count()
     do i = 1, num_args
         call get_command_argument(i, arg)
@@ -46,59 +48,18 @@ program main
         end if
     end do
 
-    call read_simulation_params(param_filename, traj)
-    call read_traj(traj)
-    allocate (com(3, traj%nchains, traj%nframes))
-    com = center_of_mass(traj)
+    ! input ファイルの読み込み
+    call read_MDParams(param_filename, params)
 
-    call read_Function1DInfo(param_filename, msd)
-    call determine_frame_intervals(msd, traj)
-    allocate (msd_sq(msd%npoints), source=0.0d0)
-
-    print *, ""
-    print *, "Start computing MSD of monomer."
-    msd%y = 0.0d0
-    do i = 1, msd%npoints
-        do j = 1, traj%nframes - msd%frame_intervals(i)
-            summation = 0.0d0
-            summation_sq = 0.0d0
-            do k = 1, traj%nparticles
-                displacement = norm(traj%coords(:, k, j) - traj%coords(:, k, j + msd%frame_intervals(i)))
-                summation = summation + displacement
-                summation_sq = summation_sq + displacement*displacement
-            end do
-            msd%y(i) = msd%y(i) + summation/dble(traj%nparticles)
-            msd_sq(i) = msd_sq(i) + summation_sq/dble(traj%nparticles)
-        end do
-        msd%y(i) = msd%y(i)/real(traj%nframes - msd%frame_intervals(i))
-        msd_sq(i) = msd_sq(i)/real(traj%nframes - msd%frame_intervals(i))
-    end do
-
-    call write_msd(msd_mon_filename, msd, msd_sq)
-    print *, "Fineshed computing MSD of monomer."
-    
-    print *, ""
-    print *, "Start computing MSD of center of mass."
-    msd%y = 0.0d0
-    msd_sq = 0.0d0
-    do i = 1, msd%npoints
-        do j = 1, traj%nframes - msd%frame_intervals(i)
-            summation = 0.0d0
-            summation_sq = 0.0d0
-            do k = 1, traj%nchains
-                displacement = norm(com(:, k, j) - com(:, k, j + msd%frame_intervals(i)))
-                summation = summation + displacement
-                summation_sq = summation_sq + displacement*displacement
-            end do
-            msd%y(i) = msd%y(i) + summation/dble(traj%nchains)
-            msd_sq(i) = msd_sq(i) + summation_sq/dble(traj%nchains)
-        end do
-        msd%y(i) = msd%y(i)/real(traj%nframes - msd%frame_intervals(i))
-        msd_sq(i) = msd_sq(i)/real(traj%nframes - msd%frame_intervals(i))
-    end do
-
-    call write_msd(msd_com_filename, msd, msd_sq)
-    print *, "Fineshed computing MSD of center of mass."
+    call lmp%open(params%dumpfilenames(1))
+    ! 全部のフレームを読んで格納しちゃう
+    do idx_frame = 1, params%nframes
+        call lmp%read()
+        if ( idx_frame .eq. 1) then
+            ALLOCATE(coords(3, lmp%nparticles, params%nframes))
+            coords(:, :, idx_frame) = lmp%coords
+        end if
+    enddo
 
 contains
     subroutine write_msd(filename, msd, msd_sq)

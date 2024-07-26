@@ -1,4 +1,4 @@
-&MDParams
+&MDParams_nml
     dumpfilenames = "dump.lammpstrj"
     ndumpfiles = 1
     nchains = 100,
