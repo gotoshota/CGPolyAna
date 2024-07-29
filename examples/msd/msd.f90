@@ -1,4 +1,5 @@
 program main
+    !$ use omp_lib
     use global_types
     use lammpsIO
     use coord_convert
@@ -26,7 +27,9 @@ program main
     real, allocatable :: com(:, :, :)
 
     double precision :: displacement
-    double precision :: summation, summation_sq
+    double precision :: summation, summation_sq, tmp
+
+    double precision :: box_size(3)
 
     ! 引数を取得
     call get_command_argument(1, arg)
@@ -50,18 +53,86 @@ program main
 
     ! input ファイルの読み込み
     call read_MDParams(param_filename, params)
+    call read_Function1Dinfo(param_filename, msd)
+    allocate(msd_sq(msd%npoints))
+    call determine_frame_intervals(msd, params%nframes, params%dt, params%dump_freq)
 
     call lmp%open(params%dumpfilenames(1))
     ! 全部のフレームを読んで格納しちゃう
-    do idx_frame = 1, params%nframes
+    ! idx_frame = 1
+    call lmp%read()
+    ALLOCATE(coords(3, lmp%nparticles, params%nframes))
+    box_size(:) = lmp%box_bounds(2, :) - lmp%box_bounds(1, :)
+    do i = 1, lmp%nparticles
+        coords(:, i, 1) = lmp%coords(:, i) + lmp%image_flags(:, i) * box_size(:)
+    end do
+    coords(:, :, 1) = lmp%coords(:,:)
+    do idx_frame = 2, params%nframes
         call lmp%read()
-        if ( idx_frame .eq. 1) then
-            ALLOCATE(coords(3, lmp%nparticles, params%nframes))
-            coords(:, :, idx_frame) = lmp%coords
-        end if
+        box_size = lmp%box_bounds(2, :) - lmp%box_bounds(1, :)
+        do i = 1, lmp%nparticles
+            coords(:, i, idx_frame) = lmp%coords(:, i) + lmp%image_flags(:, i) * box_size(:)
+        end do
+        coords(:, :, idx_frame) = lmp%coords(:,:)
     enddo
 
+    do i = 1, msd%npoints
+    print *, "Calculating MSD of monomer... ", i, "/", msd%npoints
+        ! MSD Monoer
+
+        !do j = 1, params%nframes - msd%frame_intervals(i)
+        !    summation = 0.0
+        !    summation_sq = 0.0
+        !    do k = 1, lmp%nparticles
+        !        tmp = sum((coords(:, k, j + msd%frame_intervals(i)) - coords(:, k, j)) ** 2)
+        !        summation = summation + tmp
+        !        summation_sq = summation_sq + tmp * tmp
+        !    end do
+        !    print *, "a"
+        !    msd%y(i) = msd%y(i) + summation / lmp%nparticles
+        !    print *, "b"
+        !    msd_sq(i) = msd_sq(i) + summation_sq / lmp%nparticles
+        !    print *, "c"
+        !end do
+        !msd % y(i) = msd % y(i) / (params % nframes - msd % frame_intervals(i))
+        !msd_sq(i) = msd_sq(i) / (params % nframes - msd % frame_intervals(i))
+        call calc_msd(params, lmp, msd, coords, msd_sq, i)
+    end do
+
+    call write_msd(msd_mon_filename, msd, msd_sq)
+
+
+
 contains
+    subroutine calc_msd(params, lmp, msd, coords, msd_sq, i)
+        !$ use omp_lib
+        implicit none
+        type(MDParams), intent(IN) :: params
+        type(lammpstrjReader), intent(IN) :: lmp
+        type(Function1D), intent(INOUT) :: msd
+        real, intent(IN) :: coords(:, :, :)
+        double precision, intent(INOUT) :: msd_sq(:)
+        integer, intent(IN) :: i
+         
+
+        print *, lmp%nparticles
+        print *, params%nframes
+        print *, msd%frame_intervals(i)
+        do j = 1, params%nframes - msd%frame_intervals(i)
+            summation = 0.0
+            summation_sq = 0.0
+            do k = 1, lmp%nparticles
+                tmp = sum((coords(:, k, j + msd%frame_intervals(i)) - coords(:, k, j)) ** 2)
+                summation = summation + tmp
+                summation_sq = summation_sq + tmp * tmp
+            end do
+            msd%y(i) = msd%y(i) + summation / lmp%nparticles
+            msd_sq(i) = msd_sq(i) + summation_sq / lmp%nparticles
+        end do
+        msd % y(i) = msd % y(i) / (params % nframes - msd % frame_intervals(i))
+        msd_sq(i) = msd_sq(i) / (params % nframes - msd % frame_intervals(i))
+    end subroutine
+
     subroutine write_msd(filename, msd, msd_sq)
         implicit none
 

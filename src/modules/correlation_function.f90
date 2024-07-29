@@ -68,7 +68,6 @@ contains
             stop
 
         end if
-
     end subroutine
 
     subroutine determine_frame_intervals(func, nframes, dt, dump_freq)
