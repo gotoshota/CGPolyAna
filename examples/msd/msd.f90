@@ -63,39 +63,16 @@ program main
     call lmp%read()
     ALLOCATE(coords(3, lmp%nparticles, params%nframes))
     box_size(:) = lmp%box_bounds(2, :) - lmp%box_bounds(1, :)
-    do i = 1, lmp%nparticles
-        coords(:, i, 1) = lmp%coords(:, i) + lmp%image_flags(:, i) * box_size(:)
-    end do
-    coords(:, :, 1) = lmp%coords(:,:)
+    coords(:, :, 1) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
     do idx_frame = 2, params%nframes
         call lmp%read()
         box_size = lmp%box_bounds(2, :) - lmp%box_bounds(1, :)
-        do i = 1, lmp%nparticles
-            coords(:, i, idx_frame) = lmp%coords(:, i) + lmp%image_flags(:, i) * box_size(:)
-        end do
-        coords(:, :, idx_frame) = lmp%coords(:,:)
+        coords(:, :, idx_frame) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
     enddo
+    call write_lmptrj(coords)
 
     do i = 1, msd%npoints
     print *, "Calculating MSD of monomer... ", i, "/", msd%npoints
-        ! MSD Monoer
-
-        !do j = 1, params%nframes - msd%frame_intervals(i)
-        !    summation = 0.0
-        !    summation_sq = 0.0
-        !    do k = 1, lmp%nparticles
-        !        tmp = sum((coords(:, k, j + msd%frame_intervals(i)) - coords(:, k, j)) ** 2)
-        !        summation = summation + tmp
-        !        summation_sq = summation_sq + tmp * tmp
-        !    end do
-        !    print *, "a"
-        !    msd%y(i) = msd%y(i) + summation / lmp%nparticles
-        !    print *, "b"
-        !    msd_sq(i) = msd_sq(i) + summation_sq / lmp%nparticles
-        !    print *, "c"
-        !end do
-        !msd % y(i) = msd % y(i) / (params % nframes - msd % frame_intervals(i))
-        !msd_sq(i) = msd_sq(i) / (params % nframes - msd % frame_intervals(i))
         call calc_msd(params, lmp, msd, coords, msd_sq, i)
     end do
 
@@ -133,6 +110,31 @@ contains
         msd_sq(i) = msd_sq(i) / (params % nframes - msd % frame_intervals(i))
     end subroutine
 
+    subroutine write_lmptrj(coords)
+        implicit none
+        real, intent(IN) :: coords(:, :, :)
+
+        integer :: output = 17
+        integer :: i, j, k
+        character(LEN=256) :: filename = "test.lammpstrj"
+
+        open(output, file=filename, status="replace")
+            do i = 1, size(coords, 3)
+                write(output, "(A)") "ITEM: TIMESTEP"
+                write(output, "(I0)") 0
+                write(output, "(A)") "ITEM: NUMBER OF ATOMS"
+                write(output, "(I0)") size(coords, 2)
+                write(output, "(A)") "ITEM: BOX BOUNDS pp pp pp"
+                write(output, "(3(G0, 1x))") 0.0, 1.0, 0.0
+                write(output, "(3(G0, 1x))") 0.0, 1.0, 0.0
+                write(output, "(3(G0, 1x))") 0.0, 1.0, 0.0
+                write(output, "(A)") "ITEM: ATOMS id x y z"
+                do j = 1, size(coords, 2)
+                    write(output, "(I0, 1X, 3(G0,1x))") j, coords(1, j, i), coords(2, j, i), coords(3, j, i)
+                end do
+            end do
+        close(output)
+    end subroutine
     subroutine write_msd(filename, msd, msd_sq)
         implicit none
 
