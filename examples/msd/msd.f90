@@ -55,6 +55,7 @@ program main
     call read_MDParams(param_filename, params)
     call read_Function1Dinfo(param_filename, msd)
     allocate(msd_sq(msd%npoints))
+    allocate(com(3, params%nchains, params%nframes))
     call determine_frame_intervals(msd, params%nframes, params%dt, params%dump_freq)
 
     call lmp%open(params%dumpfilenames(1))
@@ -62,57 +63,68 @@ program main
     ! idx_frame = 1
     call lmp%read()
     ALLOCATE(coords(3, lmp%nparticles, params%nframes))
-    box_size(:) = lmp%box_bounds(2, :) - lmp%box_bounds(1, :)
     coords(:, :, 1) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
+    do i = 1, params%nchains
+        com(:, i, 1) = center_of_mass(coords(:, (i-1)*params%nbeads:i*params%nbeads, 1))
+    end do
+    ! idx_frame = 2 ~ nframes
     do idx_frame = 2, params%nframes
         call lmp%read()
-        box_size = lmp%box_bounds(2, :) - lmp%box_bounds(1, :)
         coords(:, :, idx_frame) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
+        do i = 1, params%nchains
+            com(:, i, idx_frame) = center_of_mass(coords(:, (i - 1) * params%nbeads + 1:i * params%nbeads, idx_frame))
+        end do
     enddo
-    call write_lmptrj(coords)
-
+    ! MSD の計算 
+    ! monomer
+    msd%y = 0.0
+    msd_sq = 0.0
     do i = 1, msd%npoints
-    print *, "Calculating MSD of monomer... ", i, "/", msd%npoints
-        call calc_msd(params, lmp, msd, coords, msd_sq, i)
+        call calc_msd(lmp, msd, coords, msd_sq, i)
     end do
-
     call write_msd(msd_mon_filename, msd, msd_sq)
-
-
+    ! center of mass
+    msd%y = 0.0
+    msd_sq = 0.0
+    do i = 1, msd%npoints
+        call calc_msd(lmp, msd, com, msd_sq, i)
+    end do
+    call write_msd(msd_com_filename, msd, msd_sq)
+    call write_lmptrj(com, lmp%box_bounds, lmp%image_flags)
 
 contains
-    subroutine calc_msd(params, lmp, msd, coords, msd_sq, i)
+    subroutine calc_msd(lmp, msd, coords, msd_sq, i)
         !$ use omp_lib
         implicit none
-        type(MDParams), intent(IN) :: params
         type(lammpstrjReader), intent(IN) :: lmp
         type(Function1D), intent(INOUT) :: msd
         real, intent(IN) :: coords(:, :, :)
         double precision, intent(INOUT) :: msd_sq(:)
         integer, intent(IN) :: i
+        real :: dr(3)
          
 
-        print *, lmp%nparticles
-        print *, params%nframes
-        print *, msd%frame_intervals(i)
-        do j = 1, params%nframes - msd%frame_intervals(i)
+        do j = 1, size(coords, 3) - msd%frame_intervals(i)
             summation = 0.0
             summation_sq = 0.0
-            do k = 1, lmp%nparticles
-                tmp = sum((coords(:, k, j + msd%frame_intervals(i)) - coords(:, k, j)) ** 2)
+            do k = 1, size(coords, 2)
+                dr = coords(:, k, j + msd%frame_intervals(i)) - coords(:, k, j)
+                tmp = dr(1) * dr(1) + dr(2) * dr(2) + dr(3) * dr(3)
                 summation = summation + tmp
                 summation_sq = summation_sq + tmp * tmp
             end do
-            msd%y(i) = msd%y(i) + summation / lmp%nparticles
-            msd_sq(i) = msd_sq(i) + summation_sq / lmp%nparticles
+            msd%y(i) = msd%y(i) + summation / size(coords, 2)
+            msd_sq(i) = msd_sq(i) + summation_sq / size(coords, 2)
         end do
-        msd % y(i) = msd % y(i) / (params % nframes - msd % frame_intervals(i))
-        msd_sq(i) = msd_sq(i) / (params % nframes - msd % frame_intervals(i))
+        msd % y(i) = msd % y(i) / (size(coords,3) - msd % frame_intervals(i) + 1)
+        msd_sq(i) = msd_sq(i) / (size(coords, 3) - msd % frame_intervals(i) + 1)
     end subroutine
 
-    subroutine write_lmptrj(coords)
+    subroutine write_lmptrj(coords, box_bounds, image_flags)
         implicit none
         real, intent(IN) :: coords(:, :, :)
+        DOUBLE PRECISION, intent(IN) :: box_bounds(3, 2)
+        integer, intent(IN) :: image_flags(3)
 
         integer :: output = 17
         integer :: i, j, k
@@ -125,12 +137,12 @@ contains
                 write(output, "(A)") "ITEM: NUMBER OF ATOMS"
                 write(output, "(I0)") size(coords, 2)
                 write(output, "(A)") "ITEM: BOX BOUNDS pp pp pp"
-                write(output, "(3(G0, 1x))") 0.0, 1.0, 0.0
-                write(output, "(3(G0, 1x))") 0.0, 1.0, 0.0
-                write(output, "(3(G0, 1x))") 0.0, 1.0, 0.0
-                write(output, "(A)") "ITEM: ATOMS id x y z"
+                write(output, "(E22.15, 1x, E22.15)") box_bounds(1, 1), box_bounds(2, 1)
+                write(output, "(E22.15, 1x, E22.15)") box_bounds(1, 1), box_bounds(2, 1)
+                write(output, "(E22.15, 1x, E22.15)") box_bounds(1, 1), box_bounds(2, 1)
+                write(output, "(A)") "ITEM: ATOMS id type x y z"
                 do j = 1, size(coords, 2)
-                    write(output, "(I0, 1X, 3(G0,1x))") j, coords(1, j, i), coords(2, j, i), coords(3, j, i)
+                    write(output, "(I0, 1X, I1, 1X, 3(G0,1x))") j, 1, coords(1, j, i), coords(2, j, i), coords(3, j, i)
                 end do
             end do
         close(output)
