@@ -29,6 +29,8 @@ program main
     double precision :: displacement
     double precision :: summation, summation_sq, tmp
 
+    double precision :: box_size(3)
+
     ! 引数を取得
     call get_command_argument(1, arg)
     if (trim(adjustl(arg)) .eq. "-h" .or. trim(adjustl(arg)) .eq. "--help") then
@@ -60,9 +62,18 @@ program main
     ! idx_frame = 1
     call lmp%read()
     ALLOCATE(coords(3, lmp%nparticles, params%nframes))
+    box_size(:) = lmp%box_bounds(2, :) - lmp%box_bounds(1, :)
+    do i = 1, lmp%nparticles
+        coords(:, i, 1) = lmp%coords(:, i) + lmp%image_flags(:, i) * box_size(:)
+    end do
+    coords(:, :, 1) = lmp%coords(:,:)
     do idx_frame = 2, params%nframes
         call lmp%read()
-        coords(:, :, idx_frame) = lmp%coords
+        box_size = lmp%box_bounds(2, :) - lmp%box_bounds(1, :)
+        do i = 1, lmp%nparticles
+            coords(:, i, idx_frame) = lmp%coords(:, i) + lmp%image_flags(:, i) * box_size(:)
+        end do
+        coords(:, :, idx_frame) = lmp%coords(:,:)
     enddo
 
     do i = 1, msd%npoints
