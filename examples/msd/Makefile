@@ -1,7 +1,7 @@
 # Compiler settings - can be customized.
 FC = gfortran
-FCFLAGS = -O2 -Wall
-LDFLAGS =
+FCFLAGS = -g
+LDFLAGS = -g -fopenmp -lprofiler
 
 # Directory structure
 SRCDIR = ../../src/
