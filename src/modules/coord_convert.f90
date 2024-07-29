@@ -51,10 +51,10 @@ contains
         double precision :: xlo, xhi, ylo, yhi, zlo, zhi ! 実際のボックスの境界
 
         ! LAMMPSのbox_boundsから実際のボックスの境界を計算
-        xlo = box_bounds(1, 1) + min(0.0, box_bounds(3, 1), box_bounds(3, 2), box_bounds(3, 1) + box_bounds(3, 2))
-        xhi = box_bounds(2, 1) + max(0.0, box_bounds(3, 1), box_bounds(3, 2), box_bounds(3, 1) + box_bounds(3, 2))
-        ylo = box_bounds(1, 2) + min(0.0, box_bounds(3, 3))
-        yhi = box_bounds(2, 2) + max(0.0, box_bounds(3, 3))
+        xlo = box_bounds(1, 1) - min(0.0, box_bounds(3, 1), box_bounds(3, 2), box_bounds(3, 1) + box_bounds(3, 2))
+        xhi = box_bounds(2, 1) - max(0.0, box_bounds(3, 1), box_bounds(3, 2), box_bounds(3, 1) + box_bounds(3, 2))
+        ylo = box_bounds(1, 2) - min(0.0, box_bounds(3, 3))
+        yhi = box_bounds(2, 2) - max(0.0, box_bounds(3, 3))
         zlo = box_bounds(1, 3) 
         zhi = box_bounds(2, 3) 
         ! Simulation cell のサイズと中心を計算
@@ -65,6 +65,25 @@ contains
         center(2)   = (box_bounds(1, 2) + box_bounds(2, 2)) / 2.0
         center(3)   = (box_bounds(1, 3) + box_bounds(2, 3)) / 2.0
     end subroutine calc_box_size_and_center
+
+    ! 座標をアンラップする関数
+    function unwrap_coords(coords, box_bounds) result(unwrap_coords)
+        implicit none
+        
+        real, intent(in) :: coords(:, :)
+        double precision, intent(in) :: box_bounds(:, :) ! LAMMPSのbox_bounds
+        real :: unwrap_coords(size(coords, 1), size(coords, 2))
+        real :: coords_prime(size(coords, 1), size(coords, 2))
+        real :: unwrap_coords_prime(size(coords, 1), size(coords, 2))
+        real :: disp(3), disp_prime(3)
+
+        integer :: i, j
+        double precision :: box_size(3)
+        double precision :: center(3)
+        ! 歪み
+
+
+    end function
 
     ! 座標をラップする関数
     function wrap_coords(coords, box_bounds) result(wrapped_coords)
