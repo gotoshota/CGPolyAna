@@ -66,25 +66,6 @@ contains
         center(3)   = (box_bounds(1, 3) + box_bounds(2, 3)) / 2.0
     end subroutine calc_box_size_and_center
 
-    ! 座標をアンラップする関数
-    function unwrap_coords(coords, box_bounds) result(unwrap_coords)
-        implicit none
-        
-        real, intent(in) :: coords(:, :)
-        double precision, intent(in) :: box_bounds(:, :) ! LAMMPSのbox_bounds
-        real :: unwrap_coords(size(coords, 1), size(coords, 2))
-        real :: coords_prime(size(coords, 1), size(coords, 2))
-        real :: unwrap_coords_prime(size(coords, 1), size(coords, 2))
-        real :: disp(3), disp_prime(3)
-
-        integer :: i, j
-        double precision :: box_size(3)
-        double precision :: center(3)
-        ! 歪み
-
-
-    end function
-
     ! 座標をラップする関数
     function wrap_coords(coords, box_bounds) result(wrapped_coords)
         implicit none
