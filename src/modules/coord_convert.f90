@@ -51,10 +51,10 @@ contains
         double precision :: xlo, xhi, ylo, yhi, zlo, zhi ! 実際のボックスの境界
 
         ! LAMMPSのbox_boundsから実際のボックスの境界を計算
-        xlo = box_bounds(1, 1) + min(0.0, box_bounds(3, 1), box_bounds(3, 2), box_bounds(3, 1) + box_bounds(3, 2))
-        xhi = box_bounds(2, 1) + max(0.0, box_bounds(3, 1), box_bounds(3, 2), box_bounds(3, 1) + box_bounds(3, 2))
-        ylo = box_bounds(1, 2) + min(0.0, box_bounds(3, 3))
-        yhi = box_bounds(2, 2) + max(0.0, box_bounds(3, 3))
+        xlo = box_bounds(1, 1) - min(0.0, box_bounds(3, 1), box_bounds(3, 2), box_bounds(3, 1) + box_bounds(3, 2))
+        xhi = box_bounds(2, 1) - max(0.0, box_bounds(3, 1), box_bounds(3, 2), box_bounds(3, 1) + box_bounds(3, 2))
+        ylo = box_bounds(1, 2) - min(0.0, box_bounds(3, 3))
+        yhi = box_bounds(2, 2) - max(0.0, box_bounds(3, 3))
         zlo = box_bounds(1, 3) 
         zhi = box_bounds(2, 3) 
         ! Simulation cell のサイズと中心を計算
@@ -66,6 +66,40 @@ contains
         center(3)   = (box_bounds(1, 3) + box_bounds(2, 3)) / 2.0
     end subroutine calc_box_size_and_center
 
+    ! 座標をアンラップする関数
+    function unwrap_coords(coords, box_bounds, image_flags) result(unwrapped_coords)
+        implicit none
+
+        real, intent(in) :: coords(:, :)
+        double precision, intent(in) :: box_bounds(:, :)
+        integer, intent(in) :: image_flags(:,:)
+        real :: unwrapped_coords(size(coords, 1), size(coords, 2))
+        real :: coords_prime(size(coords, 1), size(coords, 2))
+        real :: unwrapped_coords_prime(size(coords, 1), size(coords, 2))
+        real :: disp(3), disp_prime(3)
+        double precision :: box_size(3)
+        double precision :: box_size_prime(3)
+        double precision :: center(3), center_prime(3)
+        real :: com(3), com_prime(3)
+
+        ! 歪み
+        double precision :: cos_theta ! xy平面
+        double precision :: sin_theta ! xy平面
+
+        integer :: i, j
+
+        call calc_box_size_and_center(box_bounds, box_size, center)
+        print *, "box_size", box_size
+
+        do i = 1, size(coords, 2)
+            unwrapped_coords(1, i) = coords(1, i) + box_size(1) * image_flags(1, i) + box_bounds(3, 1) * image_flags(2, i) &
+            + box_bounds(3, 2) * image_flags(3, i)
+            unwrapped_coords(2, i) = coords(2, i) + box_size(2) * image_flags(2, i) + box_bounds(3, 3) * image_flags(3, i)
+            unwrapped_coords(3, i) = coords(3, i) + box_size(3) * image_flags(3, i)
+        end do
+
+    end function unwrap_coords
+
     ! 座標をラップする関数
     function wrap_coords(coords, box_bounds) result(wrapped_coords)
         implicit none
@@ -73,24 +107,32 @@ contains
         real, intent(in) :: coords(:, :)
         double precision, intent(in) :: box_bounds(:, :) ! LAMMPSのbox_bounds
         real :: wrapped_coords(size(coords, 1), size(coords, 2))
-        real :: coords_prime(size(coords, 1), size(coords, 2))
-        real :: wrapped_coords_prime(size(coords, 1), size(coords, 2))
-        real :: disp(3), disp_prime(3)
+        real :: disp(3)
         
         integer :: i, j
         double precision :: box_size(3)
-        double precision :: box_size_prime(3)
         double precision :: center(3)
-        double precision :: center_prime(3)
+        integer :: image_flags(3)
+        real :: tilte(3)
+        
         ! 歪み
         double precision :: cos_theta ! xy平面
         double precision :: sin_theta ! xy平面
+        ! 非直交座標系
+        real :: coords_prime(size(coords, 1), size(coords, 2))
+        real :: wrapped_coords_prime(size(coords, 1), size(coords, 2))
+        real :: disp_prime(3)
+        real :: com_prime(3)
+        double precision :: box_size_prime(3)
+        double precision :: center_prime(3)
         
         call calc_box_size_and_center(box_bounds, box_size, center)
         ! xy からせん断による歪みcos\theta を計算
         ! cos_theta = xy / sqrt(y^2 + xy^2)
         cos_theta = box_bounds(3, 1) / sqrt(box_size(2)**2.0d0 + box_bounds(3, 1) **2.0d0)
         sin_theta = sqrt(1.0d0 - cos_theta**2.0d0)
+        ! 座標を全て変換
+        ! prime は全て非直交座標系を意味する
         !!!! 現在、xy方向のせん断、あるいはcubicにのみ対応している !!!!
         if ( abs(box_bounds(3, 1)) > 0.0d0) then
             ! y' = y / sin\theta
@@ -110,16 +152,15 @@ contains
             box_size_prime = box_size
             center_prime = center
         end if
-        
+
+        wrapped_coords_prime = coords_prime
         do i = 1, size(coords, 2)
-            disp_prime(:) = coords_prime(:, i) - center_prime(:)
+            disp_prime = coords_prime(:, i) - center_prime
             do j = 1, 3
-                if (abs(disp_prime(j)) > box_size_prime(j) / 2.0) then
-                    wrapped_coords_prime(j, :) = wrapped_coords_prime(j, :) &
-                        - box_size_prime(j) * nint(disp_prime(j) / box_size_prime(j))
-                end if
-            end do
+                wrapped_coords_prime(j, i) = coords_prime(j, i) - box_size_prime(j) * nint(disp_prime(j) / box_size_prime(j))
+            enddo
         end do
+
         ! 逆変換
         if ( abs(box_bounds(3, 1)) > 0.0d0) then
             wrapped_coords(2, :) = wrapped_coords_prime(2, :) * sin_theta
@@ -128,6 +169,28 @@ contains
         else
             wrapped_coords = wrapped_coords_prime
         end if
+
+
+        !do i = 1, size(coords, 2)
+        !    ! 中心からの変位
+        !    disp = coords(:, i) - center
+        !    ! まずはz方向のimage flagを計算。基本的に、アンラップの逆操作を行う
+        !    image_flags(3) = nint(disp(3) / box_size(3))
+        !    ! yzのtilteの分だけずらす
+        !    tilte(3) = box_bounds(3, 3) * image_flags(3)
+        !    ! 次にy方向のimage flagを計算
+        !    image_flags(2) = nint((disp(2) - tilte(3)) / box_size(2))
+        !    ! xy, xz のtilteの分だけずらす
+        !    tilte(1) = box_bounds(3, 1) * image_flags(2)
+        !    tilte(2) = box_bounds(3, 2) * image_flags(3)
+        !    ! x方向のimage flagを計算
+        !    image_flags(1) = nint((disp(1) - tilte(1) - tilte(2)) / box_size(1))
+        !    ! image flagの分だけ引く
+        !    wrapped_coords(1, i) = coords(1, i) - box_size(1) * image_flags(1) !- box_bounds(3, 1) * image_flags(2) &
+        !    !- box_bounds(3, 2) * image_flags(3)
+        !    wrapped_coords(2, i) = coords(2, i) - box_size(2) * image_flags(2) - box_bounds(3, 3) * image_flags(3)
+        !    wrapped_coords(3, i) = coords(3, i) - box_bounds(3, 3) * image_flags(3)
+        !end do
     end function wrap_coords
 
     ! ポリマーの連結性を保証してラップする
@@ -184,20 +247,16 @@ contains
         do i = 1, size(coords, 2) - 1
             disp_prime = coords_prime(:, i + 1) - coords_prime(:, i)
             do j = 1, 3
-                if (abs(disp_prime(j)) > box_size_prime(j) / 2.0) then
-                    wrapped_coords_prime(j, i + 1) = wrapped_coords_prime(j, i + 1) &
-                        - box_size_prime(j) * nint(disp_prime(j) / box_size_prime(j))
-                end if
+                wrapped_coords_prime(j, i + 1) = wrapped_coords_prime(j, i + 1) &
+                    - box_size_prime(j) * nint(disp_prime(j) / box_size_prime(j))
             enddo
         end do
 
         com_prime = center_of_mass(wrapped_coords_prime)
         disp_prime = com_prime - center_prime
         do j = 1, 3
-            if (abs(disp_prime(j)) > box_size_prime(j) / 2.0) then
-                wrapped_coords_prime(j, :) = wrapped_coords_prime(j, :) &
-                    - box_size_prime(j) * nint(disp_prime(j) / box_size_prime(j))
-            end if
+            wrapped_coords_prime(j, :) = wrapped_coords_prime(j, :) &
+                - box_size_prime(j) * nint(disp_prime(j) / box_size_prime(j))
         end do
 
         ! 逆変換
@@ -208,8 +267,8 @@ contains
         else
             wrapped_coords = wrapped_coords_prime
         end if
-
     end function wrap_polymer
+
 
     ! ==========================================================
     ! ============== 距離行列を計算する関数 ====================
@@ -231,7 +290,8 @@ contains
             do j = 1, n
                 matrix(i, j) = 0.0
                 do k = 1, 3
-                    matrix(i, j) = matrix(i, j) + (coords(k, i) - coords(k, j) - box_size(k) * nint((coords(k, i) - coords(k, j)) / box_size(k)))**2
+                    matrix(i, j) = matrix(i, j) + (coords(k, i) - coords(k, j) - box_size(k) &
+                    * nint((coords(k, i) - coords(k, j)) / box_size(k)))**2
                 end do
                 if (matrix(i, j) < tiny) then
                     matrix(i, j) = tiny
