@@ -69,11 +69,7 @@ program main
     coords(:, :, 1) = lmp%coords(:,:)
     do idx_frame = 2, params%nframes
         call lmp%read()
-        box_size = lmp%box_bounds(2, :) - lmp%box_bounds(1, :)
-        do i = 1, lmp%nparticles
-            coords(:, i, idx_frame) = lmp%coords(:, i) + lmp%image_flags(:, i) * box_size(:)
-        end do
-        coords(:, :, idx_frame) = lmp%coords(:,:)
+        coords(:, :, idx_frame) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
     enddo
 
     do i = 1, msd%npoints

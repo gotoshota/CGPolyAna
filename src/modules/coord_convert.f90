@@ -89,7 +89,6 @@ contains
         integer :: i, j
 
         call calc_box_size_and_center(box_bounds, box_size, center)
-        print *, "box_size", box_size
 
         do i = 1, size(coords, 2)
             unwrapped_coords(1, i) = coords(1, i) + box_size(1) * image_flags(1, i) + box_bounds(3, 1) * image_flags(2, i) &

@@ -4,7 +4,7 @@
     nchains = 100,
     nbeads = 400,
     dt = 0.01,
-    nframes = 100
+    nframes = 10000
     dump_freq = 1,
     is_cubic = .true.
 /

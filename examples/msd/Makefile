@@ -1,7 +1,7 @@
 # Compiler settings - can be customized.
 FC = gfortran
-FCFLAGS = -g
-LDFLAGS = -g -fopenmp -lprofiler
+FCFLAGS =
+LDFLAGS = -fopenmp
 
 # Directory structure
 SRCDIR = ../../src/
@@ -32,6 +32,7 @@ $(TARGET).o: $(TARGET).f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 $(MODDIR)/%.o: $(MODDIR)/%.f90
+	$(FC) $(FCFLAGS) -c lammpsIO.f90 
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 .PHONY: clean
