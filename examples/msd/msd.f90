@@ -70,7 +70,6 @@ program main
     end do
     ! idx_frame = 2 ~ nframes
     do idx_frame = 2, params%nframes
-        print*,idx_frame
         call lmp%read()
         coords(:, :, idx_frame) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
         do i = 1, params%nchains
