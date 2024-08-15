@@ -16,7 +16,7 @@ module global_types
         logical :: is_wrap = .true.        ! wrap or unwrap
 
         ! Read from trajectory
-        integer, allocatable :: timesteps(:)
+        integer(kind=8), allocatable :: timesteps(:)
         real, allocatable :: box_dim(:, :, :) ! (3, 2 or 3, nframes)
         integer, allocatable :: mol(:) ! mol_id
         integer, allocatable :: type(:) ! atom_type

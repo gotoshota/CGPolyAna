@@ -1,6 +1,6 @@
 # Compiler settings - can be customized.
 FC = gfortran
-FCFLAGS = -O2 -Wall
+FCFLAGS = -O2 -Wall -fdefault-integer-8
 LDFLAGS = -llapack -lblas
 
 # Directory structure
