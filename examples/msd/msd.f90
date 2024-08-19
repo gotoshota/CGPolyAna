@@ -58,6 +58,7 @@ program main
     allocate(com(3, params%nchains, params%nframes))
     call determine_frame_intervals(msd, params%nframes, params%dt, params%dump_freq)
 
+    ! lammpstrjReader の初期化
     call lmp%open(params%dumpfilenames(1))
     ! 全部のフレームを読んで格納しちゃう
     ! idx_frame = 1
@@ -65,7 +66,7 @@ program main
     ALLOCATE(coords(3, lmp%nparticles, params%nframes))
     coords(:, :, 1) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
     do i = 1, params%nchains
-        com(:, i, 1) = center_of_mass(coords(:, (i-1)*params%nbeads:i*params%nbeads, 1))
+        com(:, i, 1) = center_of_mass(coords(:, (i-1)*params%nbeads+1:i*params%nbeads, 1))
     end do
     ! idx_frame = 2 ~ nframes
     do idx_frame = 2, params%nframes

@@ -1,6 +1,8 @@
 module statistics
     implicit none
 
+    !!! old version !!!
+    !!! そのうち消す !!!
     type ProbDistFunction
         ! should be declear before call subroutine
         integer :: n_bins
@@ -10,7 +12,45 @@ module statistics
         double precision :: bin_width
     end type
 
+    type StatValues
+        double precision :: mean = 0.0d0
+        double precision :: variance = 0.0d0
+        integer(kind=8) :: num_samples = 0
+        ! probability distribution function
+        double precision, allocatable :: pdf(:)
+        double precision, allocatable :: pdf_x(:)
+        double precision :: pdf_bin_width
+        integer :: pdf_num_bins
+    end type
+
 contains
+    subroutine update_statistics(stat, new_value)
+        implicit none
+        type(StatValues), intent(inout) :: stat
+        double precision, intent(in) :: new_value
+
+        double precision :: delta, delta2
+
+        ! Update mean
+        stat%num_samples = stat%num_samples + 1
+        delta = new_value - stat%mean
+        stat%mean = stat%mean + delta / dble(stat%num_samples)
+        ! Update variance
+        delta2 = new_value - stat%mean
+        stat%variance = ((stat%num_samples-1) * stat%variance + delta * delta2) / dble(stat%num_samples)
+
+        ! Update PDF
+        !if (new_value .lt. stat%pdf_x(1)) then
+        !    stat%pdf(1) = stat%pdf(1) + 1
+        !elseif (new_value .ge. stat%pdf_x(stat%pdf_n_bins)) then
+        !    stat%pdf(stat%pdf_n_bins) = stat%pdf(stat%pdf_n_bins) + 1
+        !else
+        !    bin_idx = 1 + int((new_value - stat%pdf_x(1)) / stat%pdf_bin_width)
+        !    stat%pdf(bin_idx) = stat%pdf(bin_idx) + 1
+        !end if
+    end subroutine
+
+    !!! Old version !!!
     subroutine mean_and_variance(array, size_array, mean, variance)
         implicit none
 
@@ -31,7 +71,7 @@ contains
 
         variance = mean_squared - mean*mean
     end subroutine
-
+    !!! ここまで !!!
     subroutine calc_prob_dist(array, size_array, pdf)
         implicit none
 

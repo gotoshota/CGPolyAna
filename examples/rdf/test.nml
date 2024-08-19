@@ -1,5 +1,9 @@
 &MDParams_nml
+<<<<<<< HEAD
     dumpfilenames = "prod.lammpstrj"
+=======
+    dumpfilenames = "mon.lammpstrj"
+>>>>>>> refs/remotes/origin/ver1/io_changes
     ndumpfiles = 1
     nchains = 100,
     nbeads = 50,

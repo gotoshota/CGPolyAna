@@ -141,7 +141,7 @@ contains
             ! z' = z
             coords_prime(3, :) = coords(3, :)
             box_size_prime(2) = box_size(2) / sin_theta
-            box_size_prime(1) = box_size(1) - box_size_prime(2) * cos_theta
+            box_size_prime(1) = box_size(1) !- box_size_prime(2) * cos_theta
             box_size_prime(3) = box_size(3)
             center_prime(2)   = center(2) / sin_theta
             center_prime(1)   = center(1) - center_prime(2) * cos_theta
@@ -160,7 +160,7 @@ contains
             enddo
         end do
 
-        ! 逆変換
+        !! 逆変換
         if ( abs(box_bounds(3, 1)) > 0.0d0) then
             wrapped_coords(2, :) = wrapped_coords_prime(2, :) * sin_theta
             wrapped_coords(1, :) = wrapped_coords_prime(1, :) + wrapped_coords_prime(2, :) * cos_theta
@@ -168,6 +168,10 @@ contains
         else
             wrapped_coords = wrapped_coords_prime
         end if
+        print *, "cos_theta, sin_theta"
+        print *, cos_theta
+        print *, sin_theta
+        print *, box_bounds(3, 1)
 
 
         !do i = 1, size(coords, 2)
@@ -231,7 +235,7 @@ contains
             ! z' = z
             coords_prime(3, :) = coords(3, :)
             box_size_prime(2) = box_size(2) / sin_theta
-            box_size_prime(1) = box_size(1) - box_size_prime(2) * cos_theta
+            box_size_prime(1) = box_size(1) 
             box_size_prime(3) = box_size(3)
             center_prime(2)   = center(2) / sin_theta
             center_prime(1)   = center(1) - center_prime(2) * cos_theta
