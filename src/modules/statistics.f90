@@ -23,6 +23,11 @@ module statistics
         integer :: pdf_num_bins
     end type
 
+    interface mean_and_variance
+        module procedure mean_and_variance_double
+        module procedure mean_and_variance_int
+    end interface
+
 contains
     subroutine update_statistics(stat, new_value)
         implicit none
@@ -51,7 +56,7 @@ contains
     end subroutine
 
     !!! Old version !!!
-    subroutine mean_and_variance(array, size_array, mean, variance)
+    subroutine mean_and_variance_double(array, size_array, mean, variance)
         implicit none
 
         integer, intent(IN) :: size_array
@@ -71,6 +76,27 @@ contains
 
         variance = mean_squared - mean*mean
     end subroutine
+    subroutine mean_and_variance_int(array, size_array, mean, variance)
+        implicit none
+
+        integer, intent(IN) :: size_array
+        integer, intent(in) :: array(size_array)
+        double precision, intent(out) :: mean, variance
+
+        ! local variables
+        integer :: i
+        double precision :: mean_squared
+
+        mean = 0.0d0
+        mean_squared = 0.0d0
+        do i = 1, size_array
+            mean = mean + (dble(array(i)) - mean)/dble(i)
+            mean_squared = mean_squared + (dble(array(i))*dble(array(i)) - mean_squared)/dble(i)
+        end do
+
+        variance = mean_squared - mean*mean
+    end subroutine
+
     !!! ここまで !!!
     subroutine calc_prob_dist(array, size_array, pdf)
         implicit none
