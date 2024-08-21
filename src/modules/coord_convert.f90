@@ -248,7 +248,7 @@ contains
         
         wrapped_coords_prime = coords_prime
         do i = 1, size(coords, 2) - 1
-            disp_prime = coords_prime(:, i + 1) - coords_prime(:, i)
+            disp_prime = wrapped_coords_prime(:, i + 1) - wrapped_coords_prime(:, i)
             do j = 1, 3
                 wrapped_coords_prime(j, i + 1) = wrapped_coords_prime(j, i + 1) &
                     - box_size_prime(j) * nint(disp_prime(j) / box_size_prime(j))
