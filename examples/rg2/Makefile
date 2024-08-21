@@ -31,6 +31,7 @@ $(TARGET).o: $(TARGET).f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 $(MODDIR)/%.o: $(MODDIR)/%.f90
+	$(FC) $(FCFLAGS) -c lammpsIO.f90
 	$(FC) $(FCFLAGS) -c $(MODDIR)/global_types.f90
 	$(FC) $(FCFLAGS) -c $(MODDIR)/string_utils.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
