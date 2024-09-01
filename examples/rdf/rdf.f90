@@ -34,7 +34,7 @@ program main
     ! get nmlfilename from argument
     call get_command_argument(1, nmlfilename)
     call read_MDParams(nmlfilename, params)
-    ! get mode from argument
+    ! 未実装
     if (command_argument_count() > 1)
         call get_command_argument(2, mode)
     else
