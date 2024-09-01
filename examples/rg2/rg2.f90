@@ -44,6 +44,8 @@ program main
     integer :: lwork
     integer :: info
 
+    integer :: idx_dump
+
     call get_command_argument(1, arg)
     if (trim(adjustl(arg)) .eq. "-h" .or. trim(adjustl(arg)) .eq. "--help") then
        call display_usage()
@@ -62,14 +64,16 @@ program main
     allocate (rg2(traj%nchains, traj%nframes))
     allocate (asphericity(traj%nchains, traj%nframes))
     allocate (prolateness(traj%nchains, traj%nframes))
-    ! Calculate the optimal size of the work array
+    ! -1 に設定すると自動的に必要なワークスペースのサイズを計算してくれる
     lwork = -1
     allocate(work(1))
     call dsyev('V', 'U', 3, gyration_tensor, 3, eigenval, work, lwork, info)
+    ! 結果を用いて必要なワークスペースサイズを設定し直す
     lwork = int(work(1))
     deallocate(work)
     allocate(work(lwork))
     ! calculate the eigenvalues of the gyration tensor
+    do idx_dump = 1, params%ndumpfiles
     do i = 1, traj%nframes
         do j = 1, traj%nchains
             shift_chain = (j - 1)*traj%nbeads
