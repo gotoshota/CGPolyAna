@@ -24,6 +24,8 @@ program main
     real, allocatable :: coms(:,:)
     double precision :: rho, rho_com
     character(len=256) :: outfilename
+    ! mode
+    character(len=3) :: mode
 
     ! 時間の計測
     real :: start, finish
@@ -32,6 +34,13 @@ program main
     ! get nmlfilename from argument
     call get_command_argument(1, nmlfilename)
     call read_MDParams(nmlfilename, params)
+    ! get mode from argument
+    if (command_argument_count() > 1)
+        call get_command_argument(2, mode)
+    else
+        mode = "mon"
+    end if
+
 
     ! open lammps trajectory file 
     call reader%open(params%dumpfilenames(1))
@@ -53,7 +62,6 @@ program main
             rdf_i = 0
         end if
         num_frames = num_frames + 1
-        print *, 'frame = ', frame
 
         ! rdf monomer
         call count_particles(reader%coords, reader%box_bounds, rdf_i, dr)
@@ -74,10 +82,12 @@ program main
     ! 規格化
     print *, size(rdf)
     do i = 1, size(rdf)
-        rdf(i) = dble(rdf_i(i)) / rho / num_frames / reader%nparticles * 3.0d0 / (4.0d0 * pi * dr**3.0d0 * (i**3.0d0 - (i-1)**3.0d0))
+        rdf(i) = dble(rdf_i(i)) / rho / num_frames / reader%nparticles * 3.0d0 &
+            / (4.0d0 * pi * dr**3.0d0 * (dble(i)**3.0d0 - dble(i-1)**3.0d0))
     end do
     do i = 1, size(rdf_com)
-        rdf_com(i) = dble(rdf_com_i(i)) / rho_com / num_frames / params%nchains * 3.0d0 / (4.0d0 * pi * dr**3.0d0 * (i**3.0d0 - (i-1)**3.0d0))
+        rdf_com(i) = dble(rdf_com_i(i)) / rho_com / num_frames / params%nchains * 3.0d0 &
+            / (4.0d0 * pi * dr**3.0d0 * (dble(i)**3.0d0 - dble(i-1)**3.0d0))
     end do
     call reader%close()
 
@@ -88,7 +98,7 @@ program main
 
     ! 時間の計測
     call cpu_time(finish)
-    print *, 'time = ', finish - start
+    print *, 'cpu time: ', finish - start
 
 contains
     subroutine count_particles(coords, box_bounds, rdf_i, dr)
@@ -101,21 +111,10 @@ contains
         real :: r, vec_r(3)
         integer :: i, j, k
         double precision :: box_size
-        ! for omp
-        integer :: num_threads, tid
-        integer(kind=8), allocatable :: rdf_i_omp(:,:)
-        ! OpenMPのスレッド数を取得
-        !$omp parallel
-        num_threads = omp_get_num_threads()
-        !$omp end parallel
-        ! スレッドごとの一時配列を確保
-        allocate(rdf_i_omp(0:size(rdf_i)-1, max(num_threads, 1)))
-        rdf_i_omp = 0
 
         box_size = box_bounds(2, 1) - box_bounds(1, 1)
-        !$omp parallel private(i, j, vec_r, r, k, tid)
-        tid = max(omp_get_thread_num(), 1)
-        !$omp do
+
+        !$omp parallel do private(i, j, vec_r, r, k) reduction(+:rdf_i)
         do i = 1, size(coords, 2)
             do j = 1, size(coords, 2)
                 if (i /= j) then
@@ -124,17 +123,12 @@ contains
                     r = sqrt(sum(vec_r**2))
                     k = int(r/dr)
                     if (k <= size(rdf_i) - 1) then
-                        rdf_i_omp(k, tid) = rdf_i_omp(k, tid) + 1
+                        rdf_i(k) = rdf_i(k) + 1
                     end if
                 end if
             end do
         end do
-        !$omp end do
-        !$omp end parallel
-        do k = 0, size(rdf_i) - 1
-            rdf_i(k) = rdf_i(k) + sum(rdf_i_omp(k, :))
-        end do
-        deallocate(rdf_i_omp)
+        !$omp end parallel do
     end subroutine count_particles
 
     subroutine write_rdf(rdf, dr, filename)
