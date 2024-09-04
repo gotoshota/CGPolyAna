@@ -1,22 +1,23 @@
 # Compiler settings - can be customized.
 FC = gfortran
-FCFLAGS = -O2 -Wall
+FCFLAGS =
 LDFLAGS = -llapack -lblas
 
 # Directory structure
 SRCDIR = ../../src/
 MODDIR = $(SRCDIR)/modules
 BUILDDIR = .
+LDReaderDIR = ~/wrk/LammpsDumpReader/fortran
 
 # File name
-TARGET = rg2
+TARGET = main
 OUTPUT = a.out
 
 # List of executables to be built within the package
 PROGRAMS = $(BUILDDIR)/$(OUTPUT)
 
 # List of source files in MODDIR
-MOD_SOURCES = $(wildcard $(MODDIR)/*.f90)
+MOD_SOURCES = $(wildcard $(MODDIR)/*.f90) $(LDReaderDIR)/lammpsIO.f90
 
 # List of object files to be built from MOD_SOURCES
 MOD_OBJECTS = $(patsubst $(MODDIR)/%.f90,$(MODDIR)/%.o,$(MOD_SOURCES))
@@ -30,10 +31,13 @@ $(BUILDDIR)/$(OUTPUT): $(MOD_OBJECTS) $(TARGET).o
 $(TARGET).o: $(TARGET).f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
+$(MODDIR)/io.o: $(MODDIR)/io.f90 $(MODDIR)/string_utils.o
+	$(FC) $(FCFLAGS) -c -o $@ $<
+
+$(MODDIR)/string_utils.o: $(MODDIR)/string_utils.f90
+	$(FC) $(FCFLAGS) -c -o $@ $<
+
 $(MODDIR)/%.o: $(MODDIR)/%.f90
-	$(FC) $(FCFLAGS) -c lammpsIO.f90
-	$(FC) $(FCFLAGS) -c $(MODDIR)/global_types.f90
-	$(FC) $(FCFLAGS) -c $(MODDIR)/string_utils.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 .PHONY: clean

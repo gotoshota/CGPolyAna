@@ -23,11 +23,10 @@ module statistics
         integer :: pdf_num_bins
         double precision :: pdf_min_val
         double precision :: pdf_max_val
-
-        contains
-            procedure :: update
-            procedure :: init
-    end type
+    contains
+        procedure :: init
+        procedure :: update
+    end type StatValues
 
     interface mean_and_variance
         module procedure mean_and_variance_double
@@ -41,9 +40,10 @@ contains
         class(StatValues), intent(inout) :: self
         double precision, intent(in) :: min_val, max_val
         integer, intent(in) :: n_bins
+        integer :: i
 
-        self%pdf_min_value = min_val
-        self%pdf_max_value = max_val
+        self%pdf_min_val = min_val
+        self%pdf_max_val = max_val
         self%pdf_num_bins = n_bins
         self%pdf_bin_width = (max_val - min_val) / dble(n_bins)
 
@@ -77,7 +77,7 @@ contains
         elseif (new_value .ge. self%pdf_x(self%pdf_num_bins)) then
             self%pdf(self%pdf_num_bins) = self%pdf(self%pdf_num_bins) + 1
         else
-            bin_idx = 1 + int((new_value - self%pdf_min_value) / self%pdf_bin_width)
+            bin_idx = 1 + int((new_value - self%pdf_min_val) / self%pdf_bin_width)
             self%pdf(bin_idx) = self%pdf(bin_idx) + 1
         end if
     end subroutine

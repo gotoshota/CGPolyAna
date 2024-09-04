@@ -1,15 +1,42 @@
 program main
     use global_types
-    use io
+    use lammpsIO
     use math
     use statistics
     use coord_convert
     use correlation_function
+    use physical_constants
 
     implicit none
 
     type(MDParams) :: params
+    type(lammpstrjReader) :: reader
+
+    integer :: idx_dump, idx_frame
+    integer :: i, j, k
+    integer :: outfile = 66
+
     type(Function1D) :: rg2_time
+    type(StatValues) :: rg2
+    type(StatValues) :: asphericity
+    type(StatValues) :: prolateness
+    double precision :: min_val, max_val
+    integer :: n_bins
+
+    real :: com(3)
+    double precision :: eigenval(3)
+    double precision :: gyration_tensor(3,3)
+    double precision :: tmp
+
+    double precision :: mean
+    double precision :: var
+    type(ProbDistFunction) :: pdf
+    integer :: num_bins = 100
+
+    ! lapack
+    double precision, allocatable :: work(:)
+    integer :: lwork
+    integer :: info
 
     character(len=256) :: arg
     integer :: num_args
@@ -23,29 +50,6 @@ program main
     character(LEN=256) :: prl_stat_filename = "stat.prolateness"
     character(LEN=256) :: prl_pdf_filename = "pdf.prolateness"
 
-    integer :: i, j, k
-    integer :: shift_chain
-    integer :: outfile = 66
-
-    real, allocatable :: coords(:, :)
-    double precision, allocatable :: rg2(:, :)
-    double precision, allocatable :: asphericity(:, :)
-    double precision, allocatable :: prolateness(:, :)
-
-    double precision :: eigenval(3)
-    double precision :: gyration_tensor(3,3)
-
-    double precision :: mean
-    double precision :: var
-    type(ProbDistFunction) :: pdf
-    integer :: num_bins = 100
-
-    double precision, allocatable :: work(:)
-    integer :: lwork
-    integer :: info
-
-    integer :: idx_dump
-
     call get_command_argument(1, arg)
     if (trim(adjustl(arg)) .eq. "-h" .or. trim(adjustl(arg)) .eq. "--help") then
        call display_usage()
@@ -56,79 +60,54 @@ program main
 
     call read_MDParams(param_filename, params)
     call read_Function1DInfo(param_filename, rg2_time)
-    call determine_frame_intervals(rg2_time, traj)
-    call read_traj(traj)
-    traj_wrap = traj
+    call determine_frame_intervals(rg2_time, params%nframes)
 
-    allocate (coords(3, traj%nbeads))
-    allocate (rg2(traj%nchains, traj%nframes))
-    allocate (asphericity(traj%nchains, traj%nframes))
-    allocate (prolateness(traj%nchains, traj%nframes))
-    ! -1 に設定すると自動的に必要なワークスペースのサイズを計算してくれる
-    lwork = -1
-    allocate(work(1))
-    call dsyev('V', 'U', 3, gyration_tensor, 3, eigenval, work, lwork, info)
-    ! 結果を用いて必要なワークスペースサイズを設定し直す
-    lwork = int(work(1))
-    deallocate(work)
-    allocate(work(lwork))
-    ! calculate the eigenvalues of the gyration tensor
+    ! type(StatValue) の初期化(内部でallocate)
+    !! Rg2
+    min_val = 2.0d0 * (params%nbeads / 4.0) ** (2.0d0/3.0d0) ! ビーズのサイズと重合度から決める 2倍はテキトー
+    max_val = 25.0d0*min_val ! テキトー
+    n_bins = 100
+    call rg2%init(min_val, max_val, n_bins)
+    !! Asphericity
+    min_val = 0.0d0
+    max_val = 1.0d0 ! 定義より
+    n_bins = 100
+    call asphericity%init(min_val, max_val, n_bins)
+    !! Prolateness
+    min_val = -1.0d0
+    max_val = 1.0d0 ! 定義より
+    n_bins = 100
+    call prolateness%init(min_val, max_val, n_bins)
     do idx_dump = 1, params%ndumpfiles
-    do i = 1, traj%nframes
-        do j = 1, traj%nchains
-            shift_chain = (j - 1)*traj%nbeads
-            coords = wrap_polymer(traj%coords(:, shift_chain + 1:shift_chain + traj%nbeads, i), traj%box_dim(:,:,i))
-            traj_wrap%coords(:, shift_chain + 1:shift_chain + traj%nbeads, i) = coords
-            call calc_gyration_tensor(coords, gyration_tensor)
-            call dsyev('V', 'U', 3, gyration_tensor, 3, eigenval, work, lwork, info)
-            call calc_radius(eigenval, rg2(j, i))
-            call calc_asphericity(eigenval, asphericity(j, i))
-            call calc_prolateness(eigenval, prolateness(j, i))
+        call reader%open(trim(adjustl(params%dumpfilenames(idx_dump))))
+        do idx_frame = 1, params%nframes
+            call reader%read()
+            ! もしファイルの終わりに到達したら終了
+            if (reader%end_of_file) then
+                call reader%close()
+                exit
+            end if
+            do i = 1, params%nchains
+                call calc_gyration_tensor(reader%coords(:, (i-1)*params%nbeads+1:i*params%nbeads), gyration_tensor)  
+                call calc_radius(eigenval, tmp)
+                ! update で統計量を逐次的に計算
+                call rg2%update(tmp)
+                call calc_asphericity(eigenval, tmp)
+                call asphericity%update(tmp)
+                call calc_prolateness(eigenval, tmp)
+                call prolateness%update(tmp)
+            enddo
         end do
-    end do
-    headers%id = 1
-    headers%mol = 2
-    headers%xu = 3
-    headers%yu = 4
-    headers%zu = 5
-    call write_lammpstrj(traj_wrap, headers, "wrapped_traj.lammpstrj")
+        call reader%close()
+    enddo
 
-    call mean_and_variance(rg2, size(rg2), mean, var)
-    print *, "The squared radius of gyration Rg2."
-    print *, "mean : ", mean
-    print *, "variance : ", var
-    print *, "standard deviation : ", dsqrt(var)
-    call write_statdata(rg2_stat_filename, mean, var)
-    open (outfile, file=rg2_time_filename, status="replace")
-        write (outfile, *) "# Track the time variation of Rg2. Do NOT averaged over time, only space."
-        write (outfile, *) "# time [\tau_LJ], Mean of Rg2 [sigma^2], standard deviation of Rg2 [sigma^2]"
-        do i = 1, rg2_time%npoints
-            call mean_and_variance(rg2(:, rg2_time%frame_intervals(i)), traj%nchains, mean, var)
-            write (outfile, *) rg2_time%x(i), mean, dsqrt(var)
-        end do
-    close (outfile)
-    pdf%n_bins = num_bins
-    allocate (pdf%x(pdf%n_bins), pdf%y(pdf%n_bins))
-    call calc_prob_dist(rg2, size(rg2), pdf)
-    call write_prob_dist_data(rg2_pdf_filename, pdf)
-
-    call mean_and_variance(asphericity, size(asphericity), mean, var)
-    print *, "The asphericity."
-    print *, "mean : ", mean
-    print *, "variance : ", var
-    print *, "standard deviation : ", dsqrt(var)
-    call write_statdata(asp_stat_filename, mean, var)
-    call calc_prob_dist(asphericity, size(asphericity), pdf)
-    call write_prob_dist_data(asp_pdf_filename, pdf)
-
-    call mean_and_variance(prolateness, size(prolateness), mean, var)
-    print *, "The prolateness."
-    print *, "mean : ", mean
-    print *, "variance : ", var
-    print *, "standard deviation : ", dsqrt(var)
-    call write_statdata(prl_stat_filename, mean, var)
-    call calc_prob_dist(prolateness, size(prolateness), pdf)
-    call write_prob_dist_data(prl_pdf_filename, pdf)
+    ! 書き出し
+    call write_statdata(rg2_stat_filename, rg2%mean, rg2%variance)
+    call write_prob_dist_data(rg2_pdf_filename, rg2%pdf, rg2%pdf_x)
+    call write_statdata(asp_stat_filename, asphericity%mean, asphericity%variance)
+    call write_prob_dist_data(asp_pdf_filename, asphericity%pdf, asphericity%pdf_x)
+    call write_statdata(prl_stat_filename, prolateness%mean, prolateness%variance)
+    call write_prob_dist_data(prl_pdf_filename, prolateness%pdf, prolateness%pdf_x)
 
 contains
 
@@ -216,29 +195,51 @@ contains
         integer :: output = 17
 
         open (output, file=filename, status="replace")
-            write (output, "(A)") "# Statistical data of Squared Radius Gyrations. "
-            write (output, "(A)") "# Mean [sigma^2], Variance [sigma^4], Standard deviation [sigma^2]"
+            write (output, "(A)") "# Statistical data of this physical quantity (See filename)."
+            write (output, "(A)") "# Mean, Variance, Standard deviation"
             write (output, "(G0, 1x, G0, 1x, G0)") mean, var, dsqrt(var)
         close (output)
     end subroutine
 
-    subroutine write_prob_dist_data(filename, pdf)
+    subroutine write_prob_dist_data(filename, pdf, x)
         implicit none
 
         character(LEN=*), intent(IN) :: filename
-        type(ProbDistFunction), intent(IN) :: pdf
+        double precision, intent(IN) :: x(:)
+        double precision, intent(IN) :: pdf(:)
+
 
         ! local variables
         integer :: output = 17
         integer :: i
 
         open (output, file=filename, status="replace")
-            write (output, "(A)") "# Probability Distribution function of Squared Radius Gyration Rg2. "
-            write (output, "(A)") "# Rg2 [sigma^2], pdf [-]"
-            do i = 1, pdf%n_bins
-                write (output, "(G0, 1x, G0)") pdf%x(i), pdf%y(i)
+            write (output, "(A)") "# Probability Distribution function"
+            write (output, "(A)") "# value, pdf"
+            do i = 1, size(pdf)
+                write (output, "(G0, 1x, G0)") x(:), pdf(i)
             end do
         close (output)
+    end subroutine
+
+    subroutine lapack_init(lwork, work, info)
+        ! LAPACK の dsyev に必要なワークスペースのサイズを計算する
+        implicit none
+
+        integer, intent(out) :: lwork
+        double precision, allocatable, intent(out) :: work(:)
+        integer, intent(out) :: info
+
+        double precision :: eigenval(3)
+        double precision :: eigenvec(3, 3)
+        
+        lwork = -1
+        allocate(work(1))
+        call dsyev('V', 'U', 3, eigenvec, 3, eigenval, work, lwork, info)
+        lwork = int(work(1))
+        deallocate(work)
+        allocate(work(lwork))
+
     end subroutine
 
     subroutine display_usage()
