@@ -21,6 +21,12 @@ module statistics
         double precision, allocatable :: pdf_x(:)
         double precision :: pdf_bin_width
         integer :: pdf_num_bins
+        double precision :: pdf_min_val
+        double precision :: pdf_max_val
+
+        contains
+            procedure :: update
+            procedure :: init
     end type
 
     interface mean_and_variance
@@ -29,30 +35,65 @@ module statistics
     end interface
 
 contains
-    subroutine update_statistics(stat, new_value)
+    
+    subroutine init(self, min_val, max_val, n_bins)
         implicit none
-        type(StatValues), intent(inout) :: stat
+        class(StatValues), intent(inout) :: self
+        double precision, intent(in) :: min_val, max_val
+        integer, intent(in) :: n_bins
+
+        self%pdf_min_value = min_val
+        self%pdf_max_value = max_val
+        self%pdf_num_bins = n_bins
+        self%pdf_bin_width = (max_val - min_val) / dble(n_bins)
+
+        allocate(self%pdf(n_bins))
+        allocate(self%pdf_x(n_bins))
+
+        self%pdf = 0.0d0
+        self%pdf_x = [(min_val + (i - 1) * self%pdf_bin_width, i = 1, n_bins)]
+    end subroutine
+
+    subroutine update(self, new_value)
+        implicit none
+        class(StatValues), intent(inout) :: self
         double precision, intent(in) :: new_value
 
         double precision :: delta, delta2
+        integer :: bin_idx
 
         ! Update mean
-        stat%num_samples = stat%num_samples + 1
-        delta = new_value - stat%mean
-        stat%mean = stat%mean + delta / dble(stat%num_samples)
+        self%num_samples = self%num_samples + 1
+        delta = new_value - self%mean
+        self%mean = self%mean + delta / dble(self%num_samples)
+
         ! Update variance
-        delta2 = new_value - stat%mean
-        stat%variance = ((stat%num_samples-1) * stat%variance + delta * delta2) / dble(stat%num_samples)
+        delta2 = new_value - self%mean
+        self%variance = ((self%num_samples - 1) * self%variance + delta * delta2) / dble(self%num_samples)
 
         ! Update PDF
-        !if (new_value .lt. stat%pdf_x(1)) then
-        !    stat%pdf(1) = stat%pdf(1) + 1
-        !elseif (new_value .ge. stat%pdf_x(stat%pdf_n_bins)) then
-        !    stat%pdf(stat%pdf_n_bins) = stat%pdf(stat%pdf_n_bins) + 1
-        !else
-        !    bin_idx = 1 + int((new_value - stat%pdf_x(1)) / stat%pdf_bin_width)
-        !    stat%pdf(bin_idx) = stat%pdf(bin_idx) + 1
-        !end if
+        if (new_value .lt. self%pdf_x(1)) then
+            self%pdf(1) = self%pdf(1) + 1
+        elseif (new_value .ge. self%pdf_x(self%pdf_num_bins)) then
+            self%pdf(self%pdf_num_bins) = self%pdf(self%pdf_num_bins) + 1
+        else
+            bin_idx = 1 + int((new_value - self%pdf_min_value) / self%pdf_bin_width)
+            self%pdf(bin_idx) = self%pdf(bin_idx) + 1
+        end if
+    end subroutine
+
+    subroutine normalize_pdf(self)
+        implicit none
+        class(StatValues), intent(inout) :: self
+        double precision :: total_count
+
+        ! Compute the total count in the PDF
+        total_count = sum(self%pdf) * self%pdf_bin_width
+
+        ! Normalize PDF so that the integral over the bins equals 1
+        if (total_count > 0.0d0) then
+            self%pdf = self%pdf / (total_count * self%pdf_bin_width)
+        end if
     end subroutine
 
     !!! Old version !!!
