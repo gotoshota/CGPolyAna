@@ -22,15 +22,13 @@ contains
 
         ! local variables
         integer :: i, n
-        double precision :: summation_squred
         
         n = size(vector)
-        summation_squred = 0.0d0
+        res = 0.0d0
         do i = 1, n
-            summation_squred = summation_squred + vector(i)*vector(i)
+            res = res + vector(i)*vector(i)
         end do
-
-        res = DSQRT(summation_squred)
+        res = sqrt(res)
     end function
 
     function norm_single(vector) result(res)
@@ -41,15 +39,13 @@ contains
 
         ! local variables
         integer :: i, n
-        real :: summation_squred
         
         n = size(vector)
-        summation_squred = 0.0d0
+        res = 0.0
         do i = 1, n
-            summation_squred = summation_squred + vector(i)*vector(i)
+            res = res + vector(i)*vector(i)
         end do
-
-        res = sqrt(summation_squred)
+        res = sqrt(res)
     end function
     ! ===========================================
 

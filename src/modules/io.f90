@@ -1,6 +1,4 @@
 module io
-    use global_types
-    use coord_convert
     use string_utils
     implicit none
 
@@ -34,278 +32,19 @@ contains
 
         period = index(filename, ".", BACK=.true.)
         ext = filename(period + 1:len(trim(filename)))
-
     end subroutine get_file_extention
 
-    subroutine read_simulation_params(nmlfilename, traj)
-        implicit none
-        character(len=*), intent(in) :: nmlfilename
-        type(trajectory), intent(out) :: traj
 
-        ! local variables
-        integer :: nparticles, nchains, nbeads, nframes
-        real :: dt
-        integer :: dump_freq, ndumpfiles
-        logical :: is_cubic
-        character(len=100), dimension(100) :: dumpfilenames
-
-        namelist /simulation_params/ dumpfilenames, ndumpfiles, nparticles, nchains, nbeads, &
-        dt, dump_freq, nframes, is_cubic
-
-        ! read namelist
-        open (unit=10, file=nmlfilename, status='old')
-            read (10, simulation_params)
-        close (10)
-
-        ! ユーザー定義型のインスタンスに読み込んだデータを代入
-        traj%dumpfilenames = dumpfilenames
-        traj%ndumpfiles = ndumpfiles
-        traj%nparticles = nparticles
-        traj%nchains = nchains
-        traj%nbeads = nbeads
-        traj%dt = dt
-        traj%nframes = nframes
-        traj%dump_freq = dump_freq
-        traj%is_cubic = is_cubic
-
-        if (allocated(traj%box_dim)) deallocate (traj%box_dim)
-        if (traj%is_cubic) then
-            allocate (traj%box_dim(2, 3, traj%nframes))
-        else
-            allocate (traj%box_dim(3, 3, traj%nframes)) ! l_0, l_1, l_tilte
-        end if
-
-        allocate (traj%mass(traj%nparticles), traj%type(traj%nparticles), traj%mol(traj%nparticles))
-        allocate (traj%timesteps(traj%nframes))
-        allocate (traj%coords(3, traj%nparticles, traj%nframes))
-        allocate (traj%image_flag(3, traj%nparticles, traj%nframes))
-    end subroutine read_simulation_params
-
-    ! -- interface of reading trajectories -- !
-    subroutine read_traj(traj)
-        implicit none
-
-        type(trajectory), intent(INOUT) :: traj
-
-        integer :: idx_dumpfile
-        integer :: idx_frame = 1
-        
-        character(LEN=256) :: ext
-
-        ! traj%ndumpfiles で指定された各ファイルに対してループ
-        ! Dynamicsの解析の際には時系列に沿った順番に入力すること
-        do idx_dumpfile = 1, traj%ndumpfiles
-            ! Check file format
-            call get_file_extention(traj%dumpfilenames(idx_dumpfile), ext)
-            if (ext .ne. "lammpstrj") then
-                print *, "Error: dump file is NOT lammpstrj, but ", trim(ext)
-                stop
-
-            ! -- 立法、斜方格子セルを問わず絶対座標系のみ -- !
-            !else if (traj%is_cubic .eqv. .false.) then
-            !    print *, "Error: this program does not support orthorhombic box yet."
-            !    stop
-
-            else
-                print *, "Start reading dump file    : ", trim(traj%dumpfilenames(idx_dumpfile))
-                CALL parse_lammpstrj(traj, idx_dumpfile, idx_frame)
-                print *, "Finished reading dump file    : ", trim(traj%dumpfilenames(idx_dumpfile))
-            end if
-        end do
-    end subroutine read_traj
-
-    ! -- lammpstrjのATOMヘッダーを読み込んで座標を読む -- !
-    subroutine parse_lammpstrj(traj, idx_dumpfile, idx_frame)
-        implicit none
-
-        TYPE(trajectory), INTENT(INOUT) :: traj
-        INTEGER, INTENT(IN) :: idx_dumpfile
-        INTEGER, INTENT(INOUT) :: idx_frame
-
-
-        integer(KIND=4), parameter :: dump = 111
-        integer :: i
-        integer :: nparticles
-        integer :: nColums
-        INTEGER(KIND=1) :: header_flag = 0
-
-        type(AtomHeader_Index) :: idx
-
-        CHARACTER(len=256) :: line
-        
-        CHARACTER(LEN=:), allocatable :: atom_header_parts(:), atom_parts(:)
-
-        open (dump, file=traj%dumpfilenames(idx_dumpfile), status='old')
-
-        header_flag = 0
-        do while (.true.)
-            ! Start reading header lines
-            read(dump, "(A)", end=999) line
-            if ( index(line, "TIMESTEP") > 0 ) then
-                read(dump, *) traj%timesteps(idx_frame)
-            else
-                print *, "Error: Header of ", trim(traj%dumpfilenames(idx_dumpfile))
-            endif
-
-            read(dump, "(A)") line
-            if ( index(line, "NUMBER OF ATOMS") > 0 ) then
-                read(dump, *) nparticles
-                if (nparticles /= traj%nparticles) then
-                    print *, "Error: nparticles does NOT match."
-                    print *, "\t From NAMELIST : ", traj%nparticles
-                    print *, "\t In trajectoryfile : ", nparticles
-                    stop
-                endif
-            else
-                print *, "Error: Header of ", trim(traj%dumpfilenames(idx_dumpfile))
-            endif
-            
-
-            read(dump, "(A)") line
-            if ( index(line, "BOX") > 0 ) then
-                read(dump, *) traj%box_dim(:, 1, idx_frame)
-                read(dump, *) traj%box_dim(:, 2, idx_frame)
-                read(dump, *) traj%box_dim(:, 3, idx_frame)
-            else
-                print *, "Error: Header of ", trim(traj%dumpfilenames(idx_dumpfile))
-            endif
-
-            read(dump, "(A)") line
-            if ( index(line, "ITEM: ATOMS") > 0 .and. header_flag == 0) then
-                atom_header_parts = split_string(line)
-                nColums = size(atom_header_parts) - 2 ! 最初の "ITEM:" "ATOMS" はスキップ
-
-                do i = 1, nColums
-                    select case(trim(adjustl(atom_header_parts(i+2)))) ! 最初の "ITEM:" "ATOMS" はスキップ
-                        case("id")
-                            idx%id = i
-                        case("mol")
-                            idx%mol = i
-                        case("type")
-                            idx%type = i
-                        case("xu")
-                            idx%xu = i
-                        case("yu")
-                            idx%yu = i
-                        case("zu")
-                            idx%zu = i
-                        case("x")
-                            idx%x = i
-                        case("y")
-                            idx%y = i
-                        case("z")
-                            idx%z = i
-                        case("ix")
-                            idx%ix = i
-                        case("iy")
-                            idx%iy = i
-                        case("iz")
-                            idx%iz = i
-                        case("xs")
-                            idx%xs = i
-                        case("ys")
-                            idx%ys = i
-                        case("zs")
-                            idx%zs = i
-                    end select
-                enddo
-                header_flag = 1
-            endif
-            
-            do i = 1, traj%nparticles
-                read(dump, "(A)") line
-                atom_parts = split_string(adjustl(line))
-                if (idx%mol /= 0) then
-                    read(atom_parts(idx%mol), *) traj%mol(i)
-                end if
-
-                if (idx%type /= 0) then
-                    read(atom_parts(idx%type), *) traj%type(i)
-                end if
-                    
-                if (idx%xu /= 0) then
-                    read(atom_parts(idx%xu), *) traj%coords(1, i, idx_frame)
-                end if
-
-                if (idx%yu /= 0) then
-                    read(atom_parts(idx%yu), *) traj%coords(2, i, idx_frame)
-                end if
-
-                if (idx%xu /= 0) then
-                    read(atom_parts(idx%zu), *) traj%coords(3, i, idx_frame)
-                end if
-
-                if (idx%x /= 0) then
-                    read(atom_parts(idx%x), *) traj%coords(1, i, idx_frame)
-                end if
-
-                if (idx%y /= 0) then
-                    read(atom_parts(idx%y), *) traj%coords(2, i, idx_frame)
-                end if
-
-                if (idx%z /= 0) then
-                    read(atom_parts(idx%z), *) traj%coords(3, i, idx_frame)
-                end if
-
-                if (idx%ix /= 0) then
-                    read(atom_parts(idx%ix), *) traj%image_flag(1, i, idx_frame)
-                end if
-
-                if (idx%iy /= 0) then
-                    read(atom_parts(idx%iy), *) traj%image_flag(2, i, idx_frame)
-                end if
-
-                if (idx%iz /= 0) then
-                    read(atom_parts(idx%iz), *) traj%image_flag(3, i, idx_frame)
-                
-                end if
-
-                if (idx%xs /= 0) then
-                    read(atom_parts(idx%xs), *) traj%coords(1, i, idx_frame)
-                end if
-
-                if (idx%ys /= 0) then
-                    read(atom_parts(idx%ys), *) traj%coords(2, i, idx_frame)
-                end if
-
-                if (idx%zs /= 0) then
-                    read(atom_parts(idx%zs), *) traj%coords(3, i, idx_frame)
-                end if
-
-                ! Unwrap coordinates if image flags are present
-                !if (idx%ix /= 0 .and. idx%iy /= 0 .and. idx%iz /= 0) then
-                !    traj%coords(1, i, idx_frame) = traj%coords(1, i, idx_frame) + &
-                !        traj%image_flag(1, i, idx_frame) * (traj%box_dim(2, 1, idx_frame) -traj%box_dim(1, 1, idx_frame))
-                !    traj%coords(2, i, idx_frame) = traj%coords(2, i, idx_frame) + &
-                !        traj%image_flag(2, i, idx_frame) * (traj%box_dim(2, 2, idx_frame) -traj%box_dim(1, 2, idx_frame))
-                !    traj%coords(3, i, idx_frame) = traj%coords(3, i, idx_frame) + &
-                !        traj%image_flag(3, i, idx_frame) * (traj%box_dim(2, 3, idx_frame) -traj%box_dim(1, 3, idx_frame))
-                !end if
-
-                if (idx%xs /= 0 .and. idx%ys /= 0 .and. idx%zs /= 0) then
-                    print *, "Error: xs, ys, zs are not supported yet."
-                    stop
-                end if
-            enddo
-            idx_frame = idx_frame + 1
-            if (idx_frame > traj%nframes) exit
-        end do
-        !if (traj%is_cubic == .false.) then
-        !    traj = triclinic_to_orthogonal(traj)
-        !    print *, "Successfully converted triclinic to orthogonal."
-        !    traj%is_cubic = .true.
-        !end if
-        999 close(dump)
-    end subroutine parse_lammpstrj
-
+    ! 修正の必要あり
     ! =======================================================
-    ! ============== Writing LAMMPS trajectory ==============
+    ! ============== Writing LAMMPS paramsectory ==============
     ! =======================================================
-    subroutine write_lammpstrj(traj, headers, filename)
+    subroutine write_lammpstrj(coords, box_bounds, headers, filename)
         implicit none
 
-        type(trajectory), intent(in) :: traj
+        real, dimension(:,:,:), intent(in) :: coords
         type(AtomHeader_Index), intent(in) :: headers
+        double precision, dimension(:,:,:), intent(in) :: box_bounds
         character(len=*), intent(in) :: filename
 
         integer :: frame, i
@@ -367,34 +106,34 @@ contains
         format_string = trim(adjustl(format_string(1:len_trim(format_string)-2)))
 
         open(unit=dump, file=filename, status='replace')
-        do frame = 1, traj%nframes
+        do frame = 1, size(coords, 3)
 
             ! Write header
             write(dump, "(A)") "ITEM: TIMESTEP"
-            write(dump, *) traj%timesteps(frame)
+            write(dump, *) frame
             write(dump, "(A)") "ITEM: NUMBER OF ATOMS"
-            write(dump, *) traj%nparticles
-            if ( size(traj%box_dim, 1) == 2) then
+            write(dump, *) size(coords, 2)
+            if ( size(box_bounds, 1) == 2) then
                 write(dump, "(A)") "ITEM: BOX BOUNDS pp pp pp"
             else
                 write(dump, "(A)") "ITEM: BOX BOUNDS xy xz yz pp pp pp"
             end if
-            write(dump, *) (traj%box_dim(i, 1, frame), i=1, size(traj%box_dim, 1))
-            write(dump, *) (traj%box_dim(i, 2, frame), i=1, size(traj%box_dim, 1))
-            write(dump, *) (traj%box_dim(i, 3, frame), i=1, size(traj%box_dim, 1))
+            write(dump, *) (box_bounds(i, 1, frame), i=1, size(box_bounds, 1))
+            write(dump, *) (box_bounds(i, 2, frame), i=1, size(box_bounds, 1))
+            write(dump, *) (box_bounds(i, 3, frame), i=1, size(box_bounds, 1))
             write(dump, '(A)') trim(header_string)  ! Using '(A)' format to write the full header_string
 
             ! Write atom data
-            do i = 1, traj%nparticles
+            do i = 1, size(coords, 2)
                 if (headers%id /= 0) write(dump, '(I6, x)', advance='no') i
-                if (headers%mol /= 0) write(dump, '(I6, x)', advance='no') traj%mol(i)
-                if (headers%type /= 0) write(dump, '(I6, x)', advance='no') traj%type(i)
-                if (headers%xu /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(1, i, frame)
-                if (headers%yu /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(2, i, frame)
-                if (headers%zu /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(3, i, frame)
-                if (headers%x /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(1, i, frame)
-                if (headers%y /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(2, i, frame)
-                if (headers%z /= 0) write(dump, '(F8.3, x)', advance='no') traj%coords(3, i, frame)
+                !if (headers%mol /= 0) write(dump, '(I6, x)', advance='no') params%mol(i)
+                !if (headers%type /= 0) write(dump, '(I6, x)', advance='no') params%type(i)
+                if (headers%xu /= 0) write(dump, '(F8.3, x)', advance='no') coords(1, i, frame)
+                if (headers%yu /= 0) write(dump, '(F8.3, x)', advance='no') coords(2, i, frame)
+                if (headers%zu /= 0) write(dump, '(F8.3, x)', advance='no') coords(3, i, frame)
+                if (headers%x /= 0) write(dump, '(F8.3, x)', advance='no') coords(1, i, frame)
+                if (headers%y /= 0) write(dump, '(F8.3, x)', advance='no') coords(2, i, frame)
+                if (headers%z /= 0) write(dump, '(F8.3, x)', advance='no') coords(3, i, frame)
                 write(dump, *) ! end the line
             end do
 

@@ -1,5 +1,4 @@
 module correlation_function
-    use global_types
     implicit none
     
     type Function1D
@@ -69,23 +68,24 @@ contains
             stop
 
         end if
-
     end subroutine
 
-    subroutine determine_frame_intervals(func, traj)
+    subroutine determine_frame_intervals(func, nframes, dt, dump_freq)
         implicit none
 
-        type(trajectory), intent(IN) :: traj
         type(Function1D), intent(INOUT) :: func
+        integer, intent(in) :: nframes
+        integer, intent(in), optional :: dump_freq
+        double precision, intent(in), optional :: dt
 
         integer :: i
 
         if (func%is_log) then
             if (func%npoints .ne. 0) then
-                call log_npoints(func, traj%nframes)
+                call log_npoints(func, nframes)
 
             else if (func%base .ne. 0) then
-                call log_base(func, traj%nframes)
+                call log_base(func, nframes)
            
             else
                 print *, "Error: Have to input criteria which matches to is_log."
@@ -95,10 +95,10 @@ contains
 
         else
             if (func%npoints .ne. 0) then
-                call linear_npoints(func, traj%nframes)
+                call linear_npoints(func, nframes)
 
             else if (func%window_width .ne. 0) then
-                call linear_window_width(func, traj%nframes)
+                call linear_window_width(func, nframes)
 
             else
                 print *, "Error: Have to input criteria which matches to is_log."
@@ -108,9 +108,11 @@ contains
         end if
 
         allocate (func%y(func%npoints), func%x(func%npoints))
-        do i = 1, func%npoints
-            func%x(i) = func%frame_intervals(i)*traj%dt*traj%dump_freq
-        end do
+        if (present(dt) .and. present(dump_freq)) then
+            do i = 1, func%npoints
+                func%x(i) = func%frame_intervals(i)*dt*dump_freq
+            end do
+        end if
     end subroutine
 
     subroutine log_npoints(func, nframes)

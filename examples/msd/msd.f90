@@ -1,15 +1,18 @@
 program main
+    !$ use omp_lib
     use global_types
-    use io
+    use lammpsIO
     use coord_convert
     use math
     use correlation_function
 
     implicit none
 
-    type(trajectory) :: traj
+    type(MDParams) :: params
+    type(lammpstrjReader) :: lmp
     type(Function1D) :: msd
 
+    real, allocatable :: coords(:, :, :)
     double precision, allocatable :: msd_sq(:)
 
     character(len=256) :: arg
@@ -19,19 +22,21 @@ program main
     character(LEN=256) :: msd_mon_filename = "mon.msd"
     character(LEN=256) :: msd_com_filename = "com.msd"
 
-    integer :: i, j, k
+    integer :: i, j, k, idx_frame
 
     real, allocatable :: com(:, :, :)
 
     double precision :: displacement
-    double precision :: summation, summation_sq
+    double precision :: summation, summation_sq, tmp
 
+    double precision :: box_size(3)
+
+    ! 引数を取得
     call get_command_argument(1, arg)
     if (trim(adjustl(arg)) .eq. "-h" .or. trim(adjustl(arg)) .eq. "--help") then
        call display_usage()
        stop
     end if
-
     num_args = command_argument_count()
     do i = 1, num_args
         call get_command_argument(i, arg)
@@ -46,61 +51,103 @@ program main
         end if
     end do
 
-    call read_simulation_params(param_filename, traj)
-    call read_traj(traj)
-    allocate (com(3, traj%nchains, traj%nframes))
-    com = center_of_mass(traj)
+    ! input ファイルの読み込み
+    call read_MDParams(param_filename, params)
+    call read_Function1Dinfo(param_filename, msd)
+    allocate(msd_sq(msd%npoints))
+    allocate(com(3, params%nchains, params%nframes))
+    call determine_frame_intervals(msd, params%nframes, params%dt, params%dump_freq)
 
-    call read_Function1DInfo(param_filename, msd)
-    call determine_frame_intervals(msd, traj)
-    allocate (msd_sq(msd%npoints), source=0.0d0)
-
-    print *, ""
-    print *, "Start computing MSD of monomer."
-    msd%y = 0.0d0
-    do i = 1, msd%npoints
-        do j = 1, traj%nframes - msd%frame_intervals(i)
-            summation = 0.0d0
-            summation_sq = 0.0d0
-            do k = 1, traj%nparticles
-                displacement = norm(traj%coords(:, k, j) - traj%coords(:, k, j + msd%frame_intervals(i)))
-                summation = summation + displacement
-                summation_sq = summation_sq + displacement*displacement
-            end do
-            msd%y(i) = msd%y(i) + summation/dble(traj%nparticles)
-            msd_sq(i) = msd_sq(i) + summation_sq/dble(traj%nparticles)
-        end do
-        msd%y(i) = msd%y(i)/real(traj%nframes - msd%frame_intervals(i))
-        msd_sq(i) = msd_sq(i)/real(traj%nframes - msd%frame_intervals(i))
+    ! lammpstrjReader の初期化
+    call lmp%open(params%dumpfilenames(1))
+    ! 全部のフレームを読んで格納しちゃう
+    ! idx_frame = 1
+    call lmp%read()
+    ALLOCATE(coords(3, lmp%nparticles, params%nframes))
+    coords(:, :, 1) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
+    do i = 1, params%nchains
+        com(:, i, 1) = center_of_mass(coords(:, (i-1)*params%nbeads+1:i*params%nbeads, 1))
     end do
-
+    ! idx_frame = 2 ~ nframes
+    do idx_frame = 2, params%nframes
+        call lmp%read()
+        coords(:, :, idx_frame) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
+        do i = 1, params%nchains
+            com(:, i, idx_frame) = center_of_mass(coords(:, (i - 1) * params%nbeads + 1:i * params%nbeads, idx_frame))
+        end do
+    enddo
+    ! MSD の計算 
+    ! monomer
+    msd%y = 0.0
+    msd_sq = 0.0
+    do i = 1, msd%npoints
+        call calc_msd(lmp, msd, coords, msd_sq, i)
+    end do
     call write_msd(msd_mon_filename, msd, msd_sq)
-    print *, "Fineshed computing MSD of monomer."
-    
-    print *, ""
-    print *, "Start computing MSD of center of mass."
-    msd%y = 0.0d0
-    msd_sq = 0.0d0
+    ! center of mass
+    msd%y = 0.0
+    msd_sq = 0.0
     do i = 1, msd%npoints
-        do j = 1, traj%nframes - msd%frame_intervals(i)
-            summation = 0.0d0
-            summation_sq = 0.0d0
-            do k = 1, traj%nchains
-                displacement = norm(com(:, k, j) - com(:, k, j + msd%frame_intervals(i)))
-                summation = summation + displacement
-                summation_sq = summation_sq + displacement*displacement
-            end do
-            msd%y(i) = msd%y(i) + summation/dble(traj%nchains)
-            msd_sq(i) = msd_sq(i) + summation_sq/dble(traj%nchains)
-        end do
-        msd%y(i) = msd%y(i)/real(traj%nframes - msd%frame_intervals(i))
-        msd_sq(i) = msd_sq(i)/real(traj%nframes - msd%frame_intervals(i))
+        call calc_msd(lmp, msd, com, msd_sq, i)
     end do
-
     call write_msd(msd_com_filename, msd, msd_sq)
-    print *, "Fineshed computing MSD of center of mass."
+    call write_lmptrj(com, lmp%box_bounds, lmp%image_flags)
 
 contains
+    subroutine calc_msd(lmp, msd, coords, msd_sq, i)
+        !$ use omp_lib
+        implicit none
+        type(lammpstrjReader), intent(IN) :: lmp
+        type(Function1D), intent(INOUT) :: msd
+        real, intent(IN) :: coords(:, :, :)
+        double precision, intent(INOUT) :: msd_sq(:)
+        integer, intent(IN) :: i
+        real :: dr(3)
+         
+
+        do j = 1, size(coords, 3) - msd%frame_intervals(i)
+            summation = 0.0
+            summation_sq = 0.0
+            do k = 1, size(coords, 2)
+                dr = coords(:, k, j + msd%frame_intervals(i)) - coords(:, k, j)
+                tmp = dr(1) * dr(1) + dr(2) * dr(2) + dr(3) * dr(3)
+                summation = summation + tmp
+                summation_sq = summation_sq + tmp * tmp
+            end do
+            msd%y(i) = msd%y(i) + summation / size(coords, 2)
+            msd_sq(i) = msd_sq(i) + summation_sq / size(coords, 2)
+        end do
+        msd % y(i) = msd % y(i) / (size(coords,3) - msd % frame_intervals(i) + 1)
+        msd_sq(i) = msd_sq(i) / (size(coords, 3) - msd % frame_intervals(i) + 1)
+    end subroutine
+
+    subroutine write_lmptrj(coords, box_bounds, image_flags)
+        implicit none
+        real, intent(IN) :: coords(:, :, :)
+        DOUBLE PRECISION, intent(IN) :: box_bounds(3, 2)
+        integer, intent(IN) :: image_flags(3)
+
+        integer :: output = 17
+        integer :: i, j, k
+        character(LEN=256) :: filename = "test.lammpstrj"
+
+        open(output, file=filename, status="replace")
+            do i = 1, size(coords, 3)
+                write(output, "(A)") "ITEM: TIMESTEP"
+                write(output, "(I0)") 0
+                write(output, "(A)") "ITEM: NUMBER OF ATOMS"
+                write(output, "(I0)") size(coords, 2)
+                write(output, "(A)") "ITEM: BOX BOUNDS pp pp pp"
+                write(output, "(E22.15, 1x, E22.15)") box_bounds(1, 1), box_bounds(2, 1)
+                write(output, "(E22.15, 1x, E22.15)") box_bounds(1, 1), box_bounds(2, 1)
+                write(output, "(E22.15, 1x, E22.15)") box_bounds(1, 1), box_bounds(2, 1)
+                write(output, "(A)") "ITEM: ATOMS id type x y z"
+                do j = 1, size(coords, 2)
+                    write(output, "(I0, 1X, I1, 1X, 3(G0,1x))") j, 1, coords(1, j, i), coords(2, j, i), coords(3, j, i)
+                end do
+            end do
+        close(output)
+    end subroutine
     subroutine write_msd(filename, msd, msd_sq)
         implicit none
 
