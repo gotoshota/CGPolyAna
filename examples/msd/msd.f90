@@ -64,14 +64,25 @@ program main
     ! idx_frame = 1
     call lmp%read()
     ALLOCATE(coords(3, lmp%nparticles, params%nframes))
-    coords(:, :, 1) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
+    print *, ALLOCATED(lmp%image_flags)
+    if (ALLOCATED(lmp%image_flags)) then
+        print *, "This trajectory may be wrapped."
+        coords(:, :, 1) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
+    else
+        coords(:, :, 1) = lmp%coords
+    end if
     do i = 1, params%nchains
         com(:, i, 1) = center_of_mass(coords(:, (i-1)*params%nbeads+1:i*params%nbeads, 1))
     end do
+    print*,"check"
     ! idx_frame = 2 ~ nframes
     do idx_frame = 2, params%nframes
         call lmp%read()
-        coords(:, :, idx_frame) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
+        if (ALLOCATED(lmp%image_flags)) then
+            coords(:, :, idx_frame) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
+        else
+            coords(:, :, idx_frame) = lmp%coords
+        end if
         do i = 1, params%nchains
             com(:, i, idx_frame) = center_of_mass(coords(:, (i - 1) * params%nbeads + 1:i * params%nbeads, idx_frame))
         end do
@@ -91,7 +102,7 @@ program main
         call calc_msd(lmp, msd, com, msd_sq, i)
     end do
     call write_msd(msd_com_filename, msd, msd_sq)
-    call write_lmptrj(com, lmp%box_bounds, lmp%image_flags)
+    !call write_lmptrj(com, lmp%box_bounds, lmp%image_flags)
 
 contains
     subroutine calc_msd(lmp, msd, coords, msd_sq, i)
