@@ -12,21 +12,7 @@ module global_types
         integer :: dump_freq = 0            ! ダンプの書き出し頻度
         double precision :: dt = 0          ! 時間の刻み幅
         logical :: is_cubic = .true.        ! 立方格子かどうかのフラグ
-<<<<<<< HEAD
-        logical :: is_wrap = .true.        ! wrap or unwrap
-
-        ! Read from trajectory
-        integer(kind=8), allocatable :: timesteps(:)
-        real, allocatable :: box_dim(:, :, :) ! (3, 2 or 3, nframes)
-        integer, allocatable :: mol(:) ! mol_id
-        integer, allocatable :: type(:) ! atom_type
-        real, allocatable :: mass(:)
-        real, allocatable :: coords(:, :, :)
-        integer, ALLOCATABLE :: image_flag(:, :, :)
-        ! trajectory(座標軸, 粒子インデックス, frame index)の形式でデータを格納
-=======
         logical :: is_wrap = .true.         ! wrap or unwrap
->>>>>>> 55cb8aabf10345c90ed4e7ede8823e99d1a78f2c
     end type
 contains
     subroutine read_MDParams(nmlfilename, params)
