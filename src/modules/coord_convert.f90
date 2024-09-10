@@ -168,10 +168,6 @@ contains
         else
             wrapped_coords = wrapped_coords_prime
         end if
-        print *, "cos_theta, sin_theta"
-        print *, cos_theta
-        print *, sin_theta
-        print *, box_bounds(3, 1)
 
 
         !do i = 1, size(coords, 2)

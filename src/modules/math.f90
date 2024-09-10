@@ -76,6 +76,7 @@ contains
     function gauss_linking_number(curve1, curve2) result(gln)
         implicit none
         real(4), intent(in) :: curve1(:, :), curve2(:, :)
+        real(8) :: gln
         real(8) :: linking_number
         real(8) :: r1(3), r2(3), dr1(3), dr2(3), d_cross(3), diff(3)
         real(8) :: norm_diff
@@ -102,7 +103,7 @@ contains
                 dr2 = dble(curve2(:,mod(j, n_points) + 1)) - r2
 
                 ! 外積を計算
-                call cross_product(dr1, dr2, d_cross)
+                d_cross = cross_product(dr1, dr2)
 
                 ! Gauss linking number に寄与する部分を加算
                 ! ここでnorm_diff が小さすぎると誤差が大きくなるのでepsを足している
