@@ -77,14 +77,13 @@ contains
         implicit none
         real(4), intent(in) :: curve1(:, :), curve2(:, :)
         real(8) :: gln
-        real(8) :: linking_number
         real(8) :: r1(3), r2(3), dr1(3), dr2(3), d_cross(3), diff(3)
         real(8) :: norm_diff
         real(8) :: eps = 1.0d-8 ! あんまり小さくすると誤差が大きくなる
         integer :: i, j
         integer :: n_points
 
-        linking_number = 0.0d0
+        gln = 0.0d0
         n_points = size(curve1, 2)
 
         ! Gauss linking number の計算
@@ -107,11 +106,11 @@ contains
 
                 ! Gauss linking number に寄与する部分を加算
                 ! ここでnorm_diff が小さすぎると誤差が大きくなるのでepsを足している
-                linking_number = linking_number + dot_product(diff, d_cross) / (norm_diff**3.0d0)
+                gln = gln + dot_product(diff, d_cross) / (norm_diff**3.0d0)
             end do
         end do
 
-        linking_number = linking_number / (4.0d0 * acos(-1.0d0))  ! 4πで割る
+        gln = gln / (4.0d0 * acos(-1.0d0))  ! 4πで割る
     end function
     ! ===========================================
 

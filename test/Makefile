@@ -16,7 +16,7 @@ OUTPUT = a.out
 PROGRAMS = $(BUILDDIR)/$(OUTPUT)
 
 # List of source files in MODDIR
-MOD_SOURCES = $(wildcard $(MODDIR)/*.f90)
+MOD_SOURCES = $(wildcard $(MODDIR)/*.f90) ./lammpsIO.f90
 
 # List of object files to be built from MOD_SOURCES
 MOD_OBJECTS = $(patsubst $(MODDIR)/%.f90,$(MODDIR)/%.o,$(MOD_SOURCES))
@@ -33,6 +33,7 @@ $(TESTDIR)/test.o: $(TESTDIR)/test.f90
 $(MODDIR)/%.o: $(MODDIR)/%.f90
 	$(FC) $(FCFLAGS) -c $(MODDIR)/global_types.f90
 	$(FC) $(FCFLAGS) -c $(MODDIR)/string_utils.f90
+	$(FC) $(FCFLAGS) -c lammpsIO.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 .PHONY: clean
@@ -43,3 +44,5 @@ clean:
 clean-all:
 	rm -f $(MODDIR)/*.o $(MODDIR)/*.mod $(TESTDIR)/*.o $(TESTDIR)/*.mod $(PROGRAMS)
 
+test:
+	echo $(MOD_OBJECTS)
