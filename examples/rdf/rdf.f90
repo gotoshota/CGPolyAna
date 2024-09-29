@@ -18,7 +18,7 @@ program main
     ! monomer rdf
     double precision, allocatable :: rdf(:)
     integer(kind=8), allocatable :: rdf_i(:)
-    double precision :: dr = 0.10d0
+    double precision :: dr = 0.20d0
     double precision :: rho
     ! com rdf
     real, allocatable :: coms(:,:)
@@ -36,7 +36,7 @@ program main
     ! I/O
     integer :: unit
     integer :: ios
-    
+
     print *, "OMP_NUM_THREADS = ", OMP_GET_MAX_THREADS()
     ! 時間の計測
     call cpu_time(start)
@@ -44,8 +44,8 @@ program main
     ! get nmlfilename from argument
     call get_command_argument(1, nmlfilename)
     call read_MDParams(nmlfilename, params)
-    
-    ! モード設定: デフォルトは"monomer"
+
+    ! モード設定
     if (command_argument_count() > 1) then
         call get_command_argument(2, mode)
     else
@@ -66,7 +66,7 @@ program main
     allocate(coms(3, params%nchains))
 
     num_frames = 0
-    
+
     do frame = 1, params%nframes
         call reader%read()
         if (reader%end_of_file) exit
@@ -104,6 +104,8 @@ program main
 
     rho = reader%nparticles / (reader%box_bounds(2, 1) - reader%box_bounds(1, 1))**3.0
     rho_com = params%nchains / (reader%box_bounds(2, 1) - reader%box_bounds(1, 1))**3.0
+    print *, "rho = ", rho
+    print *, "rho_com = ", rho_com
 
     ! 規格化
     if (mode == "mon" .or. mode == "all") then
@@ -134,36 +136,46 @@ contains
     subroutine count_particles(coords, box_bounds, rdf_i, dr)
         real, intent(in) :: coords(:,:)
         double precision, intent(in) :: box_bounds(:, :)
-        integer(kind=8), INTENT(INOUT) :: rdf_i(:)
+        integer(kind=8), intent(inout) :: rdf_i(:)
         double precision, intent(in) :: dr
 
         real :: r, vec_r(3)
-        integer :: i, j, k
+        integer :: i, j, k, num_threads, thread_id
         double precision :: box_size
+
+        integer(kind=8), allocatable :: rdf_i_thread(:,:)
 
         box_size = box_bounds(2, 1) - box_bounds(1, 1)
 
-        !$omp parallel do private(i, j, vec_r, r, k) reduction(+:rdf_i)
+        ! Get the number of threads
+        !$omp parallel
+        num_threads = omp_get_num_threads()
+        !$omp end parallel
+
+        allocate(rdf_i_thread(size(rdf_i), num_threads))
+        rdf_i_thread = 0
+
+        !$omp parallel private(i, j, vec_r, r, k, thread_id)
+        thread_id = omp_get_thread_num() + 1
+        !$omp do
         do i = 1, size(coords, 2)
-            do j = 1, size(coords, 2)
-                if (i /= j) then
-                    vec_r = coords(:, i) - coords(:, j)
-                    vec_r = vec_r - box_size * nint(vec_r / box_size)
-                    r = sqrt(sum(vec_r**2))
-                    k = int(r/dr)
-                    if (k == 0) then
-                        rdf_i(1) = rdf_i(1) + 1
-                    else if (k <= size(rdf_i)) then
-                        rdf_i(k) = rdf_i(k) + 1
-                    else 
-                        print *, "Missing particles"
-                        print *, "r = ", r
-                        print *, "k = ", k
-                    end if
+            do j = i + 1, size(coords, 2)
+                vec_r = coords(:, i) - coords(:, j)
+                vec_r = vec_r - box_size * nint(vec_r / box_size)
+                r = sqrt(sum(vec_r**2))
+                k = ceiling(r / dr)
+                if (k <= size(rdf_i)) then
+                    rdf_i_thread(k, thread_id) = rdf_i_thread(k, thread_id) + 2
                 end if
             end do
         end do
-        !$omp end parallel do
+        !$omp end do
+        !$omp end parallel
+
+        ! Sum the results from all threads
+        rdf_i = rdf_i + sum(rdf_i_thread, dim=2)
+
+        deallocate(rdf_i_thread)
     end subroutine count_particles
 
     subroutine write_rdf(rdf, dr, filename)
@@ -174,7 +186,7 @@ contains
         integer :: unit
         open(newunit=unit, file=filename, status='replace')
         do i = 1, size(rdf)
-            write(unit, *) dble(i)*dr, rdf(i)
+            write(unit, *) (dble(i) - 0.50d0)*dr, rdf(i)
         end do
         close(unit)
     end subroutine write_rdf
