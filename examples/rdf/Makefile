@@ -35,7 +35,7 @@ $(TARGET).o: $(TARGET).f90 $(MOD_OBJECTS)
 # Dependencies
 $(MODDIR)/io.o: $(MODDIR)/string_utils.o
 
-$(LAMMPSIO_DIR)/lammpsIO.o: $(MODDIR)/io.o $(MODDIR)/string_utils.o
+$(LAMMPSIO_DIR)/lammpsIO.o: $(LAMMPSIO_DIR)/lammpsIO.f90 
 
 $(MODDIR)/%.o: $(MODDIR)/%.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
