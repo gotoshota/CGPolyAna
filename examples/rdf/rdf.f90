@@ -1,4 +1,5 @@
 program main
+    !$ use omp_lib
     use lammpsio
     use global_types
     use statistics
@@ -36,6 +37,8 @@ program main
     integer :: unit
     integer :: ios
     
+    print *, "OMP_NUM_THREADS = ", OMP_GET_MAX_THREADS()
+    ! 時間の計測
     call cpu_time(start)
 
     ! get nmlfilename from argument
@@ -129,7 +132,6 @@ program main
 
 contains
     subroutine count_particles(coords, box_bounds, rdf_i, dr)
-        !$ use omp_lib
         real, intent(in) :: coords(:,:)
         double precision, intent(in) :: box_bounds(:, :)
         integer(kind=8), INTENT(INOUT) :: rdf_i(:)
@@ -155,6 +157,8 @@ contains
                         rdf_i(k) = rdf_i(k) + 1
                     else 
                         print *, "Missing particles"
+                        print *, "r = ", r
+                        print *, "k = ", k
                     end if
                 end if
             end do
@@ -170,7 +174,7 @@ contains
         integer :: unit
         open(newunit=unit, file=filename, status='replace')
         do i = 1, size(rdf)
-            write(unit, *) (i)*dr, rdf(i)
+            write(unit, *) dble(i)*dr, rdf(i)
         end do
         close(unit)
     end subroutine write_rdf
