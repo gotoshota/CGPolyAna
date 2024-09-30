@@ -1,10 +1,29 @@
 # Coarse-Grained Polymer Analyser
-This repository provides Fortran modules and some executable binaries to analyze trajectory from molecular dynamics simulation of coarse-grained polymer (bead-spring model).
+簡単な解析プログラムとそのモジュール。
+粗視化高分子モデルの解析に使った。
+基本的には、LAMMPSのテキスト形式のトラジェクトリファイルを読み込んで解析するため、
+[LammpsDumpReader](git@github.com:gotoshota/LammpsDumpReader.git)も一緒に使うことを想定している。
 
-Currently, only LAMMPS format trajectory files (`.lammpstrj`) are supported.
+## src
+### cgpa.py
+解析プログラムを呼び出すインターフェース。
+```
+./cgpa.py rdf -i input.nml
+```
+といったふうに呼び出す。
 
 ## Examples
-You can easily compute mean square displacement (MSD) and mean square radius of gyration (Rg2) in `examples` directory.
+このディレクトリには、例としていくつかの解析プログラムが入っている。
+インプットとして、Namelistが必要。
+現在
+- rdf
+- rg2 
+- msd 
+がある。
+それぞれ`cpga.py`から呼び出せる。
+
+## data
+テスト用のNamelistおよびトラジェクトリデータが入ってる。
 
 ### compile 
 ```
@@ -13,4 +32,4 @@ cd examples/xxx
 make clean
 make
 ```
-xxx = ( msd rg2 )
+xxx = ( msd rg2 rdf )

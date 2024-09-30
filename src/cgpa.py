@@ -5,7 +5,10 @@ import os
 
 def main():
     # コマンドライン引数のパーサーを設定
-    parser = argparse.ArgumentParser(description='解析プログラムを実行するスクリプト')
+    myDescription = getDescription()
+    parser = argparse.ArgumentParser(
+            description=myDescription,
+            formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('analysis', choices=["rdf", "msd", "rg2"], help='実行する解析プログラムを指定')
     parser.add_argument('-i', '--input', required=True, help='Namelist を指定してください')
     args = parser.parse_args()
@@ -32,6 +35,18 @@ def main():
     except subprocess.CalledProcessError as e:
         print(f'エラーが発生しました: {e}')
         exit(1)
+
+def getDescription():
+    return """CGPA: Coarse-Grained Particle Analysis を用いて書かれた解析プログラムを実行するためのスクリプト
+解析プログラムはexamples ディレクトリに格納されている。
+実行する解析プログラムを指定するための引数 analysis は以下の選択肢から選択する。
+  rdf: Radial Distribution Function を計算するプログラム
+  msd: Mean Squared Displacement を計算するプログラム
+  rg2: Radius of Gyration を計算するプログラム
+引数には、解析プログラムに渡す Namelist ファイルを指定する必要がある。
+実行例：
+cgpa rdf -i rdf.namelist
+"""
 
 if __name__ == '__main__':
     main()
