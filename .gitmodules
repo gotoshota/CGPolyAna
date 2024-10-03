@@ -1,0 +1,3 @@
+[submodule "src/LammpsDumpReader"]
+	path = src/LammpsDumpReader
+	url = git@github.com:gotoshota/LammpsDumpReader.git
