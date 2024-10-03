@@ -4,8 +4,9 @@ FCFLAGS =
 LDFLAGS = 
 
 # Directory structure
-SRCDIR = ../../src/
+SRCDIR = ../../src
 MODDIR = $(SRCDIR)/modules
+LDRDIR = $(SRCDIR)/LammpsDumpReader/fortran
 BUILDDIR = .
 
 # File name
@@ -17,7 +18,7 @@ PROGRAMS = $(BUILDDIR)/$(OUTPUT)
 
 # List of source files in MODDIR
 #MOD_SOURCES = $(wildcard $(MODDIR)/*.f90)
-MOD_SOURCES = $(MODDIR)/global_types.f90 $(MODDIR)/string_utils.f90 $(MODDIR)/correlation_function.f90 $(MODDIR)/math.f90 $(MODDIR)/coord_convert.f90 $(MODDIR)/io.f90 lammpsIO.f90
+MOD_SOURCES = $(MODDIR)/global_types.f90 $(MODDIR)/string_utils.f90 $(MODDIR)/correlation_function.f90 $(MODDIR)/math.f90 $(MODDIR)/coord_convert.f90 lammpsIO.f90
 
 # List of object files to be built from MOD_SOURCES
 MOD_OBJECTS = $(patsubst $(MODDIR)/%.f90,$(MODDIR)/%.o,$(MOD_SOURCES))
@@ -28,11 +29,13 @@ all: $(PROGRAMS)
 $(BUILDDIR)/$(OUTPUT): $(MOD_OBJECTS) $(TARGET).o
 	$(FC) $(LDFLAGS) -o $@ $^
 
-$(TARGET).o: $(TARGET).f90
+$(TARGET).o: $(TARGET).f90 $(MOD_OBJECTS)
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
-$(MODDIR)/%.o: $(MODDIR)/%.f90
-	$(FC) $(FCFLAGS) -c lammpsIO.f90 
+$(MODDIR)/%.o: $(MODDIR)/%.f90 $(LDRDIR)/lammpsio.o
+	$(FC) $(FCFLAGS) -c -o $@ $<
+
+$(LDRDIR)/lammpsio.o: $(LDRDIR)/lammpsIO.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 .PHONY: clean
