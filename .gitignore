@@ -38,6 +38,3 @@
 # mac 
 .DS_Store
 
-# lammps
-*.lammpstrj
-
