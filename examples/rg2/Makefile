@@ -1,10 +1,6 @@
 # Compiler settings - can be customized.
 FC = gfortran
-<<<<<<< HEAD
-FCFLAGS = -O2 -Wall -fdefault-integer-8
-=======
 FCFLAGS =
->>>>>>> 55cb8aabf10345c90ed4e7ede8823e99d1a78f2c
 LDFLAGS = -llapack -lblas
 
 # Directory structure
@@ -14,7 +10,7 @@ BUILDDIR = .
 LDReaderDIR = ~/wrk/LammpsDumpReader/fortran
 
 # File name
-TARGET = main
+TARGET = rg2
 OUTPUT = a.out
 
 # List of executables to be built within the package
