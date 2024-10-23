@@ -13,6 +13,8 @@ module global_types
         double precision :: dt = 0          ! 時間の刻み幅
         logical :: is_cubic = .true.        ! 立方格子かどうかのフラグ
         logical :: is_wrap = .true.         ! wrap or unwrap
+        contains
+            procedure :: init
     end type
 contains
     subroutine read_MDParams(nmlfilename, params)
@@ -45,5 +47,13 @@ contains
         params%dump_freq = dump_freq
         params%is_cubic = is_cubic
     end subroutine read_MDParams
+
+    subroutine init(this, nmlfilename)
+        implicit none
+        class(MDParams), intent(inout) :: this
+        character(len=*), intent(in) :: nmlfilename
+
+        call read_MDParams(nmlfilename, this)
+    end subroutine init
 end module
 
