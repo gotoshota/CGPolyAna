@@ -9,7 +9,7 @@
     is_cubic = .true.
 /
 
-&TimeDependentFunctionInfo
+&Function1DInfo
     is_log = .true.
     npoints = 20
     !base = 2
