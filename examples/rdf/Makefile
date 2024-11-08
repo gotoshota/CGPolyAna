@@ -21,7 +21,7 @@ PROGRAMS = $(BUILDDIR)/$(OUTPUT)
 MOD_SOURCES = $(LDRDIR)/lammpsIO.f90 $(MODDIR)/string_utils.f90 $(MODDIR)/global_types.f90 $(MODDIR)/math.f90 $(MODDIR)/coord_convert.f90 $(MODDIR)/statistics.f90 $(MODDIR)/physical_constants.f90
 
 # List of object files to be built from MOD_SOURCES
-MOD_OBJECTS = $(patsubst $(MODDIR)/%.f90,$(MODDIR)/%.o,$(filter-out $(LDRDIR)/lammpsio.f90, $(MOD_SOURCES))) $(LDRDIR)/lammpsio.o
+MOD_OBJECTS = $(patsubst $(MODDIR)/%.f90,$(MODDIR)/%.o,$(filter-out $(LDRDIR)/lammpsIO.f90, $(MOD_SOURCES))) $(LDRDIR)/lammpsIO.o
 
 
 # "make" builds all
