@@ -1,6 +1,6 @@
 program main
     use global_types
-    use lammpsIO
+    use lammpsio
     use math
     use statistics
     use coord_convert
