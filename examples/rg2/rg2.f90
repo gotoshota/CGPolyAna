@@ -78,6 +78,7 @@ program main
     max_val = 1.0d0 ! 定義より
     n_bins = 100
     call prolateness%init(min_val, max_val, n_bins)
+    call lapack_init(lwork, work, info)
     do idx_dump = 1, params%ndumpfiles
         call reader%open(trim(adjustl(params%dumpfilenames(idx_dump))))
         do idx_frame = 1, params%nframes
@@ -89,6 +90,7 @@ program main
             end if
             do i = 1, params%nchains
                 call calc_gyration_tensor(reader%coords(:, (i-1)*params%nbeads+1:i*params%nbeads), gyration_tensor)  
+                call dsyev('V', 'U', 3, gyration_tensor, 3, eigenval, work, lwork, info)
                 call calc_radius(eigenval, tmp)
                 ! update で統計量を逐次的に計算
                 call rg2%update(tmp)

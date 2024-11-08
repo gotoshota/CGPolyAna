@@ -64,7 +64,6 @@ program main
     ! idx_frame = 1
     call lmp%read()
     ALLOCATE(coords(3, lmp%nparticles, params%nframes))
-    print *, ALLOCATED(lmp%image_flags)
     if (ALLOCATED(lmp%image_flags)) then
         print *, "This trajectory may be wrapped."
         coords(:, :, 1) = unwrap_coords(lmp%coords, lmp%box_bounds, lmp%image_flags)
@@ -74,7 +73,6 @@ program main
     do i = 1, params%nchains
         com(:, i, 1) = center_of_mass(coords(:, (i-1)*params%nbeads+1:i*params%nbeads, 1))
     end do
-    print*,"check"
     ! idx_frame = 2 ~ nframes
     do idx_frame = 2, params%nframes
         call lmp%read()
