@@ -18,6 +18,12 @@ brew install python-tk
 ```
 でインストールできる。
 
+各種依存ライブラリは、
+```
+pip install -r requirements.txt
+```
+でインストールできる。
+
 ### cgpa.py
 解析プログラムを呼び出すインターフェース。
 ```
