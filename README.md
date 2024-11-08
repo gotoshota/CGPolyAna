@@ -5,6 +5,19 @@
 [LammpsDumpReader](git@github.com:gotoshota/LammpsDumpReader.git)も一緒に使うことを想定している。
 
 ## src
+### gui.py
+GUIで解析できる。
+```
+./gui.py
+```
+で起動する。
+tkinterを使っているので、対応したpython3が必要。
+macOSの場合、
+```
+brew install python-tk
+```
+でインストールできる。
+
 ### cgpa.py
 解析プログラムを呼び出すインターフェース。
 ```
