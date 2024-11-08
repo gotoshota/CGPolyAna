@@ -26,10 +26,10 @@ MOD_OBJECTS = $(patsubst $(MODDIR)/%.f90,$(MODDIR)/%.o,$(filter-out $(LDRDIR)/la
 all: $(PROGRAMS)
 
 $(BUILDDIR)/$(OUTPUT): $(MOD_OBJECTS) $(TARGET).o 
-	$(FC) $(LDFLAGS) -o $@ $^
+	$(FC) $(LDFLAGS) -I $(LDRDIR) -o $@ $^
 
 $(TARGET).o: $(TARGET).f90 $(MOD_OBJECTS) $(LDRDIR)/lammpsio.o
-	$(FC) $(FCFLAGS) -c -o $@ $<
+	$(FC) $(FCFLAGS) -I $(LDRDIR) -c -o $@ $<
 
 # Pattern rules for modules in MODDIR
 $(MODDIR)/%.o: $(MODDIR)/%.f90
