@@ -42,7 +42,7 @@ $(LDRDIR)/lammpsio.o: $(LDRDIR)/lammpsIO.f90
 $(MODDIR)/%.o: $(MODDIR)/%.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
-$(LDRDIR)/lammpsio.o: $(LDRDIR)/lammpsio.f90 $(MODDIR)/io.o $(MODDIR)/string_utils.o
+$(LDRDIR)/lammpsio.o: $(LDRDIR)/lammpsIO.f90 $(MODDIR)/io.o $(MODDIR)/string_utils.o
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 .PHONY: clean
