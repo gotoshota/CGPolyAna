@@ -35,7 +35,7 @@ $(TARGET).o: $(TARGET).f90 $(MOD_OBJECTS)
 $(MODDIR)/%.o: $(MODDIR)/%.f90 $(LDRDIR)/lammpsio.o
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
-$(LDRDIR)/lammpsio.o: $(LDRDIR)/lammpsio.f90
+$(LDRDIR)/lammpsio.o: $(LDRDIR)/lammpsIO.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 .PHONY: clean

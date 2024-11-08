@@ -28,7 +28,7 @@ all: $(PROGRAMS)
 $(BUILDDIR)/$(OUTPUT): $(MOD_OBJECTS) $(TARGET).o 
 	$(FC) $(LDFLAGS) -o $@ $^
 
-$(TARGET).o: $(TARGET).f90
+$(TARGET).o: $(TARGET).f90 $(MOD_OBJECTS)
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 # Pattern rules for modules in MODDIR
@@ -36,7 +36,7 @@ $(MODDIR)/%.o: $(MODDIR)/%.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 # Pattern rules for modules in LDRDIR
-$(LDRDIR)/lammpsio.o: $(LDRDIR)/lammpsio.f90
+$(LDRDIR)/lammpsio.o: $(LDRDIR)/lammpsIO.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 
