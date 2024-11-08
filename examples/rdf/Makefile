@@ -1,7 +1,8 @@
 # Compiler settings - can be customized.
 FC = gfortran
 FCFLAGS = -O2 -fopenmp
-LINKFLAGS = -fopenmp -isysroot $(shell xcrun --show-sdk-path)
+#LINKFLAGS = -fopenmp -isysroot $(shell xcrun --show-sdk-path)
+LINKFLAGS = -fopenmp
 
 # Directory structure
 SRCDIR = ../../src/
