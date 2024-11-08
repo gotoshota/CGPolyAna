@@ -20,7 +20,7 @@ PROGRAMS = $(BUILDDIR)/$(OUTPUT)
 MOD_SOURCES = $(wildcard $(MODDIR)/*.f90) $(LDRDIR)/lammpsIO.f90
 
 # List of object files to be built from MOD_SOURCES
-MOD_OBJECTS = $(MOD_SOURCES:.f90=.o)
+MOD_OBJECTS = $(patsubst $(MODDIR)/%.f90,$(MODDIR)/%.o,$(filter-out $(LDRDIR)/lammpsIO.f90, $(MOD_SOURCES))) $(LDRDIR)/lammpsio.o
 
 # "make" builds all
 all: $(PROGRAMS)
