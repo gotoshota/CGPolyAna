@@ -89,7 +89,7 @@ def run_analysis():
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
         output_text.insert(tk.END, result.stdout)
         messagebox.showinfo("完了", f'{analysis} の解析が完了しました。')
-        select_data_for_visualization(result.stdout)
+        #select_data_for_visualization(result.stdout)
     except subprocess.CalledProcessError as e:
         output_text.insert(tk.END, f'エラーが発生しました: {e}\n{e.stderr}')
         messagebox.showerror("エラー", f'エラーが発生しました: {e}')
@@ -104,9 +104,9 @@ def select_data_for_visualization(output):
         except ValueError:
             continue
 
-    if not data:
-        messagebox.showwarning("可視化", "可視化するデータがありません。")
-        return
+    #if not data:
+    #    messagebox.showwarning("可視化", "可視化するデータがありません。")
+    #    return
 
     # ユーザーに可視化するデータの範囲を選ばせる
     selection_window = tk.Toplevel()
