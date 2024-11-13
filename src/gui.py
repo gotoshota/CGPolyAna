@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
+
 # Namelistパラメータのデフォルト値
 def get_default_params():
     return {
@@ -21,6 +22,7 @@ def get_default_params():
         "is_log": True,
         "npoints": 20
     }
+
 
 # Namelist形式に変換する関数
 def convert_to_namelist(params):
@@ -41,6 +43,7 @@ def convert_to_namelist(params):
     function_1d_info += "/\n"
 
     return md_params + function_1d_info
+
 
 # 解析を実行する関数
 def run_analysis():
@@ -268,6 +271,6 @@ def main():
 
     root.mainloop()
 
+
 if __name__ == '__main__':
     main()
-
