@@ -1,6 +1,6 @@
 program main
     use global_types
-    use lammpsIO
+    use lammpsio
     use math
     use statistics
     use coord_convert
@@ -87,6 +87,9 @@ program main
             if (reader%end_of_file) then
                 call reader%close()
                 exit
+            end if
+            if (allocated(reader%image_flags)) then
+                reader%coords = unwrap_coords(reader%coords, reader%box_bounds, reader%image_flags)
             end if
             do i = 1, params%nchains
                 call calc_gyration_tensor(reader%coords(:, (i-1)*params%nbeads+1:i*params%nbeads), gyration_tensor)  
@@ -219,7 +222,7 @@ contains
             write (output, "(A)") "# Probability Distribution function"
             write (output, "(A)") "# value, pdf"
             do i = 1, size(pdf)
-                write (output, "(G0, 1x, G0)") x(:), pdf(i)
+                write (output, "(G0, 1x, G0)") x(i), pdf(i)
             end do
         close (output)
     end subroutine
