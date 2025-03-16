@@ -26,12 +26,13 @@ module global_types
             procedure :: init               !< パラメータの初期化
             procedure :: validate           !< パラメータの検証
     end type
+
 contains
     !> @brief Namelistファイルからパラメータを読み込む
     !> @param[in] nmlfilename Namelistファイル名
     !> @param[out] params 読み込んだパラメータを格納する変数
     !> @return エラーコード（0: 成功, 非0: エラー）
-    function read_MDParams(nmlfilename, params) result(ierr)
+    subroutine read_MDParams(nmlfilename, params)
         implicit none
         character(len=*), intent(in) :: nmlfilename
         type(MDParams), intent(inout) :: params
@@ -55,14 +56,18 @@ contains
         ! read namelist
         open (unit=10, file=nmlfilename, status='old', iostat=ios)
         if (ios /= 0) then
-            call params%error%set(ERR_FILE_NOT_FOUND, "Failed to open namelist file: " // trim(nmlfilename), "read_MDParams")
+            call params%error%set(ERR_FILE_NOT_FOUND, &
+                 "Failed to open namelist file: " // trim(nmlfilename), &
+                 "read_MDParams")
             ierr = ERR_FILE_NOT_FOUND
             return
         end if
 
         read (10, MDParams_nml, iostat=ios)
         if (ios /= 0) then
-            call params%error%set(ERR_INVALID_FORMAT, "Failed to read namelist: " // trim(nmlfilename), "read_MDParams")
+            call params%error%set(ERR_INVALID_FORMAT, &
+                 "Failed to read namelist: " // trim(nmlfilename), &
+                 "read_MDParams")
             ierr = ERR_INVALID_FORMAT
             close(10)
             return
@@ -81,7 +86,7 @@ contains
 
         ! パラメータの検証
         ierr = params%validate()
-    end function read_MDParams
+    end subroutine read_MDParams
 
     !> @brief パラメータの初期化
     !> @param[inout] this MDParamsオブジェクト
@@ -93,7 +98,8 @@ contains
         character(len=*), intent(in) :: nmlfilename
         integer :: ierr
 
-        ierr = read_MDParams(nmlfilename, this)
+        call read_MDParams(nmlfilename, this)
+        ierr = 0
     end function init
 
     !> @brief パラメータの検証
@@ -103,71 +109,66 @@ contains
         implicit none
         class(MDParams), intent(inout) :: this
         integer :: ierr
+        character(len=32) :: err_str
         
         ierr = 0
         
         ! 基本的なパラメータの検証
         if (this%nchains <= 0) then
-            call this%error%set(ERR_INVALID_PARAMETER, "Invalid number of chains: " // trim(adjustl(int_to_str(this%nchains))), "MDParams%validate")
+            write(err_str, '(I10)') this%nchains
+            call this%error%set(ERR_INVALID_PARAMETER, &
+                 "Invalid number of chains: " // trim(adjustl(err_str)), &
+                 "MDParams%validate")
             ierr = ERR_INVALID_PARAMETER
             return
         end if
         
         if (this%nbeads <= 0) then
-            call this%error%set(ERR_INVALID_PARAMETER, "Invalid number of beads: " // trim(adjustl(int_to_str(this%nbeads))), "MDParams%validate")
+            write(err_str, '(I10)') this%nbeads
+            call this%error%set(ERR_INVALID_PARAMETER, &
+                 "Invalid number of beads: " // trim(adjustl(err_str)), &
+                 "MDParams%validate")
             ierr = ERR_INVALID_PARAMETER
             return
         end if
         
         if (this%nframes <= 0) then
-            call this%error%set(ERR_INVALID_PARAMETER, "Invalid number of frames: " // trim(adjustl(int_to_str(this%nframes))), "MDParams%validate")
+            write(err_str, '(I10)') this%nframes
+            call this%error%set(ERR_INVALID_PARAMETER, &
+                 "Invalid number of frames: " // trim(adjustl(err_str)), &
+                 "MDParams%validate")
             ierr = ERR_INVALID_PARAMETER
             return
         end if
         
         if (this%dt <= 0.0) then
-            call this%error%set(ERR_INVALID_PARAMETER, "Invalid time step: " // trim(adjustl(real_to_str(this%dt))), "MDParams%validate")
+            write(err_str, '(F15.6)') this%dt
+            call this%error%set(ERR_INVALID_PARAMETER, &
+                 "Invalid time step: " // trim(adjustl(err_str)), &
+                 "MDParams%validate")
             ierr = ERR_INVALID_PARAMETER
             return
         end if
         
         if (this%dump_freq <= 0) then
-            call this%error%set(ERR_INVALID_PARAMETER, "Invalid dump frequency: " // trim(adjustl(int_to_str(this%dump_freq))), "MDParams%validate")
+            write(err_str, '(I10)') this%dump_freq
+            call this%error%set(ERR_INVALID_PARAMETER, &
+                 "Invalid dump frequency: " // trim(adjustl(err_str)), &
+                 "MDParams%validate")
             ierr = ERR_INVALID_PARAMETER
             return
         end if
         
         ! dumpfilenamesの検証
         if (this%ndumpfiles <= 0) then
-            call this%error%set(ERR_INVALID_PARAMETER, "Invalid number of dump files: " // trim(adjustl(int_to_str(this%ndumpfiles))), "MDParams%validate")
+            write(err_str, '(I10)') this%ndumpfiles
+            call this%error%set(ERR_INVALID_PARAMETER, &
+                 "Invalid number of dump files: " // trim(adjustl(err_str)), &
+                 "MDParams%validate")
             ierr = ERR_INVALID_PARAMETER
             return
         end if
         
         ! 各dumpfileの存在確認は省略（実際の実装では必要に応じて追加）
     end function validate
-
-    !> @brief 整数を文字列に変換
-    !> @param[in] i 整数
-    !> @return 文字列
-    function int_to_str(i) result(str)
-        implicit none
-        integer, intent(in) :: i
-        character(len=20) :: str
-        
-        write(str, '(I20)') i
-        str = adjustl(str)
-    end function int_to_str
-    
-    !> @brief 実数を文字列に変換
-    !> @param[in] r 実数
-    !> @return 文字列
-    function real_to_str(r) result(str)
-        implicit none
-        double precision, intent(in) :: r
-        character(len=30) :: str
-        
-        write(str, '(G30.15)') r
-        str = adjustl(str)
-    end function real_to_str
 end module

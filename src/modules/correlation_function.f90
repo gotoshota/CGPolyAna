@@ -33,7 +33,7 @@ module correlation_function
 
     !> @brief 自己相関関数を計算するインターフェース
     interface calc_AutoFunction1D
-        procedure calc_AutoCorrelationFunction_timeave, calc_AutoCorrelationFunction_particleave
+        module procedure calc_AutoCorrelationFunction_timeave, calc_AutoCorrelationFunction_particleave
     end interface calc_AutoFunction1D
 
 contains
@@ -41,7 +41,7 @@ contains
     !> @param[inout] self Function1Dオブジェクト
     !> @param[in] nmlfilename Namelistファイル名
     !> @return エラーコード（0: 成功, 非0: エラー）
-    function init_function1d(self, nmlfilename) result(ierr)
+    subroutine init_function1d(self, nmlfilename)
         implicit none
         class(Function1D), intent(inout) :: self
         character(len=*), intent(in) :: nmlfilename
@@ -52,14 +52,13 @@ contains
         ierr = 0
         
         ! Namelistファイルの読み込み
-        ierr = read_Function1DInfo(nmlfilename, self)
-    end function init_function1d
+        call read_Function1DInfo(nmlfilename, self)
+    end subroutine init_function1d
 
     !> @brief Namelistファイルから関数情報を読み込む
     !> @param[in] nmlfilename Namelistファイル名
     !> @param[out] func 読み込んだ情報を格納する変数
-    !> @return エラーコード（0: 成功, 非0: エラー）
-    function read_Function1DInfo(nmlfilename, func) result(ierr)
+    subroutine read_Function1DInfo(nmlfilename, func)
         implicit none
         character(len=*), intent(in) :: nmlfilename
         type(Function1D), intent(out) :: func
@@ -81,14 +80,18 @@ contains
         ! read namelist
         open (unit=10, file=nmlfilename, status='old', iostat=ios)
         if (ios /= 0) then
-            call func%error%set(ERR_FILE_NOT_FOUND, "Failed to open namelist file: " // trim(nmlfilename), "read_Function1DInfo")
+            call func%error%set(ERR_FILE_NOT_FOUND, &
+                 "Failed to open namelist file: " // trim(nmlfilename), &
+                 "read_Function1DInfo")
             ierr = ERR_FILE_NOT_FOUND
             return
         end if
         
         read (10, Function1DInfo, iostat=ios)
         if (ios /= 0) then
-            call func%error%set(ERR_INVALID_FORMAT, "Failed to read Function1DInfo namelist", "read_Function1DInfo")
+            call func%error%set(ERR_INVALID_FORMAT, &
+                 "Failed to read Function1DInfo namelist", &
+                 "read_Function1DInfo")
             ierr = ERR_INVALID_FORMAT
             close(10)
             return
@@ -118,7 +121,7 @@ contains
             ierr = ERR_INVALID_PARAMETER
             return
         end if
-    end function read_Function1DInfo
+    end subroutine read_Function1DInfo
 
     !> @brief フレーム間隔を決定する
     !> @param[inout] func Function1Dオブジェクト
@@ -126,7 +129,7 @@ contains
     !> @param[in] dt 時間刻み（オプション）
     !> @param[in] dump_freq ダンプ頻度（オプション）
     !> @return エラーコード（0: 成功, 非0: エラー）
-    function determine_frame_intervals(func, nframes, dt, dump_freq) result(ierr)
+    subroutine determine_frame_intervals(func, nframes, dt, dump_freq)
         implicit none
         type(Function1D), intent(inout) :: func
         integer, intent(in) :: nframes
@@ -148,7 +151,9 @@ contains
                 ierr = log_base(func, nframes)
                 if (ierr /= 0) return
             else
-                call func%error%set(ERR_INVALID_PARAMETER, "Have to input criteria which matches to is_log.", "determine_frame_intervals")
+                call func%error%set(ERR_INVALID_PARAMETER, &
+                     "Have to input criteria which matches to is_log.", &
+                     "determine_frame_intervals")
                 ierr = ERR_INVALID_PARAMETER
                 return
             end if
@@ -160,7 +165,9 @@ contains
                 ierr = linear_window_width(func, nframes)
                 if (ierr /= 0) return
             else
-                call func%error%set(ERR_INVALID_PARAMETER, "Have to input criteria which matches to is_log.", "determine_frame_intervals")
+                call func%error%set(ERR_INVALID_PARAMETER, &
+                     "Have to input criteria which matches to is_log.", &
+                     "determine_frame_intervals")
                 ierr = ERR_INVALID_PARAMETER
                 return
             end if
@@ -189,7 +196,7 @@ contains
                 func%x(i) = dble(func%frame_intervals(i))
             end do
         end if
-    end function determine_frame_intervals
+    end subroutine determine_frame_intervals
 
     !> @brief 対数スケールでのフレーム間隔を決定する（点数指定）
     !> @param[inout] func Function1Dオブジェクト
@@ -462,7 +469,7 @@ contains
     !> @param[inout] func Function1Dオブジェクト
     !> @param[in] A 時系列データ
     !> @return エラーコード（0: 成功, 非0: エラー）
-    function calc_AutoCorrelationFunction_timeave(func, A) result(ierr)
+    subroutine calc_AutoCorrelationFunction_timeave(func, A)
         implicit none
         type(Function1D), intent(inout) :: func
         double precision, intent(in) :: A(:)
@@ -478,13 +485,17 @@ contains
 
         ! パラメータの検証
         if (.not. allocated(func%frame_intervals)) then
-            call func%error%set(ERR_INVALID_PARAMETER, "frame_intervals not initialized", "calc_AutoCorrelationFunction_timeave")
+            call func%error%set(ERR_INVALID_PARAMETER, &
+                 "frame_intervals not initialized", &
+                 "calc_AutoCorrelationFunction_timeave")
             ierr = ERR_INVALID_PARAMETER
             return
         end if
         
         if (.not. allocated(func%y)) then
-            call func%error%set(ERR_INVALID_PARAMETER, "function values not initialized", "calc_AutoCorrelationFunction_timeave")
+            call func%error%set(ERR_INVALID_PARAMETER, &
+                 "function values not initialized", &
+                 "calc_AutoCorrelationFunction_timeave")
             ierr = ERR_INVALID_PARAMETER
             return
         end if
@@ -499,13 +510,13 @@ contains
             end do
             func%y(i) = func%y(i) / func%frame_intervals(i)
         end do
-    end function calc_AutoCorrelationFunction_timeave
+    end subroutine calc_AutoCorrelationFunction_timeave
 
     !> @brief 粒子平均の自己相関関数を計算する
     !> @param[inout] func Function1Dオブジェクト
     !> @param[in] A 時系列データ（粒子ごと）
     !> @return エラーコード（0: 成功, 非0: エラー）
-    function calc_AutoCorrelationFunction_particleave(func, A) result(ierr)
+    subroutine calc_AutoCorrelationFunction_particleave(func, A)
         implicit none
         type(Function1D), intent(inout) :: func
         double precision, intent(in) :: A(:,:)
@@ -523,13 +534,17 @@ contains
 
         ! パラメータの検証
         if (.not. allocated(func%frame_intervals)) then
-            call func%error%set(ERR_INVALID_PARAMETER, "frame_intervals not initialized", "calc_AutoCorrelationFunction_particleave")
+            call func%error%set(ERR_INVALID_PARAMETER, &
+                 "frame_intervals not initialized", &
+                 "calc_AutoCorrelationFunction_particleave")
             ierr = ERR_INVALID_PARAMETER
             return
         end if
         
         if (.not. allocated(func%y)) then
-            call func%error%set(ERR_INVALID_PARAMETER, "function values not initialized", "calc_AutoCorrelationFunction_particleave")
+            call func%error%set(ERR_INVALID_PARAMETER, &
+                 "function values not initialized", &
+                 "calc_AutoCorrelationFunction_particleave")
             ierr = ERR_INVALID_PARAMETER
             return
         end if
@@ -549,6 +564,6 @@ contains
             end do
             func%y(i) = func%y(i) / func%frame_intervals(i)
         end do
-    end function calc_AutoCorrelationFunction_particleave
+    end subroutine calc_AutoCorrelationFunction_particleave
 
 end module correlation_function

@@ -1,0 +1,48 @@
+# 共通Makefile for CGPolyAna
+# 各解析プログラムから include されることを想定
+
+# コンパイラ設定（カスタマイズ可能）
+FC = gfortran
+FCFLAGS ?= -O2 -fopenmp
+LINKFLAGS ?= -fopenmp
+
+# ディレクトリ構造
+SRCDIR = ../../src/
+MODDIR = $(SRCDIR)/modules
+LDRDIR = $(SRCDIR)/LammpsDumpReader/fortran
+BUILDDIR = .
+
+# 出力ファイル名
+OUTPUT ?= a.out
+
+# モジュールオブジェクトファイル
+MOD_OBJECTS = $(MODDIR)/error_handling.o \
+              $(MODDIR)/global_types.o \
+              $(MODDIR)/string_utils.o \
+              $(MODDIR)/math.o \
+              $(MODDIR)/physical_constants.o \
+              $(MODDIR)/statistics.o \
+              $(MODDIR)/coord_convert.o \
+              $(MODDIR)/correlation_function.o \
+              $(MODDIR)/io.o \
+              $(LDRDIR)/lammpsio.o
+
+# デフォルトターゲット
+all: $(BUILDDIR)/$(OUTPUT)
+
+# メインプログラムのビルド
+$(BUILDDIR)/$(OUTPUT): $(TARGET).o
+	$(FC) $(LINKFLAGS) -o $@ $(MOD_OBJECTS) $<
+
+# メインプログラムのコンパイル
+$(TARGET).o: $(TARGET).f90
+	$(FC) $(FCFLAGS) -I$(MODDIR) -I$(LDRDIR) -c -o $@ $<
+
+# クリーンアップ
+.PHONY: clean clean-all
+
+clean:
+	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.mod $(BUILDDIR)/$(OUTPUT)
+
+clean-all:
+	rm -f $(MODDIR)/*.o $(MODDIR)/*.mod $(LDRDIR)/*.o $(LDRDIR)/*.mod $(BUILDDIR)/*.o $(BUILDDIR)/*.mod $(BUILDDIR)/$(OUTPUT) 

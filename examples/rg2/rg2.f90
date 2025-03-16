@@ -15,6 +15,7 @@ program main
     integer :: idx_dump, idx_frame
     integer :: i, j, k
     integer :: outfile = 66
+    integer :: ierr  ! エラーコード用変数を追加
 
     type(Function1D) :: rg2_time
     type(StatValues) :: rg2
@@ -67,17 +68,32 @@ program main
     min_val = 2.0d0 * (params%nbeads / 4.0) ** (2.0d0/3.0d0) ! ビーズのサイズと重合度から決める 2倍はテキトー
     max_val = 25.0d0*min_val ! テキトー
     n_bins = 100
-    call rg2%init(min_val, max_val, n_bins)
+    ierr = rg2%init(min_val, max_val, n_bins)
+    if (ierr /= 0) then
+        print *, "Error initializing rg2: ", rg2%error%message
+        stop
+    end if
+    
     !! Asphericity
     min_val = 0.0d0
     max_val = 1.0d0 ! 定義より
     n_bins = 100
-    call asphericity%init(min_val, max_val, n_bins)
+    ierr = asphericity%init(min_val, max_val, n_bins)
+    if (ierr /= 0) then
+        print *, "Error initializing asphericity: ", asphericity%error%message
+        stop
+    end if
+    
     !! Prolateness
     min_val = -1.0d0
     max_val = 1.0d0 ! 定義より
     n_bins = 100
-    call prolateness%init(min_val, max_val, n_bins)
+    ierr = prolateness%init(min_val, max_val, n_bins)
+    if (ierr /= 0) then
+        print *, "Error initializing prolateness: ", prolateness%error%message
+        stop
+    end if
+    
     call lapack_init(lwork, work, info)
     do idx_dump = 1, params%ndumpfiles
         call reader%open(trim(adjustl(params%dumpfilenames(idx_dump))))
@@ -96,11 +112,25 @@ program main
                 call dsyev('V', 'U', 3, gyration_tensor, 3, eigenval, work, lwork, info)
                 call calc_radius(eigenval, tmp)
                 ! update で統計量を逐次的に計算
-                call rg2%update(tmp)
+                ierr = rg2%update(tmp)
+                if (ierr /= 0) then
+                    print *, "Error updating rg2: ", rg2%error%message
+                    stop
+                end if
+                
                 call calc_asphericity(eigenval, tmp)
-                call asphericity%update(tmp)
+                ierr = asphericity%update(tmp)
+                if (ierr /= 0) then
+                    print *, "Error updating asphericity: ", asphericity%error%message
+                    stop
+                end if
+                
                 call calc_prolateness(eigenval, tmp)
-                call prolateness%update(tmp)
+                ierr = prolateness%update(tmp)
+                if (ierr /= 0) then
+                    print *, "Error updating prolateness: ", prolateness%error%message
+                    stop
+                end if
             enddo
         end do
         call reader%close()
