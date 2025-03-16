@@ -1,30 +1,28 @@
-name: Doxygen Documentation
-
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+# pull_request イベントは GitHub Pages 自動デプロイには不要です
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Install Doxygen and Graphviz
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y doxygen graphviz
-    
-    - name: Generate Documentation
-      run: |
-        cd docs
-        doxygen Doxyfile
-    
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/html
+      - uses: actions/checkout@v2
+      
+      - name: Install Doxygen and Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen graphviz
+      
+      - name: Generate Documentation
+        run: |
+          cd docs
+          doxygen Doxyfile
+      
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/html
+          publish_branch: main
