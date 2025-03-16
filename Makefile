@@ -13,7 +13,10 @@ all: modules examples
 modules:
 	@echo "モジュールをビルドしています..."
 	@for dir in $(MODULE_DIRS); do \
-		$(MAKE) -C $$dir || exit 1; \
+		if [ -f $$dir/Makefile ]; then \
+			$(MAKE) -C $$dir || exit 1; \
+			$(FC) -c $$dir/*.f90; \
+		fi; \
 	done
 
 # 例のビルド
