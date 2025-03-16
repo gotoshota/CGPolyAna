@@ -1,0 +1,61 @@
+\doxysection{/home/prose/wrk/\+CGPoly\+Ana/src/modules/global\+\_\+types.f90 ファイル}
+\hypertarget{global__types_8f90}{}\label{global__types_8f90}\index{/home/prose/wrk/CGPolyAna/src/modules/global\_types.f90@{/home/prose/wrk/CGPolyAna/src/modules/global\_types.f90}}
+
+
+グローバルな型定義を提供するモジュール  
+
+
+\doxysubsubsection*{データ型}
+\begin{DoxyCompactItemize}
+\item 
+type \mbox{\hyperlink{structglobal__types_1_1mdparams}{global\+\_\+types\+::mdparams}}
+\begin{DoxyCompactList}\small\item\em @type MDParams \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{関数/サブルーチン}
+\begin{DoxyCompactItemize}
+\item 
+subroutine \mbox{\hyperlink{global__types_8f90_a16f8f0c458fde9c4f04b9586cb195a4d}{global\+\_\+types\+::read\+\_\+mdparams}} (nmlfilename, params)
+\begin{DoxyCompactList}\small\item\em MDParamsを\+Namelistファイルから読み込む \end{DoxyCompactList}\item 
+subroutine \mbox{\hyperlink{global__types_8f90_a22c2a276f79abf1582b706242db01bb6}{global\+\_\+types\+::init}} (this, nmlfilename)
+\begin{DoxyCompactList}\small\item\em MDParamsオブジェクトを初期化する \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{詳解}
+グローバルな型定義を提供するモジュール 
+
+分子動力学シミュレーションのパラメータを格納する型を定義します 
+
+\doxysubsection{関数/サブルーチン詳解}
+\Hypertarget{global__types_8f90_a22c2a276f79abf1582b706242db01bb6}\label{global__types_8f90_a22c2a276f79abf1582b706242db01bb6} 
+\index{global\_types.f90@{global\_types.f90}!init@{init}}
+\index{init@{init}!global\_types.f90@{global\_types.f90}}
+\doxysubsubsection{\texorpdfstring{init()}{init()}}
+{\footnotesize\ttfamily subroutine global\+\_\+types\+::init (\begin{DoxyParamCaption}\item[{class(\mbox{\hyperlink{structglobal__types_1_1mdparams}{mdparams}}), intent(inout)}]{this,  }\item[{character(len=\texorpdfstring{$\ast$}{*}), intent(in)}]{nmlfilename }\end{DoxyParamCaption})}
+
+
+
+MDParamsオブジェクトを初期化する 
+
+
+\begin{DoxyParams}[1]{引数}
+\mbox{\texttt{ in,out}}  & {\em this} & MDParamsオブジェクト \\
+\hline
+\mbox{\texttt{ in}}  & {\em nmlfilename} & Namelistファイル名 \\
+\hline
+\end{DoxyParams}
+\Hypertarget{global__types_8f90_a16f8f0c458fde9c4f04b9586cb195a4d}\label{global__types_8f90_a16f8f0c458fde9c4f04b9586cb195a4d} 
+\index{global\_types.f90@{global\_types.f90}!read\_mdparams@{read\_mdparams}}
+\index{read\_mdparams@{read\_mdparams}!global\_types.f90@{global\_types.f90}}
+\doxysubsubsection{\texorpdfstring{read\_mdparams()}{read\_mdparams()}}
+{\footnotesize\ttfamily subroutine global\+\_\+types\+::read\+\_\+mdparams (\begin{DoxyParamCaption}\item[{character(len=\texorpdfstring{$\ast$}{*}), intent(in)}]{nmlfilename,  }\item[{type(\mbox{\hyperlink{structglobal__types_1_1mdparams}{mdparams}}), intent(inout)}]{params }\end{DoxyParamCaption})}
+
+
+
+MDParamsを\+Namelistファイルから読み込む 
+
+
+\begin{DoxyParams}[1]{引数}
+\mbox{\texttt{ in}}  & {\em nmlfilename} & Namelistファイル名 \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em params} & MDParamsオブジェクト \\
+\hline
+\end{DoxyParams}

@@ -1,0 +1,38 @@
+\chapter{lammps\+IO}
+\hypertarget{md__2home_2prose_2wrk_2CGPolyAna_2src_2LammpsDumpReader_2python_2README}{}\label{md__2home_2prose_2wrk_2CGPolyAna_2src_2LammpsDumpReader_2python_2README}\index{lammpsIO@{lammpsIO}}
+\label{md__2home_2prose_2wrk_2CGPolyAna_2src_2LammpsDumpReader_2python_2README_autotoc_md2}%
+\Hypertarget{md__2home_2prose_2wrk_2CGPolyAna_2src_2LammpsDumpReader_2python_2README_autotoc_md2}%
+{\ttfamily lammps\+IO.\+py}を実行すればとりあえずデータを読み込めるようになってる。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{python3\ lammpsIO.py\ -\/-\/input\ data.lammpstrj}
+
+\end{DoxyCode}
+
+
+基本的には、以下の様に1スナップショットずつ読み込んでいく。 ダイナミクスなどの計算がしたい場合は、別に配列を用意して、その中にデータを格納していく様にする。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{import\ lammps\_io\ as\ lmp}
+\DoxyCodeLine{import\ numpy\ as\ np}
+\DoxyCodeLine{}
+\DoxyCodeLine{lmp\ =\ lmp.lammpstrjReader('dump.lammpstrj')}
+
+\end{DoxyCode}
+ このように{\ttfamily lmp}を経由してデータにアクセスしていく。 例えば、 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{while\ True:}
+\DoxyCodeLine{\ \ \ \ lmp.read\_snapshot()}
+\DoxyCodeLine{\ \ \ \ print(lmp.timestep)}
+\DoxyCodeLine{\ \ \ \ print(lmp.num\_atoms)}
+
+\end{DoxyCode}
+ のようにすれば、スナップショットの最後まで読み込むことができる。 lmpmpstrj\+Readerの中身は以下の通り。
+\begin{DoxyItemize}
+\item {\ttfamily timestep}\+: タイムステップ
+\item {\ttfamily num\+\_\+atoms}\+: 原子の数
+\item {\ttfamily box\+\_\+bounds}\+: ボックスの境界条件
+\item {\ttfamily mol}\+: 分子の情報
+\item {\ttfamily types}\+: 原子の種類
+\item {\ttfamily coords}\+: 原子の座標
+\item {\ttfamily image\+\_\+flags}\+: 周期境界条件のフラグ
+\end{DoxyItemize}\hypertarget{md__2home_2prose_2wrk_2CGPolyAna_2src_2LammpsDumpReader_2python_2README_autotoc_md3}{}\doxysection{\texorpdfstring{速度}{速度}}\label{md__2home_2prose_2wrk_2CGPolyAna_2src_2LammpsDumpReader_2python_2README_autotoc_md3}
+{\ttfamily ITEM\+: ATOMS id mol x y z ix iy iz} のファイルを読み込むのに、4.46フレーム/秒くらいの速度である。 ちょっと遅いかもしれないが、まあ、許容範囲かな。 型判定が多くなるやり方なので、もう少し高速化する方法があるかもしれない。 

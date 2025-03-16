@@ -1,12 +1,20 @@
-!
-! CGPolyAna テンプレートプログラム
-! このファイルを自分の解析プログラムのベースとして使用してください
-!
+!> @file template.f90
+!> @brief CGPolyAnaテンプレートプログラム
+!> @details このファイルを自分の解析プログラムのベースとして使用してください
+!> @author CGPolyAnaチーム
+!> @date 2023年
+
+!> @program template
+!> @brief 「Hello from CGPA!」を表示するサンプルプログラム
 program template
     implicit none
     
-    ! 変数宣言
+    !> @var character(len=100) :: arg
+    !> @brief コマンドライン引数を格納する変数
     character(len=100) :: arg
+    
+    !> @var integer :: num_args
+    !> @brief コマンドライン引数の数
     integer :: num_args
     
     ! コマンドライン引数の数を取得
@@ -33,6 +41,8 @@ program template
     print *, "入力ファイル: ", trim(arg)
     
 contains
+    !> @brief プログラムの使用方法を表示する
+    !> @details コマンドライン引数が不正な場合や、ヘルプオプションが指定された場合に呼び出される
     subroutine display_usage()
         print *, ""
         print *, "使用方法: template [オプション] [引数]"

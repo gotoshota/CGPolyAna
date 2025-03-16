@@ -1,0 +1,61 @@
+\doxysection{TYPE lammpsio\+::lammpstrjreader}
+\hypertarget{structlammpsio_1_1lammpstrjreader}{}\label{structlammpsio_1_1lammpstrjreader}\index{lammpsio::lammpstrjreader@{lammpsio::lammpstrjreader}}
+\doxysubsubsection*{公開メンバ関数}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_a54733daef388f2c8cc973f2849555e80}\label{structlammpsio_1_1lammpstrjreader_a54733daef388f2c8cc973f2849555e80} 
+procedure {\bfseries open} (this, filename)
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_ad09332b5ed0c07a8a6659e3e22bfb764}\label{structlammpsio_1_1lammpstrjreader_ad09332b5ed0c07a8a6659e3e22bfb764} 
+procedure {\bfseries close} (this)
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_a704478bd21ba0aa028baa94e49f1806c}\label{structlammpsio_1_1lammpstrjreader_a704478bd21ba0aa028baa94e49f1806c} 
+procedure {\bfseries read} (this)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{公開変数類}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_a4bc76b504261536d5c0880543b179df7}\label{structlammpsio_1_1lammpstrjreader_a4bc76b504261536d5c0880543b179df7} 
+character(len=256) {\bfseries filename}
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_a3ed9baa7cdd176771887d8d2723f4a68}\label{structlammpsio_1_1lammpstrjreader_a3ed9baa7cdd176771887d8d2723f4a68} 
+integer {\bfseries unit}
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_a10c5070cfcfdcc3d76f817884a770544}\label{structlammpsio_1_1lammpstrjreader_a10c5070cfcfdcc3d76f817884a770544} 
+logical {\bfseries end\+\_\+of\+\_\+file}
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_a3a19d0a977960d4220544f43e19ee8f5}\label{structlammpsio_1_1lammpstrjreader_a3a19d0a977960d4220544f43e19ee8f5} 
+logical {\bfseries has\+\_\+atom\+\_\+idx} = .false.
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_a740c26ac4f4de35f96581d8e499ea434}\label{structlammpsio_1_1lammpstrjreader_a740c26ac4f4de35f96581d8e499ea434} 
+integer {\bfseries timestep}
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_a52277a20bb27c0cac99b197d574bfcc2}\label{structlammpsio_1_1lammpstrjreader_a52277a20bb27c0cac99b197d574bfcc2} 
+integer {\bfseries nparticles}
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_a33bbba3f0fcb95749edde0a5a5dcc456}\label{structlammpsio_1_1lammpstrjreader_a33bbba3f0fcb95749edde0a5a5dcc456} 
+double precision, dimension(3, 3) {\bfseries box\+\_\+bounds} = 0.\+0d0
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_a8511f96159cb91abc4f075f3d37080b5}\label{structlammpsio_1_1lammpstrjreader_a8511f96159cb91abc4f075f3d37080b5} 
+real, dimension(\+:, \+:), allocatable {\bfseries coords}
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_ada2662b833a1b39e1a7ea7f8ee212001}\label{structlammpsio_1_1lammpstrjreader_ada2662b833a1b39e1a7ea7f8ee212001} 
+integer, dimension(\+:, \+:), allocatable {\bfseries image\+\_\+flags}
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_a9ea294d0aa99a3591d1076a01f94330a}\label{structlammpsio_1_1lammpstrjreader_a9ea294d0aa99a3591d1076a01f94330a} 
+integer, dimension(\+:), allocatable {\bfseries id}
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_aaf4ca94e37746cc25c9d58fc511681cb}\label{structlammpsio_1_1lammpstrjreader_aaf4ca94e37746cc25c9d58fc511681cb} 
+integer, dimension(\+:), allocatable {\bfseries mol}
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_a307f5308464c2dc1588a9ab48de75f9c}\label{structlammpsio_1_1lammpstrjreader_a307f5308464c2dc1588a9ab48de75f9c} 
+integer, dimension(\+:), allocatable {\bfseries type}
+\item 
+\Hypertarget{structlammpsio_1_1lammpstrjreader_a1214fe1624ce723f6b0dff036609a315}\label{structlammpsio_1_1lammpstrjreader_a1214fe1624ce723f6b0dff036609a315} 
+type(\mbox{\hyperlink{structlammpsio_1_1atomindex}{atomindex}}) {\bfseries atom\+\_\+idx}
+\end{DoxyCompactItemize}
+
+
+次のファイルから型の詳解が抽出されました\+:\begin{DoxyCompactItemize}
+\item 
+/home/prose/wrk/\+CGPoly\+Ana/src/\+Lammps\+Dump\+Reader/fortran/lammpsio.\+f90\end{DoxyCompactItemize}

@@ -1,9 +1,18 @@
 #! /usr/bin/env python3
+## @file cgpa.py
+## @brief CGPolyAna解析プログラムのメインインターフェース
+## @details 解析プログラムを実行するためのコマンドラインインターフェースを提供します
+## @author CGPolyAnaチーム
+## @date 2023年
+
 import argparse
 import subprocess
 import os
 import glob
 
+## @brief 利用可能なコマンドを検出する関数
+## @details examples ディレクトリ内のサブディレクトリを検索し、利用可能なコマンドのリストを返す
+## @return 利用可能なコマンドのリスト
 def discover_commands():
     """
     examples ディレクトリ内のサブディレクトリを検索し、
@@ -21,6 +30,8 @@ def discover_commands():
     
     return commands
 
+## @brief メイン関数
+## @details コマンドライン引数を解析し、指定された解析プログラムを実行する
 def main():
     # 利用可能なコマンドを検出
     available_commands = discover_commands()
@@ -67,6 +78,9 @@ def main():
         print(f'エラーが発生しました: {e}')
         exit(1)
 
+## @brief ヘルプメッセージを生成する関数
+## @param available_commands 利用可能なコマンドのリスト
+## @return フォーマットされたヘルプメッセージ
 def getDescription(available_commands):
     description = """CGPA: Coarse-Grained Particle Analysis を用いて書かれた解析プログラムを実行するためのスクリプト
 解析プログラムはexamples ディレクトリに格納されている。

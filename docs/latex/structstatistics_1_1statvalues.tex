@@ -1,0 +1,46 @@
+\doxysection{TYPE statistics\+::statvalues}
+\hypertarget{structstatistics_1_1statvalues}{}\label{structstatistics_1_1statvalues}\index{statistics::statvalues@{statistics::statvalues}}
+\doxysubsubsection*{公開メンバ関数}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structstatistics_1_1statvalues_a7854344145178e30154be4ae16737db0}\label{structstatistics_1_1statvalues_a7854344145178e30154be4ae16737db0} 
+procedure {\bfseries init} (self, min\+\_\+val, max\+\_\+val, n\+\_\+bins)
+\item 
+\Hypertarget{structstatistics_1_1statvalues_a5ce67c545660eac7e660f734ab93228b}\label{structstatistics_1_1statvalues_a5ce67c545660eac7e660f734ab93228b} 
+procedure {\bfseries update} (self, new\+\_\+value)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{公開変数類}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structstatistics_1_1statvalues_a40d176da013bfdb213e06fa065a93810}\label{structstatistics_1_1statvalues_a40d176da013bfdb213e06fa065a93810} 
+double precision {\bfseries mean} = 0.\+0d0
+\item 
+\Hypertarget{structstatistics_1_1statvalues_a2cf4eeae42bb60dab0e73fa87c93f165}\label{structstatistics_1_1statvalues_a2cf4eeae42bb60dab0e73fa87c93f165} 
+double precision {\bfseries variance} = 0.\+0d0
+\item 
+\Hypertarget{structstatistics_1_1statvalues_a72a1a6f809cca2611b05c50fec75b5a4}\label{structstatistics_1_1statvalues_a72a1a6f809cca2611b05c50fec75b5a4} 
+integer(kind=8) {\bfseries num\+\_\+samples} = 0
+\item 
+\Hypertarget{structstatistics_1_1statvalues_a3baa2d33f7cb24ab3bb1ef02c4df2cf7}\label{structstatistics_1_1statvalues_a3baa2d33f7cb24ab3bb1ef02c4df2cf7} 
+double precision, dimension(\+:), allocatable {\bfseries pdf}
+\item 
+\Hypertarget{structstatistics_1_1statvalues_a6ecba3caf3c20fff283d4e286675510e}\label{structstatistics_1_1statvalues_a6ecba3caf3c20fff283d4e286675510e} 
+double precision, dimension(\+:), allocatable {\bfseries pdf\+\_\+x}
+\item 
+\Hypertarget{structstatistics_1_1statvalues_ac9ceca198af30d5f61bb74a56073fd49}\label{structstatistics_1_1statvalues_ac9ceca198af30d5f61bb74a56073fd49} 
+double precision {\bfseries pdf\+\_\+bin\+\_\+width}
+\item 
+\Hypertarget{structstatistics_1_1statvalues_a1674b7adbc61a0a82820e75e0e1dbf4b}\label{structstatistics_1_1statvalues_a1674b7adbc61a0a82820e75e0e1dbf4b} 
+integer {\bfseries pdf\+\_\+num\+\_\+bins}
+\item 
+\Hypertarget{structstatistics_1_1statvalues_ae6701b9991320de8ca9f82428cd04654}\label{structstatistics_1_1statvalues_ae6701b9991320de8ca9f82428cd04654} 
+double precision {\bfseries pdf\+\_\+min\+\_\+val}
+\item 
+\Hypertarget{structstatistics_1_1statvalues_ad014678aaae5c145d4fee7124b4c08cc}\label{structstatistics_1_1statvalues_ad014678aaae5c145d4fee7124b4c08cc} 
+double precision {\bfseries pdf\+\_\+max\+\_\+val}
+\end{DoxyCompactItemize}
+
+
+次のファイルから型の詳解が抽出されました\+:\begin{DoxyCompactItemize}
+\item 
+/home/prose/wrk/\+CGPoly\+Ana/src/modules/statistics.\+f90\end{DoxyCompactItemize}
