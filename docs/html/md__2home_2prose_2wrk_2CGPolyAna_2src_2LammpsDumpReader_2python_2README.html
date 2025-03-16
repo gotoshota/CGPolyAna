@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CGPolyAna: lammpsIO</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CGPolyAna<span id="projectnumber">&#160;1.1.0</span>
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','検索');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">読み取り中…</div>
+<div class="SRStatus" id="Searching">検索中…</div>
+<div class="SRStatus" id="NoMatches">一致する文字列を見つけられません</div>
+</div>
+</div>
+</div>
+</div>
+
+</div><!-- top -->
+<div><div class="header">
+  <div class="headertitle"><div class="title">lammpsIO</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><p><a class="anchor" id="autotoc_md2"></a><code>lammpsIO.py</code>を実行すればとりあえずデータを読み込めるようになってる。 </p><div class="fragment"><div class="line">python3 lammpsIO.py --input data.lammpstrj</div>
+</div><!-- fragment --><p>基本的には、以下の様に1スナップショットずつ読み込んでいく。 ダイナミクスなどの計算がしたい場合は、別に配列を用意して、その中にデータを格納していく様にする。 </p><div class="fragment"><div class="line">import lammps_io as lmp</div>
+<div class="line">import numpy as np</div>
+<div class="line"> </div>
+<div class="line">lmp = lmp.lammpstrjReader(&#39;dump.lammpstrj&#39;)</div>
+</div><!-- fragment --><p> このように<code>lmp</code>を経由してデータにアクセスしていく。 例えば、 </p><div class="fragment"><div class="line">while True:</div>
+<div class="line">    lmp.read_snapshot()</div>
+<div class="line">    print(lmp.timestep)</div>
+<div class="line">    print(lmp.num_atoms)</div>
+</div><!-- fragment --><p> のようにすれば、スナップショットの最後まで読み込むことができる。 lmpmpstrjReaderの中身は以下の通り。</p><ul>
+<li><code>timestep</code>: タイムステップ</li>
+<li><code>num_atoms</code>: 原子の数</li>
+<li><code>box_bounds</code>: ボックスの境界条件</li>
+<li><code>mol</code>: 分子の情報</li>
+<li><code>types</code>: 原子の種類</li>
+<li><code>coords</code>: 原子の座標</li>
+<li><code>image_flags</code>: 周期境界条件のフラグ</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md3"></a>
+速度</h1>
+<p><code>ITEM: ATOMS id mol x y z ix iy iz</code> のファイルを読み込むのに、4.46フレーム/秒くらいの速度である。 ちょっと遅いかもしれないが、まあ、許容範囲かな。 型判定が多くなるやり方なので、もう少し高速化する方法があるかもしれない。 </p>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+構築:&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8
+</small></address>
+</body>
+</html>

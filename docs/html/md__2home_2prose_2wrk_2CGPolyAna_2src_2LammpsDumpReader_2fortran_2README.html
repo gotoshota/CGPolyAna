@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CGPolyAna: Fortran module</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CGPolyAna<span id="projectnumber">&#160;1.1.0</span>
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','検索');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">読み取り中…</div>
+<div class="SRStatus" id="Searching">検索中…</div>
+<div class="SRStatus" id="NoMatches">一致する文字列を見つけられません</div>
+</div>
+</div>
+</div>
+</div>
+
+</div><!-- top -->
+<div><div class="header">
+  <div class="headertitle"><div class="title">Fortran module</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><p><a class="anchor" id="autotoc_md0"></a>テストコードは、<code>test/main.f90</code>にありますが、簡単に説明します。</p>
+<p>構造体（クラス）<code>lammpatrjReader</code>を提供します。 このクラスは、LAMMPSのトラジェクトリファイルを読み込み、 原子の座標などを取得することができます。</p>
+<p>スナップショット1毎ずつ情報を取得するため、 トラジェクトリを一気に読み込む必要がある場合には、別途配列を用意して格納するか、 うまくアルゴリズムを工夫してください。</p>
+<p>lammpsのダンプファイルはデータの書き出し順などフォーマットが結構自由なため、 内部でヘッダーをパースして、データ部分を読み込むようになっています。 そのせいか少し遅く、毎秒5フレーム程度の読み込み速度です。</p>
+<h1><a class="anchor" id="autotoc_md1"></a>
+構造体のメンバ変数</h1>
+<p>主要なものだけを紹介。</p><ul>
+<li><code>filename</code> : トラジェクトリのファイル名</li>
+<li><code>nparticles</code> : 総粒子数。ヘッダーの NUMBER OF ATOMS と同じ</li>
+<li><code>box_bounds</code> : (3, 3) の倍精度実数配列。ボックスの境界条件。各軸の最小値<code>box_bounds(1, :)</code>、最大値<code>box_bounds(2, :)</code>、傾き <code>box_bounds(3, :)</code>に格納されている。2列目は順にx, y, zに対応している。</li>
+<li><code>coords</code>: (3, nparticles) の単精度実数配列。座標が格納されている。</li>
+<li><code>image_flags</code> : (3, nparticles) の整数配列。イメージフラグが格納されている。 </li>
+</ul>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+構築:&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8
+</small></address>
+</body>
+</html>

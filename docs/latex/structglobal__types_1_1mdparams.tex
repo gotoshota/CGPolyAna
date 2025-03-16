@@ -1,0 +1,72 @@
+\doxysection{TYPE global\+\_\+types\+::mdparams}
+\hypertarget{structglobal__types_1_1mdparams}{}\label{structglobal__types_1_1mdparams}\index{global\_types::mdparams@{global\_types::mdparams}}
+
+
+@type MDParams  
+
+
+\doxysubsubsection*{公開メンバ関数}
+\begin{DoxyCompactItemize}
+\item 
+procedure \mbox{\hyperlink{structglobal__types_1_1mdparams_ac9c790f40549ab868587ec8690faf771}{init}} (this, nmlfilename)
+\begin{DoxyCompactList}\small\item\em 初期化メソッド \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{公開変数類}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structglobal__types_1_1mdparams_aaacc1bf245389a4730d2c0fea4eb193f}\label{structglobal__types_1_1mdparams_aaacc1bf245389a4730d2c0fea4eb193f} 
+character(len=100), dimension(100) {\bfseries dumpfilenames}
+\item 
+\Hypertarget{structglobal__types_1_1mdparams_a83a55a4398f7271ca3bf99fe7ce979e5}\label{structglobal__types_1_1mdparams_a83a55a4398f7271ca3bf99fe7ce979e5} 
+integer {\bfseries ndumpfiles} = 1
+\item 
+\Hypertarget{structglobal__types_1_1mdparams_aef08be659fc5f2ca1638dc426c42b539}\label{structglobal__types_1_1mdparams_aef08be659fc5f2ca1638dc426c42b539} 
+integer {\bfseries nchains} = 0
+\item 
+\Hypertarget{structglobal__types_1_1mdparams_ad2415fe188d06d5a0a3b963b4ad32172}\label{structglobal__types_1_1mdparams_ad2415fe188d06d5a0a3b963b4ad32172} 
+integer {\bfseries nbeads} = 0
+\item 
+\Hypertarget{structglobal__types_1_1mdparams_a806e18b6b14895a88fa1b4bcd1957bc1}\label{structglobal__types_1_1mdparams_a806e18b6b14895a88fa1b4bcd1957bc1} 
+integer {\bfseries nframes} = 0
+\item 
+\Hypertarget{structglobal__types_1_1mdparams_add6c6740865a77b9d7496152175be588}\label{structglobal__types_1_1mdparams_add6c6740865a77b9d7496152175be588} 
+integer {\bfseries dump\+\_\+freq} = 0
+\item 
+\Hypertarget{structglobal__types_1_1mdparams_ac9a9f739f7e2164462292a68bee92a1b}\label{structglobal__types_1_1mdparams_ac9a9f739f7e2164462292a68bee92a1b} 
+double precision {\bfseries dt} = 0
+\begin{DoxyCompactList}\small\item\em 時間の刻み幅 \end{DoxyCompactList}\item 
+\Hypertarget{structglobal__types_1_1mdparams_af6d5b5f508cc3a1b56d54af387666d9c}\label{structglobal__types_1_1mdparams_af6d5b5f508cc3a1b56d54af387666d9c} 
+logical {\bfseries is\+\_\+cubic} = .true.
+\item 
+\Hypertarget{structglobal__types_1_1mdparams_a06da86d654769e8fbf76af2d95680675}\label{structglobal__types_1_1mdparams_a06da86d654769e8fbf76af2d95680675} 
+logical {\bfseries is\+\_\+wrap} = .true.
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{詳解}
+@type MDParams 
+
+分子動力学シミュレーションのパラメータを格納する型 
+
+\doxysubsection{メンバ関数/サブルーチン詳解}
+\Hypertarget{structglobal__types_1_1mdparams_ac9c790f40549ab868587ec8690faf771}\label{structglobal__types_1_1mdparams_ac9c790f40549ab868587ec8690faf771} 
+\index{global\_types::mdparams@{global\_types::mdparams}!init@{init}}
+\index{init@{init}!global\_types::mdparams@{global\_types::mdparams}}
+\doxysubsubsection{\texorpdfstring{init()}{init()}}
+{\footnotesize\ttfamily procedure global\+\_\+types\+::mdparams\+::init (\begin{DoxyParamCaption}\item[{class(\mbox{\hyperlink{structglobal__types_1_1mdparams}{mdparams}}), intent(inout)}]{this,  }\item[{character(len=\texorpdfstring{$\ast$}{*}), intent(in)}]{nmlfilename }\end{DoxyParamCaption})}
+
+
+
+初期化メソッド 
+
+
+\begin{DoxyParams}[1]{引数}
+\mbox{\texttt{ in,out}}  & {\em this} & MDParamsオブジェクト \\
+\hline
+\mbox{\texttt{ in}}  & {\em nmlfilename} & Namelistファイル名 \\
+\hline
+\end{DoxyParams}
+
+
+次のファイルから型の詳解が抽出されました\+:\begin{DoxyCompactItemize}
+\item 
+/home/prose/wrk/\+CGPoly\+Ana/src/modules/\mbox{\hyperlink{global__types_8f90}{global\+\_\+types.\+f90}}\end{DoxyCompactItemize}

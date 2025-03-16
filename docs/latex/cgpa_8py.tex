@@ -1,0 +1,75 @@
+\doxysection{/home/prose/wrk/\+CGPoly\+Ana/src/cgpa.py ファイル}
+\hypertarget{cgpa_8py}{}\label{cgpa_8py}\index{/home/prose/wrk/CGPolyAna/src/cgpa.py@{/home/prose/wrk/CGPolyAna/src/cgpa.py}}
+
+
+CGPoly\+Ana解析プログラムのメインインターフェース  
+
+
+\doxysubsubsection*{関数}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{cgpa_8py_aea5d971adb821293d4cebfd0a12f8abe}{cgpa.\+discover\+\_\+commands}} ()
+\begin{DoxyCompactList}\small\item\em 利用可能なコマンドを検出する関数 \end{DoxyCompactList}\item 
+\mbox{\hyperlink{cgpa_8py_a9286695008b7acbfd3a6a48b3311c2c2}{cgpa.\+main}} ()
+\begin{DoxyCompactList}\small\item\em メイン関数 \end{DoxyCompactList}\item 
+\mbox{\hyperlink{cgpa_8py_a7751643984dc635c35801cec5d828d18}{cgpa.\+get\+Description}} (available\+\_\+commands)
+\begin{DoxyCompactList}\small\item\em ヘルプメッセージを生成する関数 \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{詳解}
+CGPoly\+Ana解析プログラムのメインインターフェース 
+
+解析プログラムを実行するためのコマンドラインインターフェースを提供します \begin{DoxyAuthor}{著者}
+CGPoly\+Anaチーム 
+\end{DoxyAuthor}
+\begin{DoxyDate}{日付}
+2023年 
+\end{DoxyDate}
+
+
+\doxysubsection{関数詳解}
+\Hypertarget{cgpa_8py_aea5d971adb821293d4cebfd0a12f8abe}\label{cgpa_8py_aea5d971adb821293d4cebfd0a12f8abe} 
+\index{cgpa.py@{cgpa.py}!discover\_commands@{discover\_commands}}
+\index{discover\_commands@{discover\_commands}!cgpa.py@{cgpa.py}}
+\doxysubsubsection{\texorpdfstring{discover\_commands()}{discover\_commands()}}
+{\footnotesize\ttfamily cgpa.\+discover\+\_\+commands (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+利用可能なコマンドを検出する関数 
+
+examples ディレクトリ内のサブディレクトリを検索し、利用可能なコマンドのリストを返す \begin{DoxyReturn}{戻り値}
+利用可能なコマンドのリスト
+\end{DoxyReturn}
+\begin{DoxyVerb}examples ディレクトリ内のサブディレクトリを検索し、
+利用可能なコマンドのリストを返す
+\end{DoxyVerb}
+ \Hypertarget{cgpa_8py_a7751643984dc635c35801cec5d828d18}\label{cgpa_8py_a7751643984dc635c35801cec5d828d18} 
+\index{cgpa.py@{cgpa.py}!getDescription@{getDescription}}
+\index{getDescription@{getDescription}!cgpa.py@{cgpa.py}}
+\doxysubsubsection{\texorpdfstring{getDescription()}{getDescription()}}
+{\footnotesize\ttfamily cgpa.\+get\+Description (\begin{DoxyParamCaption}\item[{}]{available\+\_\+commands }\end{DoxyParamCaption})}
+
+
+
+ヘルプメッセージを生成する関数 
+
+
+\begin{DoxyParams}{引数}
+{\em available\+\_\+commands} & 利用可能なコマンドのリスト \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{戻り値}
+フォーマットされたヘルプメッセージ 
+\end{DoxyReturn}
+\Hypertarget{cgpa_8py_a9286695008b7acbfd3a6a48b3311c2c2}\label{cgpa_8py_a9286695008b7acbfd3a6a48b3311c2c2} 
+\index{cgpa.py@{cgpa.py}!main@{main}}
+\index{main@{main}!cgpa.py@{cgpa.py}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily cgpa.\+main (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+メイン関数 
+
+コマンドライン引数を解析し、指定された解析プログラムを実行する 
