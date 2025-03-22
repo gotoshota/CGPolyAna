@@ -1,0 +1,46 @@
+\doxysection{/home/prose/wrk/\+CGPoly\+Ana/src/modules/physical\+\_\+constants.f90 ファイル}
+\hypertarget{physical__constants_8f90}{}\label{physical__constants_8f90}\index{/home/prose/wrk/CGPolyAna/src/modules/physical\_constants.f90@{/home/prose/wrk/CGPolyAna/src/modules/physical\_constants.f90}}
+
+
+物理定数を提供するモジュール  
+
+
+\doxysubsubsection*{変数}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{physical__constants_8f90_ac08d95bbf1a8940a93f1eda226848c4c}\label{physical__constants_8f90_ac08d95bbf1a8940a93f1eda226848c4c} 
+double precision, parameter {\bfseries physical\+\_\+constants\+::pi} = dacos(-\/1.\+0d0)
+\begin{DoxyCompactList}\small\item\em 円周率π \end{DoxyCompactList}\item 
+double precision, parameter \mbox{\hyperlink{physical__constants_8f90_a747ee5a14385675c9604a71fb9bcd928}{physical\+\_\+constants\+::boltzmann\+\_\+constant}} = 1.\+38065030d-\/23
+\begin{DoxyCompactList}\small\item\em ボルツマン定数 (J/K) \end{DoxyCompactList}\item 
+double precision, parameter \mbox{\hyperlink{physical__constants_8f90_a0388ad25de426aa1e83b53034aa64dd5}{physical\+\_\+constants\+::gas\+\_\+constant}} = 8.\+314462618d0
+\begin{DoxyCompactList}\small\item\em 気体定数 (J/(mol・K)) \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{詳解}
+物理定数を提供するモジュール 
+
+物理計算で使用される基本的な定数を定義します 
+
+\doxysubsection{変数詳解}
+\Hypertarget{physical__constants_8f90_a747ee5a14385675c9604a71fb9bcd928}\label{physical__constants_8f90_a747ee5a14385675c9604a71fb9bcd928} 
+\index{physical\_constants.f90@{physical\_constants.f90}!boltzmann\_constant@{boltzmann\_constant}}
+\index{boltzmann\_constant@{boltzmann\_constant}!physical\_constants.f90@{physical\_constants.f90}}
+\doxysubsubsection{\texorpdfstring{boltzmann\_constant}{boltzmann\_constant}}
+{\footnotesize\ttfamily double precision parameter physical\+\_\+constants\+::boltzmann\+\_\+constant = 1.\+38065030d-\/23}
+
+
+
+ボルツマン定数 (J/K) 
+
+2022 CODATA推奨値\+: 1.\+380649 × 10\texorpdfstring{$^\wedge$}{\string^}-\/23 J/K \Hypertarget{physical__constants_8f90_a0388ad25de426aa1e83b53034aa64dd5}\label{physical__constants_8f90_a0388ad25de426aa1e83b53034aa64dd5} 
+\index{physical\_constants.f90@{physical\_constants.f90}!gas\_constant@{gas\_constant}}
+\index{gas\_constant@{gas\_constant}!physical\_constants.f90@{physical\_constants.f90}}
+\doxysubsubsection{\texorpdfstring{gas\_constant}{gas\_constant}}
+{\footnotesize\ttfamily double precision parameter physical\+\_\+constants\+::gas\+\_\+constant = 8.\+314462618d0}
+
+
+
+気体定数 (J/(mol・K)) 
+
+2022 CODATA推奨値に基づく\+: 8.\+314462618 J/(mol・K) 

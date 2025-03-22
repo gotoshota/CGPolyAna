@@ -1,0 +1,109 @@
+\doxysection{/home/prose/wrk/\+CGPoly\+Ana/src/modules/math.f90 ファイル}
+\hypertarget{math_8f90}{}\label{math_8f90}\index{/home/prose/wrk/CGPolyAna/src/modules/math.f90@{/home/prose/wrk/CGPolyAna/src/modules/math.f90}}
+
+
+数学関数を提供するモジュール  
+
+
+\doxysubsubsection*{データ型}
+\begin{DoxyCompactItemize}
+\item 
+interface \mbox{\hyperlink{interfacemath_1_1norm}{math\+::norm}}
+\begin{DoxyCompactList}\small\item\em ベクトルのノルム（長さ）を計算するインターフェース \end{DoxyCompactList}\item 
+interface \mbox{\hyperlink{interfacemath_1_1cross__product}{math\+::cross\+\_\+product}}
+\begin{DoxyCompactList}\small\item\em ベクトルの外積を計算するインターフェース \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{関数/サブルーチン}
+\begin{DoxyCompactItemize}
+\item 
+double precision function \mbox{\hyperlink{math_8f90_a8ea42a6b62137f169512642e898d73df}{math\+::norm\+\_\+double}} (vector)
+\begin{DoxyCompactList}\small\item\em 倍精度ベクトルのノルムを計算する \end{DoxyCompactList}\item 
+real function \mbox{\hyperlink{math_8f90_ab1f5a0812c00c2d0b9d480f382e96d53}{math\+::norm\+\_\+single}} (vector)
+\begin{DoxyCompactList}\small\item\em 単精度ベクトルのノルムを計算する \end{DoxyCompactList}\item 
+real function, dimension(3) \mbox{\hyperlink{math_8f90_a6a9eba57c47625dedfa8b0e273076dea}{math\+::cross\+\_\+product\+\_\+single}} (a, b)
+\begin{DoxyCompactList}\small\item\em 単精度ベクトルの外積を計算する \end{DoxyCompactList}\item 
+double precision function, dimension(3) \mbox{\hyperlink{math_8f90_ada4a49981168f14d18fb50a9cab8ad22}{math\+::cross\+\_\+product\+\_\+double}} (a, b)
+\begin{DoxyCompactList}\small\item\em 倍精度ベクトルの外積を計算する \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{詳解}
+数学関数を提供するモジュール 
+
+ベクトル演算などの基本的な数学関数を提供します 
+
+\doxysubsection{関数/サブルーチン詳解}
+\Hypertarget{math_8f90_ada4a49981168f14d18fb50a9cab8ad22}\label{math_8f90_ada4a49981168f14d18fb50a9cab8ad22} 
+\index{math.f90@{math.f90}!cross\_product\_double@{cross\_product\_double}}
+\index{cross\_product\_double@{cross\_product\_double}!math.f90@{math.f90}}
+\doxysubsubsection{\texorpdfstring{cross\_product\_double()}{cross\_product\_double()}}
+{\footnotesize\ttfamily double precision function, dimension(3) math\+::cross\+\_\+product\+\_\+double (\begin{DoxyParamCaption}\item[{double precision, dimension(3), intent(in)}]{a,  }\item[{double precision, dimension(3), intent(in)}]{b }\end{DoxyParamCaption})}
+
+
+
+倍精度ベクトルの外積を計算する 
+
+
+\begin{DoxyParams}[1]{引数}
+\mbox{\texttt{ in}}  & {\em a} & 1つ目の入力ベクトル（3次元） \\
+\hline
+\mbox{\texttt{ in}}  & {\em b} & 2つ目の入力ベクトル（3次元） \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{戻り値}
+外積の結果ベクトル 
+\end{DoxyReturn}
+\Hypertarget{math_8f90_a6a9eba57c47625dedfa8b0e273076dea}\label{math_8f90_a6a9eba57c47625dedfa8b0e273076dea} 
+\index{math.f90@{math.f90}!cross\_product\_single@{cross\_product\_single}}
+\index{cross\_product\_single@{cross\_product\_single}!math.f90@{math.f90}}
+\doxysubsubsection{\texorpdfstring{cross\_product\_single()}{cross\_product\_single()}}
+{\footnotesize\ttfamily real function, dimension(3) math\+::cross\+\_\+product\+\_\+single (\begin{DoxyParamCaption}\item[{real, dimension(3), intent(in)}]{a,  }\item[{real, dimension(3), intent(in)}]{b }\end{DoxyParamCaption})}
+
+
+
+単精度ベクトルの外積を計算する 
+
+
+\begin{DoxyParams}[1]{引数}
+\mbox{\texttt{ in}}  & {\em a} & 1つ目の入力ベクトル（3次元） \\
+\hline
+\mbox{\texttt{ in}}  & {\em b} & 2つ目の入力ベクトル（3次元） \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{戻り値}
+外積の結果ベクトル 
+\end{DoxyReturn}
+\Hypertarget{math_8f90_a8ea42a6b62137f169512642e898d73df}\label{math_8f90_a8ea42a6b62137f169512642e898d73df} 
+\index{math.f90@{math.f90}!norm\_double@{norm\_double}}
+\index{norm\_double@{norm\_double}!math.f90@{math.f90}}
+\doxysubsubsection{\texorpdfstring{norm\_double()}{norm\_double()}}
+{\footnotesize\ttfamily double precision function math\+::norm\+\_\+double (\begin{DoxyParamCaption}\item[{double precision, dimension(\+:), intent(in)}]{vector }\end{DoxyParamCaption})}
+
+
+
+倍精度ベクトルのノルムを計算する 
+
+
+\begin{DoxyParams}[1]{引数}
+\mbox{\texttt{ in}}  & {\em vector} & 入力ベクトル \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{戻り値}
+ベクトルのノルム（長さ） 
+\end{DoxyReturn}
+\Hypertarget{math_8f90_ab1f5a0812c00c2d0b9d480f382e96d53}\label{math_8f90_ab1f5a0812c00c2d0b9d480f382e96d53} 
+\index{math.f90@{math.f90}!norm\_single@{norm\_single}}
+\index{norm\_single@{norm\_single}!math.f90@{math.f90}}
+\doxysubsubsection{\texorpdfstring{norm\_single()}{norm\_single()}}
+{\footnotesize\ttfamily real function math\+::norm\+\_\+single (\begin{DoxyParamCaption}\item[{real, dimension(\+:), intent(in)}]{vector }\end{DoxyParamCaption})}
+
+
+
+単精度ベクトルのノルムを計算する 
+
+
+\begin{DoxyParams}[1]{引数}
+\mbox{\texttt{ in}}  & {\em vector} & 入力ベクトル \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{戻り値}
+ベクトルのノルム（長さ） 
+\end{DoxyReturn}

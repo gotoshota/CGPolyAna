@@ -1,0 +1,65 @@
+\doxysection{インターフェース math\+::cross\+\_\+product}
+\hypertarget{interfacemath_1_1cross__product}{}\label{interfacemath_1_1cross__product}\index{math::cross\_product@{math::cross\_product}}
+
+
+ベクトルの外積を計算するインターフェース  
+
+
+\doxysubsubsection*{公開メンバ関数}
+\begin{DoxyCompactItemize}
+\item 
+real function, dimension(3) \mbox{\hyperlink{interfacemath_1_1cross__product_ad080576b4878c974a24799d62c8598d4}{cross\+\_\+product\+\_\+single}} (a, b)
+\begin{DoxyCompactList}\small\item\em 単精度ベクトルの外積を計算する \end{DoxyCompactList}\item 
+double precision function, dimension(3) \mbox{\hyperlink{interfacemath_1_1cross__product_a1263e515bdea3f3fbe5c0d53dbdc95ce}{cross\+\_\+product\+\_\+double}} (a, b)
+\begin{DoxyCompactList}\small\item\em 倍精度ベクトルの外積を計算する \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{詳解}
+ベクトルの外積を計算するインターフェース 
+
+\doxysubsection{メンバ関数/サブルーチン詳解}
+\Hypertarget{interfacemath_1_1cross__product_a1263e515bdea3f3fbe5c0d53dbdc95ce}\label{interfacemath_1_1cross__product_a1263e515bdea3f3fbe5c0d53dbdc95ce} 
+\index{math::cross\_product@{math::cross\_product}!cross\_product\_double@{cross\_product\_double}}
+\index{cross\_product\_double@{cross\_product\_double}!math::cross\_product@{math::cross\_product}}
+\doxysubsubsection{\texorpdfstring{cross\_product\_double()}{cross\_product\_double()}}
+{\footnotesize\ttfamily double precision function, dimension(3) math\+::cross\+\_\+product\+::cross\+\_\+product\+\_\+double (\begin{DoxyParamCaption}\item[{double precision, dimension(3), intent(in)}]{a,  }\item[{double precision, dimension(3), intent(in)}]{b }\end{DoxyParamCaption})}
+
+
+
+倍精度ベクトルの外積を計算する 
+
+
+\begin{DoxyParams}[1]{引数}
+\mbox{\texttt{ in}}  & {\em a} & 1つ目の入力ベクトル（3次元） \\
+\hline
+\mbox{\texttt{ in}}  & {\em b} & 2つ目の入力ベクトル（3次元） \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{戻り値}
+外積の結果ベクトル 
+\end{DoxyReturn}
+\Hypertarget{interfacemath_1_1cross__product_ad080576b4878c974a24799d62c8598d4}\label{interfacemath_1_1cross__product_ad080576b4878c974a24799d62c8598d4} 
+\index{math::cross\_product@{math::cross\_product}!cross\_product\_single@{cross\_product\_single}}
+\index{cross\_product\_single@{cross\_product\_single}!math::cross\_product@{math::cross\_product}}
+\doxysubsubsection{\texorpdfstring{cross\_product\_single()}{cross\_product\_single()}}
+{\footnotesize\ttfamily real function, dimension(3) math\+::cross\+\_\+product\+::cross\+\_\+product\+\_\+single (\begin{DoxyParamCaption}\item[{real, dimension(3), intent(in)}]{a,  }\item[{real, dimension(3), intent(in)}]{b }\end{DoxyParamCaption})}
+
+
+
+単精度ベクトルの外積を計算する 
+
+
+\begin{DoxyParams}[1]{引数}
+\mbox{\texttt{ in}}  & {\em a} & 1つ目の入力ベクトル（3次元） \\
+\hline
+\mbox{\texttt{ in}}  & {\em b} & 2つ目の入力ベクトル（3次元） \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{戻り値}
+外積の結果ベクトル 
+\end{DoxyReturn}
+
+
+次のファイルからインターフェースの詳解が抽出されました\+:\begin{DoxyCompactItemize}
+\item 
+/home/prose/wrk/\+CGPoly\+Ana/src/modules/\mbox{\hyperlink{math_8f90}{math.\+f90}}\end{DoxyCompactItemize}

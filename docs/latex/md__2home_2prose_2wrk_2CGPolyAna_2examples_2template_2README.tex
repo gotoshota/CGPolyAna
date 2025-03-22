@@ -1,0 +1,51 @@
+\chapter{CGPoly\+Ana テンプレート}
+\hypertarget{md__2home_2prose_2wrk_2CGPolyAna_2examples_2template_2README}{}\label{md__2home_2prose_2wrk_2CGPolyAna_2examples_2template_2README}\index{CGPolyAna テンプレート@{CGPolyAna テンプレート}}
+\label{md__2home_2prose_2wrk_2CGPolyAna_2examples_2template_2README_autotoc_md8}%
+\Hypertarget{md__2home_2prose_2wrk_2CGPolyAna_2examples_2template_2README_autotoc_md8}%
+ このディレクトリには、\+CGPoly\+Anaの新しい解析プログラムを作成するためのテンプレートが含まれています。\hypertarget{md__2home_2prose_2wrk_2CGPolyAna_2examples_2template_2README_autotoc_md9}{}\doxysection{\texorpdfstring{使用方法}{使用方法}}\label{md__2home_2prose_2wrk_2CGPolyAna_2examples_2template_2README_autotoc_md9}
+
+\begin{DoxyEnumerate}
+\item このディレクトリを新しい名前でコピーします： 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{cp\ -\/r\ examples/template\ examples/your\_analysis\_name}
+
+\end{DoxyCode}
+
+\item ディレクトリ内のファイルを編集します：
+\begin{DoxyItemize}
+\item {\ttfamily \doxylink{template_8f90}{template.\+f90}} を {\ttfamily your\+\_\+analysis\+\_\+name.\+f90} にリネームし、コードを編集
+\item {\ttfamily Makefile} の {\ttfamily TARGET} 変数を {\ttfamily your\+\_\+analysis\+\_\+name} に変更
+\end{DoxyItemize}
+\item プログラムをビルドします： 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{cd\ examples/your\_analysis\_name}
+\DoxyCodeLine{make}
+
+\end{DoxyCode}
+
+\item cgpa.\+pyから実行します： 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{./src/cgpa.py\ your\_analysis\_name\ -\/i\ your\_input.nml}
+
+\end{DoxyCode}
+
+\end{DoxyEnumerate}\hypertarget{md__2home_2prose_2wrk_2CGPolyAna_2examples_2template_2README_autotoc_md10}{}\doxysection{\texorpdfstring{テンプレートの構造}{テンプレートの構造}}\label{md__2home_2prose_2wrk_2CGPolyAna_2examples_2template_2README_autotoc_md10}
+
+\begin{DoxyItemize}
+\item {\ttfamily \doxylink{template_8f90}{template.\+f90}}\+: メインプログラムのソースコード
+\item {\ttfamily Makefile}\+: ビルド設定ファイル
+\end{DoxyItemize}\hypertarget{md__2home_2prose_2wrk_2CGPolyAna_2examples_2template_2README_autotoc_md11}{}\doxysection{\texorpdfstring{カスタマイズのヒント}{カスタマイズのヒント}}\label{md__2home_2prose_2wrk_2CGPolyAna_2examples_2template_2README_autotoc_md11}
+
+\begin{DoxyItemize}
+\item {\ttfamily \doxylink{template_8f90}{template.\+f90}} の {\ttfamily display\+\_\+usage()} サブルーチンを編集して、プログラムの使用方法を説明
+\item 必要なモジュールをインポート（{\ttfamily use} 文を追加）
+\item 入力パラメータの読み込み処理を追加
+\item 解析ロジックを実装
+\item 結果の出力処理を追加
+\end{DoxyItemize}\hypertarget{md__2home_2prose_2wrk_2CGPolyAna_2examples_2template_2README_autotoc_md12}{}\doxysection{\texorpdfstring{注意事項}{注意事項}}\label{md__2home_2prose_2wrk_2CGPolyAna_2examples_2template_2README_autotoc_md12}
+
+\begin{DoxyItemize}
+\item プログラム名（ファイル名と\+Makefileの\+TARGET）はディレクトリ名と一致させることを推奨
+\item 出力ファイルは適切な名前とフォーマットで保存
+\item エラー処理を適切に実装 
+\end{DoxyItemize}
