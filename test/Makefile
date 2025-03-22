@@ -17,7 +17,7 @@ OUTPUT = a.out
 PROGRAMS = $(BUILDDIR)/$(OUTPUT)
 
 # List of source files in MODDIR
-MOD_SOURCES = $(wildcard $(MODDIR)/*.f90) $(LDRDIR)/fortran/lammpsio.f90
+MOD_SOURCES = $(wildcard $(MODDIR)/*.f90)
 
 # List of object files to be built from MOD_SOURCES
 MOD_OBJECTS = $(patsubst $(MODDIR)/%.f90,$(MODDIR)/%.o,$(wildcard $(MODDIR)/*.f90)) $(LDRDIR)/fortran/lammpsio.o
