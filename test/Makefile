@@ -48,5 +48,5 @@ clean-all:
 	rm -f $(MODDIR)/*.o $(MODDIR)/*.mod $(TESTDIR)/*.o $(TESTDIR)/*.mod $(PROGRAMS)
 
 test:
-	echo $(MOD_SOURCES)
-	echo $(MOD_OBJECTS)
+	@ echo $(MOD_SOURCES)
+	@ echo $(MOD_OBJECTS)
