@@ -29,7 +29,7 @@ $(BUILDDIR)/$(OUTPUT): $(MOD_OBJECTS) $(TESTDIR)/test.o
 	$(FC) $(LDFLAGS) -o $@ $^
 
 $(TESTDIR)/test.o: $(TESTDIR)/test.f90
-	$(FC) $(FCFLAGS) -c -o $@ $<
+	$(FC) $(FCFLAGS) -I$(LDRDIR)/fortran -c -o $@ $<
 
 $(MODDIR)/%.o: $(MODDIR)/%.f90
 	$(FC) $(FCFLAGS) -c $(MODDIR)/global_types.f90
@@ -37,7 +37,7 @@ $(MODDIR)/%.o: $(MODDIR)/%.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 $(LDRDIR)/fortran/lammpsio.o: $(LDRDIR)/fortran/lammpsio.f90
-	$(FC) $(FCFLAGS) -c -o $@ $<
+	$(FC) $(FCFLAGS) -J$(LDRDIR)/fortran -c -o $@ $<
 
 .PHONY: clean
 
