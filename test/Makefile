@@ -20,7 +20,7 @@ PROGRAMS = $(BUILDDIR)/$(OUTPUT)
 MOD_SOURCES = $(wildcard $(MODDIR)/*.f90) $(LDRDIR)/fortran/lammpsio.f90
 
 # List of object files to be built from MOD_SOURCES
-MOD_OBJECTS = $(patsubst $(MODDIR)/%.f90,$(MODDIR)/%.o,$(MOD_SOURCES),$(LDRDIR)/fortran/lammpsio.o)
+MOD_OBJECTS = $(patsubst $(MODDIR)/%.f90,$(MODDIR)/%.o,$(wildcard $(MODDIR)/*.f90)) $(LDRDIR)/fortran/lammpsio.o
 
 # "make" builds all
 all: $(PROGRAMS)
