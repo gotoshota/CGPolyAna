@@ -32,8 +32,6 @@ $(TESTDIR)/test.o: $(TESTDIR)/test.f90
 	$(FC) $(FCFLAGS) -I$(LDRDIR)/fortran -c -o $@ $<
 
 $(MODDIR)/%.o: $(MODDIR)/%.f90
-	$(FC) $(FCFLAGS) -c $(MODDIR)/global_types.f90
-	$(FC) $(FCFLAGS) -c $(MODDIR)/string_utils.f90
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 $(LDRDIR)/fortran/lammpsio.o: $(LDRDIR)/fortran/lammpsio.f90
@@ -42,11 +40,11 @@ $(LDRDIR)/fortran/lammpsio.o: $(LDRDIR)/fortran/lammpsio.f90
 .PHONY: clean
 
 clean:
-	rm -f $(MODDIR)/*.o $(MODDIR)/*.mod $(TESTDIR)/*.o $(PROGRAMS)
+	rm -f $(MODDIR)/*.o $(MODDIR)/*.mod $(TESTDIR)/*.o $(PROGRAMS) $(LDRDIR)/fortran/*.o $(LDRDIR)/fortran/*.mod
 
 clean-all:
-	rm -f $(MODDIR)/*.o $(MODDIR)/*.mod $(TESTDIR)/*.o $(TESTDIR)/*.mod $(PROGRAMS)
+	rm -f $(MODDIR)/*.o $(MODDIR)/*.mod $(TESTDIR)/*.o $(TESTDIR)/*.mod $(PROGRAMS) $(LDRDIR)/fortran/*.o $(LDRDIR)/fortran/*.mod
 
 test:
-	@ echo $(MOD_SOURCES)
 	@ echo $(MOD_OBJECTS)
+
