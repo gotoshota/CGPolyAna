@@ -2,7 +2,8 @@
 簡単な解析プログラムとそのモジュール。
 粗視化高分子モデルの解析に使った。
 基本的には、LAMMPSのテキスト形式のトラジェクトリファイルを読み込んで解析するため、
-[LammpsDumpReader](git@github.com:gotoshota/LammpsDumpReader.git)も一緒に使うことを想定している。
+[LammpsDumpReader](git@github.com:gotoshota/LammpsDumpReader.git)に依存する。
+[自動生成したドキュメント](https://gotoshota.github.io/CGPolyAna/)も参照して欲しい.
 
 ## src
 ### gui.py
