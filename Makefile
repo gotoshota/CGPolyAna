@@ -17,8 +17,6 @@ modules:
 			$(MAKE) -C $$dir || exit 1; \
 		fi; \
 	done
-	@echo "モジュールファイルをコピーしています (lammpsio.mod)..."
-	@cp src/LammpsDumpReader/fortran/lammpsio.mod src/modules/ || true
 
 # 例のビルド
 .PHONY: examples
