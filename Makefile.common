@@ -44,7 +44,8 @@ $(TARGET).o: $(TARGET).f90
 $(MOD_OBJECTS):
 	@echo "モジュールをビルドしています..."
 	@$(MAKE) -C $(MODDIR)
-	@$(MAKE) -C $(LDRDIR)
+	@echo "コンパイル中: lammpsio.f90"
+	@$(FC) $(FCFLAGS) -J$(LDRDIR) -I$(MODDIR) -c -o $(LDRDIR)/lammpsio.o $(LDRDIR)/lammpsio.f90
 
 # クリーンアップ
 .PHONY: clean clean-all

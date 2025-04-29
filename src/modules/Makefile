@@ -12,7 +12,8 @@ SRCS = global_types.f90 \
        statistics.f90 \
        coord_convert.f90 \
        correlation_function.f90 \
-       io.f90
+       io.f90 \
+       ../LammpsDumpReader/fortran/lammpsio.f90
 
 # オブジェクトファイル
 OBJS = $(SRCS:.f90=.o)

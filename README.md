@@ -2,9 +2,29 @@
 簡単な解析プログラムとそのモジュール。
 粗視化高分子モデルの解析に使った。
 基本的には、LAMMPSのテキスト形式のトラジェクトリファイルを読み込んで解析するため、
-[LammpsDumpReader](git@github.com:gotoshota/LammpsDumpReader.git)も一緒に使うことを想定している。
+[LammpsDumpReader](git@github.com:gotoshota/LammpsDumpReader.git)に依存する。
+[自動生成したドキュメント](https://gotoshota.github.io/CGPolyAna/)も参照して欲しい.
 
 ## src
+### gui.py
+GUIで解析できる。
+```
+./gui.py
+```
+で起動する。
+tkinterを使っているので、対応したpython3が必要。
+macOSの場合、
+```
+brew install python-tk
+```
+でインストールできる。
+
+各種依存ライブラリは、
+```
+pip install -r requirements.txt
+```
+でインストールできる。
+
 ### cgpa.py
 解析プログラムを呼び出すインターフェース。
 ```

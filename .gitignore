@@ -38,3 +38,4 @@
 # mac 
 .DS_Store
 
+.aider*
