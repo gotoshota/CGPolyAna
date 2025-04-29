@@ -15,9 +15,10 @@ modules:
 	@for dir in $(MODULE_DIRS); do \
 		if [ -f $$dir/Makefile ]; then \
 			$(MAKE) -C $$dir || exit 1; \
-			$(FC) -c $$dir/*.f90; \
 		fi; \
 	done
+	@echo "モジュールファイルをコピーしています (lammpsio.mod)..."
+	@cp src/LammpsDumpReader/fortran/lammpsio.mod src/modules/ || true
 
 # 例のビルド
 .PHONY: examples
